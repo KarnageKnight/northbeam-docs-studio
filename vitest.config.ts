@@ -10,6 +10,17 @@ export default defineConfig({
           include: ['tests/unit/**/*.test.ts'],
         },
       },
+      {
+        test: {
+          name: 'integration',
+          environment: 'node',
+          include: ['tests/integration/**/*.test.ts'],
+          fileParallelism: false,
+          sequence: { concurrent: false },
+          testTimeout: 10000,
+          hookTimeout: 10000,
+        },
+      },
     ],
   },
 })

@@ -1,7 +1,8 @@
 # Data Model: Northbeam Docs Studio
 
 **Date**: 2026-11-07
-**Status**: Design for final review; no schema or migration has been implemented.
+**Status**: Phase 2 schema and two migrations implemented; database protections verified
+against PostgreSQL 18.6. Lifecycle/application rules below remain targets for feature phases.
 
 Authority: [spec.md](spec.md), [plan.md](plan.md) P006–P075, and approved
 [assumptions](assumptions.md). API projections are defined in [the HTTP contract](contracts/http-api.md).
@@ -130,5 +131,8 @@ one statement. Title/body/tags come from snapshots; publication date comes from 
 Default Read Committed statement snapshots and immutable content suffice for these reads;
 public reads do not take lifecycle write locks.
 
-Implementation verification must demonstrate constraints, atomicity, rollback, races,
-and persistence against PostgreSQL 18.6. No such execution has occurred during planning.
+Phase 2 verification proves schema defaults/nullability, unique/status/ownership/reference
+constraints, update-rejecting triggers, migration application/idempotence, and reset/journal
+isolation against PostgreSQL 18.6. Lifecycle atomicity, rollback, races, and complete
+application restart persistence remain requirements for their feature tasks. See
+[quickstart.md](quickstart.md) for the current evidence and platform limits.

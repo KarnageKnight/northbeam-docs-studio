@@ -1,10 +1,11 @@
 # Research: Northbeam Docs Studio
 
 **Date**: 2026-11-07
-**Status**: Research consolidated. The active Phase 1 dependency subset now passes
-build/typecheck/unit checks on macOS arm64; development PostgreSQL readiness/restart
-persistence was verified. Remaining packages, features, and Windows/Linux host execution
-remain unverified. Phase 1 awaits human approval; see [tasks.md](tasks.md).
+**Status**: Research consolidated. The active Phase 2 package subset passes build/typecheck,
+15 unit tests, and 32 PostgreSQL/HTTP foundation cases on macOS arm64 with Linux containers.
+Production Docker migrations/startup, restart idempotence, failure/interrupt cleanup, and
+overlap rejection were verified. Phase 1 is approved; Phase 2 awaits human approval.
+Lifecycle/UI features and Windows/Linux host execution remain future verification.
 
 The [plan](plan.md) records individual approvals P001–P077 and exact dependency pins.
 The [specification](spec.md) owns observable requirements; the [assumptions register](assumptions.md)
@@ -59,6 +60,15 @@ Evidence: [row locks](https://www.postgresql.org/docs/18/explicit-locking.html),
 [constraints](https://www.postgresql.org/docs/18/ddl-constraints.html),
 [triggers](https://www.postgresql.org/docs/18/sql-createtrigger.html), and
 [transaction timestamps](https://www.postgresql.org/docs/18/functions-datetime.html).
+
+### Phase 2 SQLSTATE evidence
+
+PostgreSQL 18.6 returned `23001` (`restrict_violation`) when deleting a referenced snapshot;
+wrong-owner references return `23503`, uniqueness `23505`, required values `23502`, and
+status CHECK rejection `23514`. The immutable-row trigger uses `55000`. Tests assert these
+observed outcomes. Future lifecycle operations still perform the approved business checks;
+constraint error handling must not assume all reference failures use the same SQLSTATE.
+See [PostgreSQL error codes](https://www.postgresql.org/docs/18/errcodes-appendix.html).
 
 ## API, validation, and errors
 
@@ -161,5 +171,5 @@ Evidence: [PostgreSQL image storage](https://github.com/docker-library/docs/blob
 The [quickstart](quickstart.md) defines expected procedures and evidence. There are no
 remaining architecture questions in this research. The user requested decomposition into
 [tasks.md](tasks.md); cross-artifact analysis and the human git
-checkpoint were verified before the user-authorized Phase 1 code. Phase 1 runtime evidence is recorded in
+checkpoint were verified before the user-authorized Phase 1 code. Current implementation evidence is recorded in
 [quickstart.md](quickstart.md); later implementation waits for human phase approval.

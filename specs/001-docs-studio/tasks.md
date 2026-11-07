@@ -1,8 +1,8 @@
 # Tasks: Northbeam Docs Studio
 
 **Feature**: `001-docs-studio` · **Created**: 2026-11-07
-**Status**: Phase 1 T001/T002 implemented and verified; Phase 1 awaits human approval.
-Phase 2 and all subsequent phases remain unstarted.
+**Status**: Phase 1 approved; Phase 2 T003–T005 implemented and verified, pending human approval.
+Phase 3 and later phases remain unstarted.
 **Input**: [specification](spec.md), [plan](plan.md), [research](research.md),
 [data model](data-model.md), [HTTP contract](contracts/http-api.md),
 [UI/service contract](contracts/ui-and-services.md), [quickstart](quickstart.md),
@@ -10,8 +10,8 @@ and [constitution](../../.specify/memory/constitution.md).
 
 The specification/plan/task checkpoint was verified against recorded repository objects
 before application code, without git commands; the files matched that checkpoint. Analysis
-findings were resolved and rechecked. The user authorized Phase 1 only. AI creates no
-commits; changes remain for human review. Check task boxes only after implementation
+findings were resolved and rechecked. The user approved Phase 1 and authorized Phase 2. Later phases require their own approval.
+AI creates no commits; changes remain for human review. Check task boxes only after implementation
 and required verification; phase approval is recorded separately.
 
 ## Execution and completion rules
@@ -78,7 +78,7 @@ restart, then was removed. Only the current scaffold/database are verified; no a
 migrations, lifecycle APIs, full app container, integration suite, or Windows/Linux host
 execution is claimed. The verification dev server was stopped; development PostgreSQL remains running.
 
-**Phase approval**: Pending human review. Demonstrate this phase, present verification results, and wait for explicit human approval before starting the next phase.
+**Phase approval**: Approved by the user on 2026-11-07. Phase 2 implementation authorized; later phases still require their own approval.
 
 ## Phase 2: Foundational persistence and test harness
 
@@ -91,9 +91,27 @@ live database. T004 builds the app image and applies/verifies them inside Compos
 automates those checks against isolated test PostgreSQL. Host migration access to the
 private Compose database is not required, and no host port or additional service is added.
 
-- [ ] T003 Implement the 19 approved columns, named constraints, and snapshot update-rejecting trigger in `server/db/schema.ts` and reviewed SQL/journal files under `drizzle/`; configure `drizzle.config.ts` for PostgreSQL, schema `server/db/schema.ts`, output `drizzle/`, and private DATABASE_URL, and add the reusable pool/client in `server/db/client.ts`. Preserve the model's exact rules: articles are "All columns are NOT NULL except the publication reference and publication date"; snapshots are "All columns are NOT NULL"; status is "`draft`; allowed values: draft, published, unpublished"; revision defaults to `0`, next_version_number to `1`, draft_body to "Empty string", draft_tags to "Empty array", publication fields to NULL, and all three audit defaults to `CURRENT_TIMESTAMP`. Use application UUIDv4 keys, UUID foreign keys, text content, text-array tags, integer counters, and timestamptz dates as mapped in `data-model.md`; snapshot content has no empty defaults. Enforce `UNIQUE(slug)`, `UNIQUE(article_id, version_number)`, supporting `UNIQUE(article_id, id)`, restrictive ownership/current-reference foreign keys, and "BEFORE UPDATE row trigger rejects every snapshot update, including audit fields". Generate and review SQL/migration metadata without connecting to PostgreSQL; schema/config loading for generation must not initialize the application pool or require a live DATABASE_URL connection. Complete this task with schema typechecking, migration-file review/generation, and the existing build/unit checks; do not claim database enforcement is verified yet. Keep the allowed-status database CHECK permitting only `draft`, `published`, and `unpublished` (P023); do not add cross-field publication-state CHECKs (P037), counter-range CHECKs (P042), or a UUID extension. First migration application and direct constraint/trigger checks occur in T004 after the app image exists; automate those assertions in T005.
-- [ ] T004 Complete production container startup in `Dockerfile`, `.dockerignore`, `compose.yaml`, and `.env.example`: use `node:24.22.2-bookworm-slim`, provision pinned pnpm with npm, copy `pnpm-workspace.yaml` with the manifest/lockfile for the required esbuild script approval, install the frozen lockfile, build production output, and retain Drizzle Kit/config/schema/migrations in the runtime target. Make app startup wait for healthy PostgreSQL, run `pnpm exec drizzle-kit migrate`, and serve Nuxt only after success; expose `127.0.0.1:3000:3000`. This is the first database application/verification of T003's migrations: start a fresh development validation project with `docker compose up --build`; the app container runs the installed CLI against `db:5432` on the Compose network. Verify named uniqueness/ownership/reference constraints and the snapshot update trigger directly using PostgreSQL tools inside the db container (`docker compose exec db psql` with the configured database/user), then automate those assertions in T005. Record the fresh validation project and preserve any existing development data/volumes. Verify startup needs no mandatory .env step, migration failure prevents serving, and restart reapplies no completed migrations; keep secrets/generated output out of the build context. Update the actual run instructions in `README.md` and the implementation status in `quickstart.md`.
-- [ ] T005 Establish automatic integration verification in `scripts/test-integration.mjs`, `vitest.config.ts`, `tests/integration/helpers.ts`, `tests/integration/database.test.ts`, `package.json`, `Dockerfile`, and `compose.yaml`. Use the test build target, profile services `test-db`/`test-runner`, fixed project `northbeam-docs-studio-test`, a fresh database/volume per run, and atomic overlap rejection before resource mutation. Set test DATABASE_URL before migration/server initialization, migrate with the installed CLI, start the built HTTP server and await readiness, and run files/cases sequentially. Reset `articles` and `article_versions` together without CASCADE, preserving the schema/journal; automate T003's uniqueness/ownership/reference/immutability assertions and an HTTP readiness smoke check. Verify independent test/app resources, a second run starts empty, overlap rejection leaves the active run untouched, and owned cleanup handles success/failure/interruption while preserving failure status. Add the real `test:integration` entry point and make `pnpm test` run both suites. Provide only the HTTP/SQL/process helpers used by these checks; document prerequisites and cleanup behavior in `README.md`.
+- [x] T003 Implement the 19 approved columns, named constraints, and snapshot update-rejecting trigger in `server/db/schema.ts` and reviewed SQL/journal files under `drizzle/`; configure `drizzle.config.ts` for PostgreSQL, schema `server/db/schema.ts`, output `drizzle/`, and private DATABASE_URL, and add the reusable pool/client in `server/db/client.ts`. Preserve the model's exact rules: articles are "All columns are NOT NULL except the publication reference and publication date"; snapshots are "All columns are NOT NULL"; status is "`draft`; allowed values: draft, published, unpublished"; revision defaults to `0`, next_version_number to `1`, draft_body to "Empty string", draft_tags to "Empty array", publication fields to NULL, and all three audit defaults to `CURRENT_TIMESTAMP`. Use application UUIDv4 keys, UUID foreign keys, text content, text-array tags, integer counters, and timestamptz dates as mapped in `data-model.md`; snapshot content has no empty defaults. Enforce `UNIQUE(slug)`, `UNIQUE(article_id, version_number)`, supporting `UNIQUE(article_id, id)`, restrictive ownership/current-reference foreign keys, and "BEFORE UPDATE row trigger rejects every snapshot update, including audit fields". Generate and review SQL/migration metadata without connecting to PostgreSQL; schema/config loading for generation must not initialize the application pool or require a live DATABASE_URL connection. Complete this task with schema typechecking, migration-file review/generation, and the existing build/unit checks; do not claim database enforcement is verified yet. Keep the allowed-status database CHECK permitting only `draft`, `published`, and `unpublished` (P023); do not add cross-field publication-state CHECKs (P037), counter-range CHECKs (P042), or a UUID extension. First migration application and direct constraint/trigger checks occur in T004 after the app image exists; automate those assertions in T005.
+- [x] T004 Complete production container startup in `Dockerfile`, `.dockerignore`, `compose.yaml`, and `.env.example`: use `node:24.22.2-bookworm-slim`, provision pinned pnpm with npm, copy `pnpm-workspace.yaml` with the manifest/lockfile for the required esbuild script approval, install the frozen lockfile, build production output, and retain Drizzle Kit/config/schema/migrations in the runtime target. Make app startup wait for healthy PostgreSQL, run `pnpm exec drizzle-kit migrate`, and serve Nuxt only after success; expose `127.0.0.1:3000:3000`. This is the first database application/verification of T003's migrations: start a fresh development validation project with `docker compose up --build`; the app container runs the installed CLI against `db:5432` on the Compose network. Verify named uniqueness/ownership/reference constraints and the snapshot update trigger directly using PostgreSQL tools inside the db container (`docker compose exec db psql` with the configured database/user), then automate those assertions in T005. Record the fresh validation project and preserve any existing development data/volumes. Verify startup needs no mandatory .env step, migration failure prevents serving, and restart reapplies no completed migrations; keep secrets/generated output out of the build context. Update the actual run instructions in `README.md` and the implementation status in `quickstart.md`.
+- [x] T005 Establish automatic integration verification in `scripts/test-integration.mjs`, `vitest.config.ts`, `tests/integration/helpers.ts`, `tests/integration/database.test.ts`, `package.json`, `Dockerfile`, and `compose.yaml`. Use the test build target, profile services `test-db`/`test-runner`, fixed project `northbeam-docs-studio-test`, a fresh database/volume per run, and atomic overlap rejection before resource mutation. Set test DATABASE_URL before migration/server initialization, migrate with the installed CLI, start the built HTTP server and await readiness, and run files/cases sequentially. Reset `articles` and `article_versions` together without CASCADE, preserving the schema/journal; automate T003's uniqueness/ownership/reference/immutability assertions and an HTTP readiness smoke check. Verify independent test/app resources, a second run starts empty, overlap rejection leaves the active run untouched, and owned cleanup handles success/failure/interruption while preserving failure status. Add the real `test:integration` entry point and make `pnpm test` run both suites. Provide only the HTTP/SQL/process helpers used by these checks; document prerequisites and cleanup behavior in `README.md`.
+
+**Verification (2026-11-07, macOS arm64 with Linux containers)**: T003 generated two
+versioned migrations without a live database, passed schema drift review/typecheck/build,
+and retained explicit types for the circular table relationship. T004's runtime image
+applied both migrations, served HTTP 200, retained two journal entries after app restart,
+and did not serve after a migration connection failure. Direct SQL verified uniqueness,
+status/ownership/reference protections, and snapshot update rejection; fixtures rolled back.
+Port 3000 was occupied, so only the isolated validation project used a temporary port-3300
+override; the committed default remains loopback 3000.
+
+`pnpm test` passes 15 unit and 32 real PostgreSQL/HTTP integration cases; typecheck and
+production build pass. Repeated runs begin empty and remove test containers/network/volume.
+A disposable source copy verified failing-suite exit 1 and cleanup, SIGTERM exit 143 and
+cleanup, and overlap rejection without changing the active owner/resources. Repository
+tests and normal application containers were untouched by these negative probes. Runtime
+excludes Vitest; unit tests remain database-free. The temporary validation project was
+removed after review checks; existing development PostgreSQL and the port-3000 process
+were preserved. Windows/Linux host runs, lifecycle APIs, and UI features remain future work.
 
 **Phase approval**: Pending human review. Demonstrate this phase, present verification results, and wait for explicit human approval before starting the next phase.
 
@@ -280,8 +298,8 @@ private Compose database is not required, and no host port or additional service
 Execute the phases above in order, with explicit human approval at every boundary.
 Task IDs are stable references rather than a numeric execution sequence. UI tasks moved
 into their owning story retain their original ID; newly split UI tasks are T036–T039.
-T001/T002 are marked complete with evidence above; Phase 1 approval remains pending.
-No later task or phase approval is implied by the implementation request.
+T001–T005 are complete with evidence above. Phase 1 was approved; Phase 2 approval is
+pending. No later task or phase approval is implied by the implementation request.
 
 ```text
 Setup T001–T002 → Foundation T003–T005 → UI design T035

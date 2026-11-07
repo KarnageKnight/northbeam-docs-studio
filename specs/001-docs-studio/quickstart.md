@@ -1,39 +1,43 @@
 # Quickstart and Verification Guide
 
 **Date**: 2026-11-07
-**Status**: Phase 1 scaffold, unit suite, and development PostgreSQL are implemented;
-human phase approval is pending. The complete application procedures below remain planned
-until their owning tasks. Docker app startup, migrations, lifecycle features, and integration
-tests are not implemented yet.
+**Status**: Phase 1 approved. Phase 2 persistence, Docker startup, and isolated integration
+verification are implemented and verified, pending human phase approval. Feature APIs and
+writer/public screens remain future work.
 
-## Current Phase 1 commands and evidence
+## Current commands and evidence
 
 With Node 24.22.2 and pnpm 12.18.0: `pnpm install --frozen-lockfile`, `pnpm dev`,
-`pnpm test`, `pnpm exec nuxt typecheck`, and `pnpm run build` are available. The shell at
-localhost:3000 has no database connection; `pnpm test` currently runs 15 database-free unit
-cases. The integration entry point arrives in T005 and the full-suite command will then
-run both suites. With Docker/Compose, `docker compose up -d --wait db` starts PostgreSQL.
-See [README.md](../../README.md) for the current prerequisites and optional configuration.
+`pnpm run test:unit`, `pnpm run test:integration`, `pnpm test`, `pnpm exec nuxt typecheck`,
+and `pnpm run build` are available. The full suite requires Docker/Compose and runs both
+15 database-free unit cases and 32 real PostgreSQL integration cases. Docker startup
+builds the production shell, applies migrations, and serves HTTP.
+See [README.md](../../README.md) for prerequisites, configuration, and cleanup procedures.
 
-Verified 2026-11-07 on macOS arm64: frozen install, unit tests, typecheck, production build,
-dev HTTP 200/server-rendered content, compiled Tailwind stylesheet, Compose validation,
-PostgreSQL 18.6 readiness/private networking/volume path, and probe persistence after DB
-restart. The probe was removed and dev server stopped; development PostgreSQL remains
-running. Windows/Linux host runs and complete application persistence are not yet verified.
+Verified 2026-11-07 on macOS arm64 with Linux containers: all 47 tests, typecheck, production
+build, schema generation without a live database, named constraints, snapshot update
+protection, migration idempotence, and migration-failure startup blocking. Repeated integration
+runs started empty and cleaned up. Disposable failure/interruption/overlap probes confirmed
+cleanup and rejection without changing the active run's resources.
+
+A separate validation project used host port 3300 because an existing process occupied 3000;
+its containers and volume were removed afterward. The existing process and development
+database were preserved. Windows/Linux host workflows and feature lifecycle behavior remain
+unverified. Only the shell is currently served; it does not list or edit articles.
 
 ## Reviewer startup
 
-Planned complete startup (T004; not available in Phase 1).
-
 Prerequisite: Docker Engine or Docker Desktop with a working Compose plugin and Linux
-containers. The same startup line is intended for Linux shells and Windows PowerShell:
+containers. Ensure host port 3000 is free. The same startup line applies to Linux shells and Windows PowerShell;
+these host workflows have not yet been exercised:
 
 ```sh
 docker compose up --build
 ```
 
-Open `http://localhost:3000`. The root lists published articles; writer pages begin at
-`/writer/articles`. No authentication setup or mandatory `.env` copy is required.
+Open `http://localhost:3000` for the current shell. Later feature phases add the public
+listing and writer pages at `/writer/articles`. No authentication setup or mandatory
+`.env` copy is required.
 
 Expected startup: build the runtime image, start PostgreSQL, wait for its TCP readiness,
 apply versioned migrations with `pnpm exec drizzle-kit migrate`, then start the production
@@ -41,7 +45,7 @@ Nuxt server. Migration failure exits without serving. No separate migration serv
 
 ## Local configuration and storage
 
-| Setting | Planned default |
+| Setting | Default |
 | --- | --- |
 | Normal Compose project | `northbeam-docs-studio` |
 | App host binding | `127.0.0.1:3000:3000` |
@@ -54,9 +58,10 @@ Nuxt server. Migration failure exits without serving. No separate migration serv
 | App volume | Project-scoped `postgres_data` at `/var/lib/postgresql` |
 
 The password above is a provided local default. Optional `.env` overrides are documented
-through `.env.example` during implementation; keep database credentials and DATABASE_URL
-consistent, URL-encoding reserved credential characters when supplying a URL. DATABASE_URL
-is server-only. Reviewer startup requires Docker, not host Node or pnpm.
+in `.env.example`. Compose derives the app connection from its database credentials;
+optional `APP_DATABASE_URL` overrides it and becomes the container's server-only
+`DATABASE_URL`. Host development uses `DATABASE_URL` directly; it does not override Compose.
+Keep URLs consistent with database credentials and URL-encode reserved credential characters. Reviewer startup requires Docker, not host Node or pnpm.
 
 PostgreSQL 18 stores data beneath `/var/lib/postgresql/18/docker`; mount the parent
 `/var/lib/postgresql` as documented by the [official image](https://github.com/docker-library/docs/blob/master/postgres/README.md).
@@ -65,14 +70,14 @@ network, and disposable volume; they never reset the application database.
 
 ## Local development without Docker
 
-The completed workflow will run the Nuxt UI and API directly on the host with hot reload.
-Phase 1 currently runs only the shell; migration commands below become available in Phase 2. It requires
+The Nuxt development server runs directly on the host with hot reload. The current shell
+and migration commands are available; feature APIs and screens come later. This workflow requires
 Node `24.22.2`, pnpm `12.18.0`, and a running PostgreSQL `18.6` instance reachable from
 the host. For a completely Docker-free setup, install PostgreSQL locally and create the
 development database/user first. These examples assume database/user `northbeam`, password
 `northbeam_local`, and PostgreSQL listening on loopback port 5432.
 
-After the manifest and lockfile exist, install dependencies:
+Install dependencies:
 
 ```sh
 pnpm install --frozen-lockfile
@@ -103,39 +108,39 @@ Start the local development server with the same command on either platform:
 pnpm dev
 ```
 
-The planned `dev` package script runs `nuxt dev --host 127.0.0.1 --port 3000`, serving
+The `dev` package script runs `nuxt dev --host 127.0.0.1 --port 3000`, serving
 both UI and API at `http://localhost:3000`. The connection URL uses the host database
 address; Compose's `db` hostname is internal to Docker. Stop any other app using port
 3000 before starting. Host development does not automatically provision PostgreSQL or
 apply migrations. It uses the same schema, services, and renderer as the Docker workflow.
 
-The `pnpm dev` command is implemented and verified for the shell; its database-backed
-behavior is still planned. Integration tests retain their
+The `pnpm dev` command is verified for the shell. Host development against a locally
+installed PostgreSQL instance has not been exercised. Integration tests use their
 isolated Docker/PostgreSQL workflow; Docker-free development does not change that requirement.
 
 Reference: [Nuxt development command](https://github.com/nuxt/cli/blob/main/docs/dev.md).
 
 ## Developer verification
 
-Additional prerequisites: Node `24.22.2` and pnpm `12.18.0`. The implemented checkout will
-contain the approved manifest and lockfile. Install its dependencies with:
+Additional prerequisites: Node `24.22.2`, pnpm `12.18.0`, and Docker/Compose for the full suite.
+The checkout contains the approved manifest and lockfile. Install dependencies with:
 
 ```sh
 pnpm install --frozen-lockfile
 ```
 
-| Command | Expected coverage |
+| Command | Current coverage |
 | --- | --- |
 | `pnpm dev` | Host Nuxt development server; configured PostgreSQL and applied migrations required |
-| `pnpm run test:unit` | Database-free validation, Markdown rendering, pure helpers |
+| `pnpm run test:unit` | 15 database-free title-validation cases; rendering/helpers added with their features |
 | `pnpm run test:integration` | Automatic isolated Compose database, migrations, built HTTP server, PostgreSQL assertions |
 | `pnpm test` | Both suites; nonzero result if either fails |
 | `pnpm exec nuxt typecheck` | Application/Vue typechecking with the approved toolchain |
 | `pnpm run build` | Production Nuxt build |
 
-The scaffold establishes the manifest, lockfile, passing build, and database-free suite.
-The current commands are listed above; `test:integration` remains unimplemented until T005.
-After scaffolding, task completion requires the production build and existing suite;
+All commands above are implemented. Integration checks currently cover database protections
+and production HTTP readiness; lifecycle coverage is added with each feature.
+Task completion requires the production build and existing suite;
 maintain required type checks and update affected documentation.
 
 ## Initial implementation bootstrap
@@ -148,8 +153,8 @@ and the immutable-snapshot trigger from inside the db container using
 validation project and preserve existing development volumes/data. T005 turns those checks
 into automated evidence against the separate disposable test database.
 
-This describes the planned implementation sequence, not commands already executed. Host
-Node/pnpm does not need direct access to the Compose-only database for this bootstrap;
+This sequence was completed in Phase 2 using a separate validation project. Host Node/pnpm
+does not need direct access to the Compose-only database for this bootstrap;
 Docker-free development uses the separate host database procedure above.
 
 ## Integration runner lifecycle
@@ -174,15 +179,19 @@ Its DATABASE_URL targets the dedicated test service/database, not host applicati
 The runner uses Docker's explicit project option for every resource operation. Avoid fixed
 global volume/container names that bypass project isolation. Keep coordination owned until
 cleanup ends. Handle stale-run diagnostics without treating an active run as disposable.
-Concrete code and platform behavior must be verified in the orchestration task.
+The runner and its failure paths were verified on macOS arm64 with Linux containers.
+See README for ownership diagnostics and stale-lock handling; Windows/Linux host runs remain unverified.
 
-Concurrency cases coordinate locks and observe distinct database connections before
+Future lifecycle concurrency cases must coordinate locks and observe distinct database connections before
 releasing contenders; a pair of promises alone is not proof of overlap. A temporary
 database failure can force publication rollback after snapshot insertion; remove temporary
 fixture DDL before later cases. The restart case stops/restarts the built application
 process with the same test database and verifies stored state through HTTP.
 
 ## Required automated evidence
+
+The table below is the target for subsequent feature phases. It does not claim those
+lifecycle/API behaviors are already implemented or tested. Current evidence is listed above.
 
 | Requirements | Scenarios / expected outcomes |
 | --- | --- |
@@ -204,6 +213,8 @@ Extend shared cases/fixtures where clear; do not duplicate lifecycle tests for p
 
 ## Acceptance coverage
 
+These are final acceptance targets; the feature walkthroughs and lifecycle checks remain pending.
+
 SC-001 is demonstrated by the writer walkthrough; SC-002 by public visibility/isolation
 checks; SC-003 by the lifecycle/rollback suite; SC-004 by coordinated revision races;
 SC-005 by fresh-start and restart checks on the recorded platforms; SC-006 by the final
@@ -211,6 +222,8 @@ README review. FR-012's writer controls, preview, and conflict feedback use manu
 verification alongside the tested HTTP operations.
 
 ## Manual walkthrough and platform record
+
+Run these flows as their feature phases become available, then repeat for final delivery.
 
 1. From a fresh implemented checkout, start with the reviewer command and create an article
    through the dedicated page. Enter content/tags, preview, explicitly save, then publish.
@@ -238,13 +251,13 @@ Implementation follows [tasks.md](tasks.md): build each feature's API and UI tog
 run its existing/new meaningful checks and browser walkthrough, then present the results
 for human phase approval. Do not wait until all APIs exist to exercise writer screens.
 The later integrated walkthrough repeats the combined experience; it does not defer
-feature-level feedback, conflict preservation, or verification. Phase 1 is implemented and awaits human approval;
-T001/T002 are checked and later tasks remain unchecked.
+feature-level feedback, conflict preservation, or verification. Phase 1 is approved; Phase 2
+is verified and awaits human approval. T001–T005 are checked; later tasks remain unchecked.
 
 ## Design handoff
 
 Review [plan.md](plan.md), [data-model.md](data-model.md), and [contracts](contracts/http-api.md).
 Analysis and the spec-first checkpoint were verified before the authorized Phase 1
-implementation. Review Phase 1 evidence in [tasks.md](tasks.md) and approve the phase
-before Phase 2. AI creates no commits. Only the Phase 1 results listed above are claimed;
-full application behavior and Windows/Linux host support remain unverified.
+implementation. Review Phase 2 evidence in [tasks.md](tasks.md) and approve the phase
+before Phase 3 UI design. AI creates no commits. Full application behavior and
+Windows/Linux host support remain unverified.
