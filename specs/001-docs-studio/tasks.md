@@ -1,8 +1,8 @@
 # Tasks: Northbeam Docs Studio
 
 **Feature**: `001-docs-studio` · **Created**: 2026-11-07
-**Status**: Phase 1 approved; Phase 2 T003–T005 implemented and verified, pending human approval.
-Phase 3 and later phases remain unstarted.
+**Status**: Phases 1–3 approved. T035 is complete with the Write/Preview tabbed design selected by the user.
+Phase 4 is ready; Phase 4 and later implementation have not started.
 **Input**: [specification](spec.md), [plan](plan.md), [research](research.md),
 [data model](data-model.md), [HTTP contract](contracts/http-api.md),
 [UI/service contract](contracts/ui-and-services.md), [quickstart](quickstart.md),
@@ -10,7 +10,8 @@ and [constitution](../../.specify/memory/constitution.md).
 
 The specification/plan/task checkpoint was verified against recorded repository objects
 before application code, without git commands; the files matched that checkpoint. Analysis
-findings were resolved and rechecked. The user approved Phase 1 and authorized Phase 2. Later phases require their own approval.
+findings were resolved and rechecked. The user approved Phases 1–2 and requested the next implementation, then approved
+Phase 3 design, subsequently updated at the user's request to Write/Preview tabs. Later phases retain their own review gates.
 AI creates no commits; changes remain for human review. Check task boxes only after implementation
 and required verification; phase approval is recorded separately.
 
@@ -113,7 +114,7 @@ excludes Vitest; unit tests remain database-free. The temporary validation proje
 removed after review checks; existing development PostgreSQL and the port-3000 process
 were preserved. Windows/Linux host runs, lifecycle APIs, and UI features remain future work.
 
-**Phase approval**: Pending human review. Demonstrate this phase, present verification results, and wait for explicit human approval before starting the next phase.
+**Phase approval**: Approved by the user on 2026-11-07 by requesting the next implementation after the Phase 2 review. Phase 3 design preparation authorized; later phases retain their own gates.
 
 ## Phase 3: US12 — UI design and approval (P1)
 
@@ -121,9 +122,57 @@ were preserved. Windows/Linux host runs, lifecycle APIs, and UI features remain 
 **Dependencies**: Foundation approved; approved spec and UI/service contract.
 **Independent test**: Review all five screen layouts and required feedback states in ui-design.md; explicitly approve design before T022 or any subsequent feature screen.
 
-- [ ] T035 [US12] Produce `specs/001-docs-studio/ui-design.md` with simple wireframes for writer listing, creation, editor/history/preview, public listing, and public article detail. Document basic typography, spacing, colors, responsive layout, and loading/empty/validation/success/error/conflict/protected-deletion states using the approved Tailwind approach. Map screens to the existing routes/components and preserve explicit save-before-publish, retained-reference protection, and unsaved-text conflict behavior. Keep design/review within a 30–60 minute target; propose visual choices for human selection without adding UI libraries, routes, features, or implementation code. Review against the specification and `contracts/ui-and-services.md`, present the wireframes and rationale, and stop for explicit human approval. Keep this task unchecked and do not start feature-screen work in T022, T013, T023–T026, or T036–T039 until the design is approved; later UI implementation must follow it or obtain approval for changes.
+- [x] T035 [US12] Produce `specs/001-docs-studio/ui-design.md` with simple wireframes and offline rendered mockups/screenshots in `specs/001-docs-studio/design-preview/` for writer listing, creation, editor/history/preview, public listing, and public article detail. Document basic typography, spacing, colors, responsive layout, and loading/empty/validation/success/error/conflict/protected-deletion states using the approved Tailwind approach. Map screens to the existing routes/components and preserve explicit save-before-publish, retained-reference protection, and unsaved-text conflict behavior. Keep design/review within a 30–60 minute target; propose visual choices for human selection without adding UI libraries, application routes/features, or application implementation code. The isolated mockup uses sample data only. Review against the specification and `contracts/ui-and-services.md`, present the wireframes and rationale, and stop for explicit human approval. Keep this task unchecked and do not start feature-screen work in T022, T013, T023–T026, or T036–T039 until the design is approved; later UI implementation must follow it or obtain approval for changes.
 
-**Phase approval**: Pending human review. Demonstrate this phase, present verification results, and wait for explicit human approval before starting the next phase.
+**Approved design**: [ui-design.md](ui-design.md) defines all five wireframes, shared styling,
+responsive behavior, and required feedback states. The user selected Write/Preview tabs in one full-width panel at all
+widths, with history below. Unused layouts and superseded screenshots have been removed. Tab changes preserve unsaved content and never save or publish. Approved routes/components and lifecycle rules are preserved. No application
+code, dependencies, or tests were added.
+
+**Draft verification (2026-11-07)**: Reviewed five screens and all required feedback
+states against FR-012 and the existing route/component/API projections. Local Markdown
+links/fences, stable task IDs, checklist state, and approval gates validated.
+`pnpm exec nuxt typecheck`, `pnpm run build`, and `pnpm test` passed (15 unit + 32
+PostgreSQL/HTTP cases); owned test resources were removed. These checks preserve the
+existing application baseline and do not claim browser/UI implementation or visual approval.
+
+**Rendered-preview follow-up**: At the user's request, added an offline HTML preview
+and screenshots for the approved tabbed design, all five screens, and mobile sizing. The toolbar
+exercises applicable loading/empty/validation/success/conflict/protection/error states.
+Headless Chrome verified the current 48 desktop/mobile screen-state combinations without
+JavaScript exceptions or horizontal page overflow, plus key review controls. These are visual
+prototype checks; application code and dependencies remain unchanged. Existing passing
+47-test/typecheck/build evidence is retained; no application lifecycle implementation is claimed.
+The subsequent user requests select Write/Preview tabs and a more polished
+Deloitte-inspired black/white/green palette. Only the approved tabbed layout and current
+screenshots are retained. Tab keyboard behavior and local edit preservation are verified
+with the rendered follow-up: 48 desktop/mobile screen-state checks pass without JavaScript
+exceptions or horizontal page overflow; keyboard and typed-content retention checks pass
+at 320px, 390px, and 1440px. The requested black/white/green restyle passes the same
+checks; primary, link, header, and muted-text colour pairs also pass 4.5:1 contrast checks.
+The user also requested a top-header Public / Writer switch, linking to the existing
+portal lists with current-portal highlighting on desktop/mobile. All 15 portal navigation
+scenarios pass across five screens at 320px, 390px, and 1440px, with 44px-high targets;
+the existing 48 screen-state and editor keyboard/text-retention checks also pass. The user clarified that public content is published articles on any topic. Public
+headings, navigation, empty states, sample content, and the shell tagline use article
+language. Current five-screen
+and mobile screenshots are linked from ui-design.md. The user requested removal of unused wireframes: 12 superseded screenshots and the
+legacy split/stacked layout controls/code were removed. All 9 current screenshots remain
+unchanged; document links and approved-preview behavior were verified. No application
+feature implementation is added.
+
+**Article-copy follow-up (2026-11-07)**: Public headings/back links/empty states and
+all current article examples use generic article language. The existing shell tagline
+now says “A home for your articles.” Updated the specification and affected design/plan
+notes; the product name is retained. Refreshed current screenshots and passed public-copy,
+48 screen-state, 15 portal-navigation, and editor keyboard/text-retention browser checks.
+`pnpm exec nuxt typecheck`, `pnpm run build`, and `pnpm test` pass (15 unit + 32
+PostgreSQL/HTTP cases), with isolated test resources cleaned up. No lifecycle API or
+feature-screen implementation was started.
+
+**Phase approval**: Final rendered Deloitte-inspired black/white/green design with
+Write/Preview tabs explicitly approved by the user on 2026-11-07 after reviewing the
+previews and verification results. T035 is complete; Phase 4 is next and has not started.
 
 ## Phase 4: US1 — Create and open a draft (P1)
 
@@ -145,7 +194,7 @@ were preserved. Windows/Linux host runs, lifecycle APIs, and UI features remain 
 
 - [ ] T008 [US2] First extend the existing validation and HTTP/SQL cases in `tests/unit/articles-validation.test.ts` and `tests/integration/articles.test.ts`, then add the complete-save schema in `server/validation/articles.ts`, `server/services/articles/withArticleTransaction.ts`, `server/services/articles/saveDraft.ts`, and `server/api/writer/articles/[articleId]/draft.put.ts`. Require title/body/tags and expectedRevision with no coercion/null defaults or slug updates; the token rule is "Nonnegative safe integer JSON number; no coercion". Begin Read Committed transaction, lock article FOR UPDATE, return 404 if missing, compare revision before mutation, then replace only draft fields and increment revision once/update updated_at with CURRENT_TIMESTAMP. Return WriterArticle after success; unchanged saves also advance revision. Verify 409 STALE_REVISION makes no changes, creation timestamp/slug/counter/publication/history survive saves, and transaction queries use the callback transaction rather than the shared pool.
 - [ ] T013 [US2] Add `shared/utils/markdown.ts` and `app/components/MarkdownContent.vue` for the editor preview, first creating meaningful cases in `tests/unit/markdown.test.ts`. Render standard Markdown, show raw HTML literally, and allow only HTTP/HTTPS/mailto/relative-path/#heading links; unsafe schemes never become clickable, including encoded/case variations. Preserve universal rendering and use this same renderer/component for the later public detail page in T039. Verify rendering through the preview in T023; do not build a public page or add a new library here.
-- [ ] T023 [US2] Extend the read-only editor into an editable feature with per-invocation state/actions in `app/composables/useArticleEditor.ts`, present the form in `app/components/ArticleEditorForm.vue`, and compose them in `app/pages/writer/articles/[articleId].vue`. Implement load/save for title/Markdown/tags, immutable displayed slug, and preview through `app/components/MarkdownContent.vue`; keep editable content separate from the saved baseline/revision. Implement visible save-conflict feedback and explicit reload/resubmit now; preserve local text on 409 and edits made while a response is in flight, with no silent retry/rebase. Manually verify title/body/tags, shared preview, dirty/loading/pending states, validation feedback, unchanged saves, restart/reopen, and a two-tab stale-save conflict. Reuse existing unit/HTTP cases if a discovered server defect needs a regression; add no Pinia or module-global editor singleton.
+- [ ] T023 [US2] Extend the read-only editor into an editable feature with per-invocation state/actions in `app/composables/useArticleEditor.ts`, present the form in `app/components/ArticleEditorForm.vue`, and compose them in `app/pages/writer/articles/[articleId].vue`. Implement load/save for title/Markdown/tags, immutable displayed slug, and Write/Preview tabs in one panel, rendering the current local Markdown through `app/components/MarkdownContent.vue` without saving; keep editable content separate from the saved baseline/revision. Implement visible save-conflict feedback and explicit reload/resubmit now; preserve local text on 409 and edits made while a response is in flight, with no silent retry/rebase. Manually verify title/body/tags, shared preview, dirty/loading/pending states, validation feedback, unchanged saves, restart/reopen, and a two-tab stale-save conflict. Reuse existing unit/HTTP cases if a discovered server defect needs a regression; add no Pinia or module-global editor singleton.
 
 **Phase approval**: Pending human review. Demonstrate this phase, present verification results, and wait for explicit human approval before starting the next phase.
 
@@ -298,8 +347,8 @@ were preserved. Windows/Linux host runs, lifecycle APIs, and UI features remain 
 Execute the phases above in order, with explicit human approval at every boundary.
 Task IDs are stable references rather than a numeric execution sequence. UI tasks moved
 into their owning story retain their original ID; newly split UI tasks are T036–T039.
-T001–T005 are complete with evidence above. Phase 1 was approved; Phase 2 approval is
-pending. No later task or phase approval is implied by the implementation request.
+T001–T005 and T035 are complete with evidence above; Phases 1–3 are approved.
+Phase 4 is ready to start; later phase approvals remain pending.
 
 ```text
 Setup T001–T002 → Foundation T003–T005 → UI design T035

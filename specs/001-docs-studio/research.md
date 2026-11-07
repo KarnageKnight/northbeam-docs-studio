@@ -4,8 +4,11 @@
 **Status**: Research consolidated. The active Phase 2 package subset passes build/typecheck,
 15 unit tests, and 32 PostgreSQL/HTTP foundation cases on macOS arm64 with Linux containers.
 Production Docker migrations/startup, restart idempotence, failure/interrupt cleanup, and
-overlap rejection were verified. Phase 1 is approved; Phase 2 awaits human approval.
+overlap rejection were verified. Phases 1–3 are approved; [tabbed UI design](ui-design.md) is selected.
 Lifecycle/UI features and Windows/Linux host execution remain future verification.
+
+Public content is writer-published articles on any topic. Generic article wording is a
+confirmed product clarification, with no change to lifecycle behavior or architecture.
 
 The [plan](plan.md) records individual approvals P001–P077 and exact dependency pins.
 The [specification](spec.md) owns observable requirements; the [assumptions register](assumptions.md)

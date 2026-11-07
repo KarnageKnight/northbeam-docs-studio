@@ -18,6 +18,9 @@ explicit human approval.
 
 ### In Scope
 
+Articles may cover any topic. The public portal presents articles published by writers;
+content is not restricted to documentation or technical subjects.
+
 One trusted internal writer, anonymous readers, the approved article lifecycle, version
 history, concurrency protection, an API, a minimal UI, Docker-based local execution,
 automated tests, and reviewer documentation.
@@ -340,7 +343,7 @@ requests based on the same starting state and verify at most one succeeds.
 
 As an anonymous reader, I can browse published articles without signing in.
 
-**Why this priority**: Readers need to discover available published documentation without
+**Why this priority**: Readers need to discover available published articles without
 being shown draft or unpublished content.
 
 **Independent Test**: Browse the public list with a mixture of published, draft-only, and
@@ -363,7 +366,7 @@ published.
 
 As an anonymous reader, I can view a published article without signing in.
 
-**Why this priority**: Readers need to read stable, published documentation without seeing
+**Why this priority**: Readers need to read stable, published articles without seeing
 unpublished draft changes.
 
 **Independent Test**: View a published article anonymously and verify its displayed title,

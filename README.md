@@ -1,5 +1,8 @@
 # Northbeam Docs Studio
 
+An article-publishing application for writing on any topic. Public readers see articles
+explicitly published by writers.
+
 Phase 2 provides the Nuxt/Vue/TypeScript shell, PostgreSQL schema and migrations,
 production Docker startup, and isolated integration testing. Article lifecycle APIs and
 writer/public feature screens are subsequent work in [tasks.md](specs/001-docs-studio/tasks.md).
@@ -146,3 +149,12 @@ keeping fixture reset and cleanup straightforward at the cost of overlapping/par
 Lifecycle tests, coordinated races, complete writer/public screens, and final platform
 verification will be added with their owning feature phases. See the [plan](specs/001-docs-studio/plan.md),
 [data model](specs/001-docs-studio/data-model.md), and [contracts](specs/001-docs-studio/contracts/http-api.md).
+
+The approved Phase 3 [UI design](specs/001-docs-studio/ui-design.md) contains five screen
+wireframes and a Deloitte-inspired black/white/green visual theme. The editor uses
+Write/Preview tabs in one panel at every width,
+with history below. A top-header Public / Writer switch links the two portals. Switching tabs preserves local edits without saving or publishing. Phases 1–3 are approved; feature-screen implementation is next.
+
+For visual review, open [the offline design preview](specs/001-docs-studio/design-preview/index.html)
+in a browser. It shows only the approved tabbed editor across all five screens, mobile sizing, and feedback
+states using sample content; it does not run application features or write data.
