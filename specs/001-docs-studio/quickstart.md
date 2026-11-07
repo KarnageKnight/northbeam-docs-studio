@@ -118,6 +118,20 @@ verification entry points. These commands are not currently runnable in this doc
 After scaffolding, task completion requires the production build and existing suite;
 maintain required type checks and update affected documentation.
 
+## Initial implementation bootstrap
+
+Before the app image exists, T003 generates/reviews the schema and SQL migration files
+without a live database connection. T004 then builds the app and uses its normal startup
+entry point to apply those migrations to private Compose PostgreSQL. Verify constraints
+and the immutable-snapshot trigger from inside the db container using
+`docker compose exec db psql` with the configured database/user. Use a fresh development
+validation project and preserve existing development volumes/data. T005 turns those checks
+into automated evidence against the separate disposable test database.
+
+This describes the planned implementation sequence, not commands already executed. Host
+Node/pnpm does not need direct access to the Compose-only database for this bootstrap;
+Docker-free development uses the separate host database procedure above.
+
 ## Integration runner lifecycle
 
 `scripts/test-integration.mjs` uses fixed project `northbeam-docs-studio-test`, with only

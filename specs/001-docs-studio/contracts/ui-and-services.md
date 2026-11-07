@@ -49,7 +49,10 @@ reactive editor state per composable invocation. Keep editable values separate f
 authoritative saved values; compute dirty state from the content difference.
 
 - Publish is unavailable while local content is dirty and never auto-saves.
-- Use the saved revision on each mutating request and refresh it from successful responses.
+- Send the saved revision as `expectedRevision` for Save, Publish, Unpublish, and Restore;
+  refresh it from successful WriterArticle responses. Snapshot deletion sends no caller
+  revision: the server locks the article and checks ownership/reference protection, and
+  successful deletion leaves the article revision unchanged.
 - On conflict preserve local text and show clear feedback. Do not automatically rebase or retry.
 - Do not blindly replace unsaved fields when a fetch/save response arrives; retain edits
   made after the request was issued. Serialize conflicting UI actions while pending.
