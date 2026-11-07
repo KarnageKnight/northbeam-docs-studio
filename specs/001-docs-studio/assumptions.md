@@ -144,10 +144,13 @@ consolidated [plan](plan.md), [research](research.md), [data model](data-model.m
 and [quickstart](quickstart.md) have been decomposed into [tasks.md](tasks.md) at the user's
 request. No further architectural defaults are open in this planning pass.
 
-Cross-artifact analysis, human task review, and the human specification/plan/task git
-checkpoint precede application implementation. Build, typecheck, tests, dependency installation, restart persistence, and
-platform compatibility remain unverified until implementation. PostgreSQL integration
-evidence remains required; mocks alone cannot replace it.
+Cross-artifact analysis and the recorded spec/plan/task checkpoint were verified before
+the user-authorized Phase 1 implementation. Node 24.22.2/pnpm 12.18.0 frozen install,
+production build, typecheck, 15 unit cases, development HTTP/Tailwind output, and Docker
+PostgreSQL 18.6 readiness/restart persistence passed on macOS arm64. Phase 1 awaits human
+approval. The full app container, migrations, lifecycle behavior, integration suite, and
+Windows/Linux host execution remain future work; PostgreSQL integration evidence is still
+required and mocks alone cannot replace it. See [quickstart.md](quickstart.md).
 
 The user selected feature-by-feature delivery: each feature phase combines its API, UI,
 feedback states, and checks, then waits for human approval. UI design precedes the first

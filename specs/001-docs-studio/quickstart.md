@@ -1,11 +1,29 @@
 # Quickstart and Verification Guide
 
 **Date**: 2026-11-07
-**Status**: Planned procedures for the completed implementation. Application files,
-package scripts, lockfile, Dockerfile, Compose services, and tests do not exist yet.
-Commands below have not been executed as application verification during planning.
+**Status**: Phase 1 scaffold, unit suite, and development PostgreSQL are implemented;
+human phase approval is pending. The complete application procedures below remain planned
+until their owning tasks. Docker app startup, migrations, lifecycle features, and integration
+tests are not implemented yet.
+
+## Current Phase 1 commands and evidence
+
+With Node 24.22.2 and pnpm 12.18.0: `pnpm install --frozen-lockfile`, `pnpm dev`,
+`pnpm test`, `pnpm exec nuxt typecheck`, and `pnpm run build` are available. The shell at
+localhost:3000 has no database connection; `pnpm test` currently runs 15 database-free unit
+cases. The integration entry point arrives in T005 and the full-suite command will then
+run both suites. With Docker/Compose, `docker compose up -d --wait db` starts PostgreSQL.
+See [README.md](../../README.md) for the current prerequisites and optional configuration.
+
+Verified 2026-11-07 on macOS arm64: frozen install, unit tests, typecheck, production build,
+dev HTTP 200/server-rendered content, compiled Tailwind stylesheet, Compose validation,
+PostgreSQL 18.6 readiness/private networking/volume path, and probe persistence after DB
+restart. The probe was removed and dev server stopped; development PostgreSQL remains
+running. Windows/Linux host runs and complete application persistence are not yet verified.
 
 ## Reviewer startup
+
+Planned complete startup (T004; not available in Phase 1).
 
 Prerequisite: Docker Engine or Docker Desktop with a working Compose plugin and Linux
 containers. The same startup line is intended for Linux shells and Windows PowerShell:
@@ -47,7 +65,8 @@ network, and disposable volume; they never reset the application database.
 
 ## Local development without Docker
 
-This workflow runs the Nuxt UI and API directly on the host with hot reload. It requires
+The completed workflow will run the Nuxt UI and API directly on the host with hot reload.
+Phase 1 currently runs only the shell; migration commands below become available in Phase 2. It requires
 Node `24.22.2`, pnpm `12.18.0`, and a running PostgreSQL `18.6` instance reachable from
 the host. For a completely Docker-free setup, install PostgreSQL locally and create the
 development database/user first. These examples assume database/user `northbeam`, password
@@ -90,7 +109,8 @@ address; Compose's `db` hostname is internal to Docker. Stop any other app using
 3000 before starting. Host development does not automatically provision PostgreSQL or
 apply migrations. It uses the same schema, services, and renderer as the Docker workflow.
 
-This command is planned, not implemented or executed yet. Integration tests retain their
+The `pnpm dev` command is implemented and verified for the shell; its database-backed
+behavior is still planned. Integration tests retain their
 isolated Docker/PostgreSQL workflow; Docker-free development does not change that requirement.
 
 Reference: [Nuxt development command](https://github.com/nuxt/cli/blob/main/docs/dev.md).
@@ -113,8 +133,8 @@ pnpm install --frozen-lockfile
 | `pnpm exec nuxt typecheck` | Application/Vue typechecking with the approved toolchain |
 | `pnpm run build` | Production Nuxt build |
 
-The scaffold task first establishes the manifest, lockfile, passing build, and runnable
-verification entry points. These commands are not currently runnable in this documentation-only state.
+The scaffold establishes the manifest, lockfile, passing build, and database-free suite.
+The current commands are listed above; `test:integration` remains unimplemented until T005.
 After scaffolding, task completion requires the production build and existing suite;
 maintain required type checks and update affected documentation.
 
@@ -218,14 +238,13 @@ Implementation follows [tasks.md](tasks.md): build each feature's API and UI tog
 run its existing/new meaningful checks and browser walkthrough, then present the results
 for human phase approval. Do not wait until all APIs exist to exercise writer screens.
 The later integrated walkthrough repeats the combined experience; it does not defer
-feature-level feedback, conflict preservation, or verification. All phases are currently
-pending review and all task boxes remain unchecked.
+feature-level feedback, conflict preservation, or verification. Phase 1 is implemented and awaits human approval;
+T001/T002 are checked and later tasks remain unchecked.
 
 ## Design handoff
 
 Review [plan.md](plan.md), [data-model.md](data-model.md), and [contracts](contracts/http-api.md).
-[tasks.md](tasks.md) is generated for review. Next run cross-artifact analysis, resolve
-material findings, and review the task list. The human records the required
-specification/plan/task git checkpoint before application implementation. AI
-creates no commits. No application build, test, restart, or Windows/Linux support result
-has been claimed by this planning guide.
+Analysis and the spec-first checkpoint were verified before the authorized Phase 1
+implementation. Review Phase 1 evidence in [tasks.md](tasks.md) and approve the phase
+before Phase 2. AI creates no commits. Only the Phase 1 results listed above are claimed;
+full application behavior and Windows/Linux host support remain unverified.

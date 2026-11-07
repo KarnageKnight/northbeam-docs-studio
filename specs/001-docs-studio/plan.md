@@ -2,12 +2,12 @@
 
 **Feature**: `001-docs-studio` | **Date**: 2026-11-07 | **Spec**: [spec.md](spec.md)
 
-**Status**: Research/design recorded; implementation tasks generated for human review.
-The feature identifier comes from Spec Kit's setup output; it does not verify the git branch.
-Individual architecture choices P001–P077 are approved. At the user's request, the design
-has been decomposed into [tasks.md](tasks.md). Cross-artifact analysis, human task review,
-and the human git checkpoint remain before application code.
-This plan does not authorize application implementation.
+**Status**: Phase 1 scaffold and development PostgreSQL implemented and verified;
+human phase approval pending. The user authorized Phase 1 only. The required spec/plan/task
+checkpoint was verified before code through read-only repository-object inspection, without
+git commands. Analysis findings were resolved and rechecked. Phase 2 onward is unstarted.
+The feature identifier is `001-docs-studio`; it does not establish a git branch name.
+Individual architecture decisions P001–P077 remain authoritative.
 
 ## Summary
 
@@ -111,11 +111,11 @@ execution evidence follows implementation.
 
 | Principle | Planning obligation | Current status |
 | --- | --- | --- |
-| I. Specification before implementation | Complete and review spec, plan, and tasks before code; human records git checkpoint. | Spec, design, and tasks available; analysis, human task review, and human checkpoint remain. No app code. |
+| I. Specification before implementation | Complete and review spec, plan, and tasks before code; human records git checkpoint. | Spec, design, tasks, and analysis recorded; the spec-first checkpoint was verified before the authorized Phase 1 implementation. Phase 1 review is pending. |
 | II. Draft and snapshot isolation | Public reads use live snapshots; immutable history and referenced-snapshot protection. | Data model and contracts specify table separation, immutable-row trigger, owned reference, and retained-reference deletion protection. |
 | III. Atomic lifecycle and concurrency | Transactional publication and revision checks; no partial state or stale overwrites. | Contracts specify article-first locking, revision-before-eligibility ordering, transactional allocation, rollback, and SQL constraints. |
-| IV. Database-backed evidence | Real PostgreSQL lifecycle/failure/race tests; passing build and suite once scaffolded. | Quickstart maps invariants to real HTTP/SQL evidence, independent connections, rollback and restart checks. App build/typecheck/tests unavailable until scaffolding. |
-| V. Small reviewable changes | Small scoped tasks, verification, explanation, human review, and no AI commits. | Implement one small task at a time; keep subsequent tasks separate unless explicitly requested together. Leave changes for human review and approval. No implementation has started. |
+| IV. Database-backed evidence | Real PostgreSQL lifecycle/failure/race tests; passing build and suite once scaffolded. | Quickstart maps invariants to real HTTP/SQL evidence, independent connections, rollback and restart checks. Phase 1 build/typecheck and 15 unit cases pass; the real PostgreSQL integration suite is not implemented until T005. |
+| V. Small reviewable changes | Small scoped tasks, verification, explanation, human review, and no AI commits. | Implement one small task at a time; keep subsequent tasks separate unless explicitly requested together. Leave changes for human review and approval. T001/T002 verified; Phase 1 human approval pending. |
 | VI. Human architecture decisions | Present alternatives and record each human selection before dependent work. | P001–P077 record selections and rationale; consolidated artifacts await final human review. |
 | VII. Consistent patterns | Establish approved patterns and reuse them across implementation tasks. | UI/service contract fixes shared validation, handlers/errors, transaction helper, data access, renderer, and local-state patterns. |
 
@@ -146,10 +146,11 @@ Generated design artifacts:
 - [data-model.md](data-model.md): fields, constraints, validation, and transitions.
 - [contracts/http-api.md](contracts/http-api.md): requests, responses, errors, and concurrency.
 - [contracts/ui-and-services.md](contracts/ui-and-services.md): UI and internal module responsibilities.
-- [quickstart.md](quickstart.md): planned setup and verification, without claiming execution.
+- [quickstart.md](quickstart.md): verified Phase 1 commands and planned full-app procedures.
 
 [tasks.md](tasks.md) contains 39 dependency-ordered tasks across all 14 stories, with
-verification and human review gates. No implementation task is marked complete.
+verification and human review gates. T001/T002 are verified and checked; Phase 1 approval
+is pending and later tasks remain unchecked.
 
 ### UI design review before page implementation
 
@@ -203,7 +204,8 @@ The full dependency and acceptance map lives in [tasks.md](tasks.md).
 
 ### Source Code (repository root)
 
-Planned layout, derived from the approved boundaries; these are not implemented files.
+Target layout, derived from the approved boundaries. The Phase 1 scaffold subset now
+exists; remaining modules are planned and are added only with their owning task.
 The contracts describe responsibilities, and helpers are added only when first used.
 
 ```text
@@ -246,6 +248,7 @@ nuxt.config.ts
 vitest.config.ts
 package.json
 pnpm-lock.yaml
+pnpm-workspace.yaml
 Dockerfile
 compose.yaml
 .env.example
@@ -2093,6 +2096,22 @@ PostgreSQL or apply migrations. Avoid running both app workflows on port 3000 si
 The prior Docker deployment and isolated integration-test workflows remain approved.
 Host development is an additional execution path, with actual platform/startup verification
 required during implementation. No package script or application code is created here.
+
+## Phase 1 implementation evidence
+
+On 2026-11-07, macOS arm64: the active Nuxt/Vue/Zod/Tailwind/Vitest/TypeScript subset
+was installed at its approved pins with Node 24.22.2 and pnpm 12.18.0. Only needed direct
+packages are installed; Drizzle/pg/markdown-it and their supporting types arrive with their
+first callers. `pnpm-workspace.yaml` permits the required esbuild installation script;
+future container installs must copy that configuration along with the manifest/lockfile.
+
+Frozen install, 15 unit tests, Nuxt typecheck, production build, development HTTP rendering,
+and compiled Tailwind CSS passed. Docker PostgreSQL 18.6 was healthy with private networking
+and the approved volume path. A disposable probe survived a restart and was removed.
+The host used temporary pinned Node/pnpm binaries; global Node/pnpm were not changed.
+The dev server was stopped after verification; the development database remains running.
+Windows/Linux host execution, lifecycle behavior, migrations, and the full test suite are
+still future verification. See [README.md](../../README.md) for current runnable commands.
 
 ## Complexity Tracking
 
