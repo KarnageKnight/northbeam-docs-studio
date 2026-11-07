@@ -2,8 +2,10 @@
 
 **Date**: 2026-11-07
 **Status**: Phase 2 schema and two migrations implemented; database protections verified
-against PostgreSQL 18.6. Phase 4 draft creation/read/default/normalization rules are implemented and verified;
-remaining lifecycle/application rules below are targets for later feature phases.
+against PostgreSQL 18.6. Draft creation/read/default/normalization and Phase 5 revision-checked
+saves are implemented and verified. Saves lock the article, replace draft fields, advance
+revision/update time, and preserve publication/history/slug/allocation state; rollback and
+stale/no-op behavior are tested. Remaining lifecycle rules are targets for later phases.
 
 Authority: [spec.md](spec.md), [plan.md](plan.md) P006–P075, and approved
 [assumptions](assumptions.md). API projections are defined in [the HTTP contract](contracts/http-api.md).

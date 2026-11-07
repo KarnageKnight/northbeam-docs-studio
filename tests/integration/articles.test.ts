@@ -149,3 +149,94 @@ describe('list and open saved drafts', () => {
     expect((await pool.query('SELECT * FROM article_versions')).rows).toEqual([])
   })
 })
+
+describe('save a complete draft', () => {
+  const draft = { title: '  Updated title  ', body: '  # Updated words\n', tags: [' Ideas ', 'ideas', 'life'] }
+  const save = (id: string, body: unknown) => fetch(`${writerUrl}/${id}/draft`, {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+  })
+
+  it('saves and reopens content after restart without creating history', async () => {
+    const article = await (await createDraft()).json()
+    const before = (await pool.query('SELECT * FROM articles')).rows[0]
+    const response = await save(article.id, { ...draft, expectedRevision: 0 })
+    expect(response.status).toBe(200)
+    const saved = await response.json()
+    expect(saved).toEqual({ ...article, revision: 1, draft: { ...draft, tags: ['ideas', 'life'] } })
+    const after = (await pool.query('SELECT * FROM articles')).rows[0]
+    expect(after).toMatchObject({ created_at: before.created_at, next_version_number: 1, slug: article.slug, status: 'draft', published_at: null, current_published_version_id: null })
+    expect(after.updated_at.getTime()).toBeGreaterThan(before.updated_at.getTime())
+    await restartApp()
+    expect(await (await fetch(`${writerUrl}/${article.id}`)).json()).toEqual(saved)
+    expect((await pool.query('SELECT * FROM article_versions')).rows).toEqual([])
+  })
+
+  it('advances unchanged saves and rejects stale saves without changing any data', async () => {
+    const article = await (await createDraft()).json()
+    const response = await save(article.id, { ...article.draft, expectedRevision: 0 })
+    expect(response.status).toBe(200)
+    expect((await response.json()).revision).toBe(1)
+    const before = (await pool.query('SELECT * FROM articles')).rows
+    const stale = await save(article.id, { ...draft, expectedRevision: 0 })
+    expect(stale.status).toBe(409)
+    expect((await stale.json()).data.code).toBe('STALE_REVISION')
+    expect((await pool.query('SELECT * FROM articles')).rows).toEqual(before)
+  })
+
+  it.each(['published', 'unpublished'])('keeps %s snapshot, reference, date, and counters unchanged', async (status) => {
+    const article = await (await createDraft()).json()
+    const version = randomUUID()
+    await pool.query('INSERT INTO article_versions (id,article_id,version_number,title,body,tags) VALUES ($1,$2,1,$3,$4,$5)', [version, article.id, 'Live title', 'Live body', ['live']])
+    await pool.query('UPDATE articles SET status=$1,current_published_version_id=$2,published_at=$3,next_version_number=2 WHERE id=$4', [status, version, new Date('2026-11-07T12:00:00Z'), article.id])
+    const snapshots = (await pool.query('SELECT * FROM article_versions')).rows
+    const response = await save(article.id, { ...draft, expectedRevision: 0 })
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({ ...article, revision: 1, status, currentPublishedVersionId: version, publishedAt: '2026-11-07T12:00:00.000Z', draft: { ...draft, tags: ['ideas', 'life'] } })
+    expect((await pool.query('SELECT * FROM article_versions')).rows).toEqual(snapshots)
+    expect((await pool.query('SELECT next_version_number FROM articles')).rows[0].next_version_number).toBe(2)
+  })
+
+  it.each([{}, { body: null }, { tags: null }, { title: ' ' }, { slug: 'changed' }, { expectedRevision: '0' }, { expectedRevision: -1 }, { expectedRevision: 0.1 }, { expectedRevision: Number.MAX_SAFE_INTEGER + 1 }])(
+    'rejects invalid saves with no mutation (case %#)', async (fields) => {
+      const article = await (await createDraft()).json()
+      const before = (await pool.query('SELECT * FROM articles')).rows
+      const body = Object.keys(fields).length ? { ...draft, expectedRevision: 0, ...fields } : {}
+      const response = await save(article.id, body)
+      expect(response.status).toBe(400)
+      expect((await response.json()).data.code).toBe('VALIDATION_ERROR')
+      expect((await pool.query('SELECT * FROM articles')).rows).toEqual(before)
+    },
+  )
+
+  it('validates parsing/IDs before lookup, distinguishes missing articles, and handles large safe stale revisions', async () => {
+    const article = await (await createDraft()).json()
+    for (const id of ['invalid', randomUUID()]) {
+      const response = await save(id, { ...draft, expectedRevision: 0 })
+      expect(response.status).toBe(id === 'invalid' ? 400 : 404)
+      expect((await response.json()).data.code).toBe(id === 'invalid' ? 'VALIDATION_ERROR' : 'ARTICLE_NOT_FOUND')
+    }
+    const missingInvalid = await save(randomUUID(), {})
+    expect(missingInvalid.status).toBe(400)
+    const malformed = await fetch(`${writerUrl}/${article.id}/draft`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: '{' })
+    expect(malformed.status).toBe(400)
+    expect((await malformed.json()).data.code).toBe('VALIDATION_ERROR')
+    const stale = await save(article.id, { ...draft, expectedRevision: Number.MAX_SAFE_INTEGER })
+    expect(stale.status).toBe(409)
+    expect((await stale.json()).data.code).toBe('STALE_REVISION')
+  })
+
+  it('rolls back a failed update and allows the next valid save', async () => {
+    const article = await (await createDraft()).json()
+    const before = (await pool.query('SELECT * FROM articles')).rows
+    await pool.query(`CREATE FUNCTION fail_test_save() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'private save detail'; END; $$;
+      CREATE TRIGGER fail_test_save BEFORE UPDATE ON articles FOR EACH ROW EXECUTE FUNCTION fail_test_save()`)
+    try {
+      const failed = await save(article.id, { ...draft, expectedRevision: 0 })
+      expect(failed.status).toBe(500)
+      expect(await failed.text()).not.toContain('private save detail')
+      expect((await pool.query('SELECT * FROM articles')).rows).toEqual(before)
+    }
+    finally { await pool.query('DROP TRIGGER fail_test_save ON articles; DROP FUNCTION fail_test_save()') }
+    expect((await save(article.id, { ...draft, expectedRevision: 0 })).status).toBe(200)
+  })
+})

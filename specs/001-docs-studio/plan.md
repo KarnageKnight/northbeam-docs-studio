@@ -2,9 +2,9 @@
 
 **Feature**: `001-docs-studio` | **Date**: 2026-11-07 | **Spec**: [spec.md](spec.md)
 
-**Status**: Phases 1–3 approved. The user selected the Write/Preview tabbed UI design in
-[ui-design.md](ui-design.md); T035 is complete. Phase 4 create/list/open drafts is
-implemented and verified, pending human approval; Phase 5 and later work have not started. The spec-first checkpoint was verified before
+**Status**: Phases 1–4 approved. The user selected the Write/Preview tabbed UI design in
+[ui-design.md](ui-design.md); T035 is complete. Phase 5 editing/preview/save is
+implemented and verified, pending human approval; Phase 6 and later work have not started. The spec-first checkpoint was verified before
 code without git commands. The feature identifier is `001-docs-studio`; it does not establish
 a git branch name. Individual architecture decisions P001–P077 remain authoritative.
 
@@ -117,8 +117,8 @@ execution evidence follows implementation.
 | I. Specification before implementation | Complete and review spec, plan, and tasks before code; human records git checkpoint. | Spec, design, tasks, and analysis recorded; the spec-first checkpoint was verified before the authorized Phase 1 implementation. Phases 1–3 approved; Write/Preview tabs selected. |
 | II. Draft and snapshot isolation | Public reads use live snapshots; immutable history and referenced-snapshot protection. | Data model and contracts specify table separation, immutable-row trigger, owned reference, and retained-reference deletion protection. |
 | III. Atomic lifecycle and concurrency | Transactional publication and revision checks; no partial state or stale overwrites. | Contracts specify article-first locking, revision-before-eligibility ordering, transactional allocation, rollback, and SQL constraints. |
-| IV. Database-backed evidence | Real PostgreSQL lifecycle/failure/race tests; passing build and suite once scaffolded. | Quickstart maps invariants to real HTTP/SQL evidence, independent connections, rollback and restart checks. Build/typecheck, 48 unit cases, and 60 real PostgreSQL/HTTP cases pass, including draft create/read/restart. Lifecycle/race evidence follows its feature tasks. |
-| V. Small reviewable changes | Small scoped tasks, verification, explanation, human review, and no AI commits. | Implement one small task at a time; keep subsequent tasks separate unless explicitly requested together. Leave changes for human review and approval. T001–T007/T022 verified; T035 approved; Phases 1–3 approved and Phase 4 review pending. |
+| IV. Database-backed evidence | Real PostgreSQL lifecycle/failure/race tests; passing build and suite once scaffolded. | Quickstart maps invariants to real HTTP/SQL evidence, independent connections, rollback and restart checks. Build/typecheck, 97 unit cases, and 75 real PostgreSQL/HTTP cases pass, including create/read/save/restart and safe rendering. Lifecycle/race evidence follows its feature tasks. |
+| V. Small reviewable changes | Small scoped tasks, verification, explanation, human review, and no AI commits. | Implement one small task at a time; keep subsequent tasks separate unless explicitly requested together. Leave changes for human review and approval. T001–T008/T013/T022–T023 verified; T035 approved; Phases 1–4 approved and Phase 5 review pending. |
 | VI. Human architecture decisions | Present alternatives and record each human selection before dependent work. | P001–P077 record selections and rationale; consolidated artifacts await final human review. |
 | VII. Consistent patterns | Establish approved patterns and reuse them across implementation tasks. | UI/service contract fixes shared validation, handlers/errors, transaction helper, data access, renderer, and local-state patterns. |
 
@@ -152,8 +152,8 @@ Generated design artifacts:
 - [quickstart.md](quickstart.md): verified foundation commands and future feature acceptance procedures.
 
 [tasks.md](tasks.md) contains 39 dependency-ordered tasks across all 14 stories, with
-verification and human review gates. T001–T007, T022, and T035 are verified and checked; Phases 1–3 are approved.
-Phase 4 is pending approval; Phase 5 and later tasks have not started.
+verification and human review gates. T001–T008, T013, T022–T023, and T035 are verified
+and checked (12 tasks); Phases 1–4 are approved. Phase 5 is pending approval; later tasks have not started.
 
 ### UI design review before page implementation
 
@@ -162,8 +162,8 @@ The user approved adding a separate UI design task. T035 is approved in
 guidance, responsive behavior, and required interaction/feedback states. The user selected Write/Preview tabs on 2026-11-07
 in one full-width panel at all screen widths, with history below. Switching tabs preserves
 local edits, dirty state, saved revision, and feedback; it never saves or publishes.
-Shared visual guidance and lifecycle behavior remain selected. Phase 4 writer create/list/read-only detail screens are implemented; editing/preview
-and later lifecycle/public screens remain future work. Routes, component boundaries, and lifecycle rules remain those
+Shared visual guidance and lifecycle behavior remain selected. Writer create/list/open
+and Phase 5 editing/preview/save are implemented; later lifecycle/public screens remain future work. Routes, component boundaries, and lifecycle rules remain those
 in the existing contracts. Target 30–60 minutes for design and review within the agreed overall budget.
 
 Execute T035 immediately after the foundation (Phase 3), and obtain explicit human
@@ -2128,7 +2128,7 @@ required during implementation. No package script or application code is created
 
 On 2026-11-07, macOS arm64 with Linux containers: Node 24.22.2/pnpm 12.18.0, the active
 Nuxt/Vue/Zod/Tailwind/Vitest/TypeScript packages, and the approved stable Drizzle/pg packages
-pass build/typecheck and frozen installation. markdown-it remains deferred until T013.
+pass build/typecheck and frozen installation. T013 adds the approved markdown-it 15.0.3 pin.
 `pnpm-workspace.yaml` permits esbuild scripts and is copied for container installs.
 
 The 19-column schema, named constraints, and immutable-row trigger have versioned SQL and
@@ -2147,7 +2147,7 @@ resources were preserved. The temporary validation project was removed after che
 Port 3000 was already occupied; the validation app used a temporary loopback-3300 override.
 The committed default is loopback 3000. Windows/Linux host execution, lifecycle operations,
 concurrency races, and later feature UI remain unverified/unimplemented. Phases 1–3 are approved;
-Write/Preview tabs are the selected UI design; Phase 4 is implemented and awaits review. See [README.md](../../README.md) for current commands.
+Write/Preview tabs are the selected UI design; Phases 1–4 are approved and Phase 5 awaits review. See [README.md](../../README.md) for current commands.
 
 ## Entry chooser requested during Phase 4 review
 
@@ -2191,11 +2191,33 @@ the root Articles placeholder replaces the former workspace landing action.
 TypeScript checks, and production build pass. Real Chrome checks at loopback 3300 cover
 create/list/open/reload, invalid fields, collisions, missing drafts, failed submissions,
 and mobile widths with no runtime exceptions/hydration warnings. macOS arm64 with Linux
-containers is verified; Windows/Linux host execution remains unverified. Phase 4 approval
-is pending and Phase 5 has not started.
+containers is verified; Windows/Linux host execution remains unverified. Phase 4 was
+subsequently approved by the user when requesting Phase 5.
 
 ## Complexity Tracking
 
 No constitutional exceptions proposed. The post-design gates above have been reviewed.
 Task generation is complete; cross-artifact analysis, reviewed tasks, and the human git
 checkpoint precede application implementation.
+
+
+## Phase 5 implementation evidence
+
+T008/T013/T023 implement complete-draft saves, shared safe Markdown, and the editable
+writer screen using the approved boundaries. Save uses a Read Committed transaction,
+article-row lock, expected-revision check, and callback-bound update; unchanged saves
+advance revision and stale saves leave stored state unchanged. Published fixtures confirm
+saves preserve snapshots, publication metadata, slug, and allocation counter.
+
+The shared markdown-it renderer escapes HTML and permits HTTP/HTTPS/mailto/relative links
+and headings while rejecting unsafe and scheme-relative links, including encoded schemes.
+MarkdownContent imports through Nuxt's `#shared` alias for universal builds. Editor state
+is per invocation; explicit saves update the baseline without replacing newer local edits.
+Dirty reload requires confirmation; no autosave, rebase, or newer-token retry is introduced.
+
+97 unit and 75 PostgreSQL/HTTP tests pass, alongside Nuxt typecheck, explicit changed-test
+typecheck, and production build. A fresh production Docker app and real Chrome walkthrough
+verified two-tab stale-save feedback, reload/cancel/resubmit, delayed-response retention,
+network failure, safe preview, keyboard tabs, and mobile layouts without runtime/hydration
+errors. Disposable validation resources were removed; development PostgreSQL was preserved.
+Phase 5 awaits human review. Publishing and public lists remain in Phases 6 and 7.

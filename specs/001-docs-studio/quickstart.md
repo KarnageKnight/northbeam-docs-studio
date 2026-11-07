@@ -1,16 +1,15 @@
 # Quickstart and Verification Guide
 
 **Date**: 2026-11-07
-**Status**: Phases 1–3 approved. Phase 4 draft creation, writer list/detail API, and
-read-only writer pages are implemented and verified, pending human phase approval.
-Phase 5 editing/preview and later lifecycle/public features have not started.
+**Status**: Phases 1–4 approved. Phase 5 editing/preview/save is implemented and verified,
+pending human phase approval. Publishing/history and public article features have not started.
 
 ## Current commands and evidence
 
 With Node 24.22.2 and pnpm 12.18.0: `pnpm install --frozen-lockfile`, `pnpm dev`,
 `pnpm run test:unit`, `pnpm run test:integration`, `pnpm test`, `pnpm exec nuxt typecheck`,
-and `pnpm run build` are available. Full verification passes 48 database-free unit cases
-and 60 real PostgreSQL/HTTP integration cases, plus typecheck and production build.
+and `pnpm run build` are available. Full verification passes 97 database-free unit cases
+and 75 real PostgreSQL/HTTP integration cases, plus typecheck and production build.
 Docker startup builds the application, applies migrations, and serves the writer feature.
 See [README.md](../../README.md) for prerequisites, configuration, and cleanup procedures.
 
@@ -68,7 +67,7 @@ network, and disposable volume; they never reset the application database.
 
 ## Local development without Docker
 
-The Nuxt development server runs directly on the host with hot reload. The writer create/list/read-only detail feature
+The Nuxt development server runs directly on the host with hot reload. The writer create/list/edit/preview/save feature
 and migration commands are available; editing/publication/public reading come later. This workflow requires
 Node `24.22.2`, pnpm `12.18.0`, and a running PostgreSQL `18.6` instance reachable from
 the host. For a completely Docker-free setup, install PostgreSQL locally and create the
@@ -130,7 +129,7 @@ pnpm install --frozen-lockfile
 | Command | Current coverage |
 | --- | --- |
 | `pnpm dev` | Host Nuxt development server; configured PostgreSQL and applied migrations required |
-| `pnpm run test:unit` | 48 database-free title/creation validation cases; rendering/helpers added with their features |
+| `pnpm run test:unit` | 97 database-free title/create/save validation and safe Markdown cases |
 | `pnpm run test:integration` | Automatic isolated Compose database, migrations, built HTTP server, PostgreSQL assertions |
 | `pnpm test` | Both suites; nonzero result if either fails |
 | `pnpm exec nuxt typecheck` | Application/Vue typechecking with the approved toolchain |
@@ -212,12 +211,20 @@ Extend shared cases/fixtures where clear; do not duplicate lifecycle tests for p
 
 ## Current writer walkthrough
 
-Open `/writer/articles`, create a draft with title/slug, inspect its read-only saved detail,
-return to the list, reopen, and reload. Try blank title/invalid slug, then a normalized slug
+Open `/writer/articles`, create a draft with title/slug, edit title/body/tags, preview
+unsaved Markdown, save, return to the list, reopen, and reload. Try blank title/invalid slug, then a normalized slug
 collision; entered values remain available after errors. Body/tags start empty in the form.
 The API also accepts validated body/tags at creation. Public dismisses the entry popup to an Articles placeholder; the public list remains
 pending in Phase 7. Fresh root visits show the chooser; direct writer links and client
-portal switching do not reopen it. Editing/preview/publication/history actions are not yet shown.
+portal switching do not reopen it. Editing/preview/save are available; publication/history
+actions arrive in their owning phases. Preview escapes raw HTML and rejects unsafe links.
+
+For conflict review, open the same article in two tabs, save one, then save the older tab.
+Its text remains available. Reload saved article offers confirmation/cancel for dirty text;
+confirmed reload refreshes the saved revision for explicit resubmission. Unchanged saves
+also advance revision. Real Chrome checks verified these flows, field errors, network
+failure, separate article state, keyboard tabs, and newer edits surviving a delayed save
+response at 320/390/1440px, without runtime exceptions or hydration warnings.
 
 ## Acceptance coverage
 
@@ -259,13 +266,14 @@ Implementation follows [tasks.md](tasks.md): build each feature's API and UI tog
 run its existing/new meaningful checks and browser walkthrough, then present the results
 for human phase approval. Do not wait until all APIs exist to exercise writer screens.
 The later integrated walkthrough repeats the combined experience; it does not defer
-feature-level feedback, conflict preservation, or verification. Phases 1–3 are approved.
-T001–T007, T022, and T035 are checked; Phase 4 approval is pending and later tasks remain unchecked.
+feature-level feedback, conflict preservation, or verification. Phases 1–4 are approved.
+T001–T008, T013, T022–T023, and T035 are checked (12 tasks); Phase 5 approval is pending.
+Later tasks remain unchecked.
 
 ## Design handoff
 
 Review [plan.md](plan.md), [data-model.md](data-model.md), and [contracts](contracts/http-api.md).
 Analysis and the spec-first checkpoint were verified before the authorized Phase 1
-implementation. Phase 3 [tabbed design](ui-design.md) is approved; review the implemented Phase 4
-create/list/open feature before starting Phase 5 editing/preview. AI creates no commits. Full application behavior and
+implementation. The [tabbed design](ui-design.md) and Phase 4 create/list/open are approved;
+review Phase 5 editing/preview/save before starting Phase 6 publishing. AI creates no commits. Full application behavior and
 Windows/Linux host support remain unverified.

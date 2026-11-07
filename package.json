@@ -18,6 +18,7 @@
   "dependencies": {
     "drizzle-kit": "0.31.11",
     "drizzle-orm": "0.45.4",
+    "markdown-it": "15.0.3",
     "nuxt": "4.6.4",
     "pg": "8.23.1",
     "vue": "3.5.45",

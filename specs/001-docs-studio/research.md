@@ -1,11 +1,12 @@
 # Research: Northbeam Docs Studio
 
 **Date**: 2026-11-07
-**Status**: Research consolidated. The Phase 4 application passes build/typecheck,
-48 unit tests, and 60 PostgreSQL/HTTP cases on macOS arm64 with Linux containers.
+**Status**: Research consolidated. The Phase 5 application passes build/typecheck,
+97 unit tests, and 75 PostgreSQL/HTTP cases on macOS arm64 with Linux containers.
 Production Docker migrations/startup, restart idempotence, failure/interrupt cleanup, and
-overlap rejection were verified. Phases 1–3 are approved; [tabbed UI design](ui-design.md) is selected.
-Phase 4 writer create/list/open and restart persistence are verified; later lifecycle/UI
+overlap rejection were verified. Phases 1–4 are approved; [tabbed UI design](ui-design.md) is selected.
+Writer create/list/open, draft saving/restart persistence, safe Markdown preview, and
+two-tab conflict/reload behavior are verified. Phase 5 awaits human review; later lifecycle/UI
 features and Windows/Linux host execution remain future verification.
 
 Public content is writer-published articles on any topic. Generic article wording is a
@@ -177,3 +178,19 @@ remaining architecture questions in this research. The user requested decomposit
 [tasks.md](tasks.md); cross-artifact analysis and the human git
 checkpoint were verified before the user-authorized Phase 1 code. Current implementation evidence is recorded in
 [quickstart.md](quickstart.md); later implementation waits for human phase approval.
+
+
+## Phase 5 renderer and editor verification
+
+The approved markdown-it 15.0.3 dependency is installed with bundled TypeScript types.
+The shared renderer disables embedded HTML, linkification, and typographer transforms.
+Its link validator allows HTTP/HTTPS/mailto and relative paths/headings, rejects unsafe
+or scheme-relative URLs, and checks percent-decoded schemes. HTML is rendered literally.
+The [markdown-it API documentation](https://markdown-it.github.io/markdown-it/) describes
+renderer options and link validation. Unit cases verify the application policy rather
+than relying on the library defaults alone.
+
+The editor uses the shared component through Nuxt's `#shared` alias. Browser checks against
+a production Docker app verify unsaved preview, two-tab conflicts, explicit confirmed
+reload/cancel/resubmit, and newer local text surviving a paused save response. No renderer,
+state-management, or browser-testing framework beyond the approved choices was introduced.
