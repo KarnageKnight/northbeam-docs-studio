@@ -16,3 +16,10 @@ export interface WriterSummary {
   title: string
   status: ArticleStatus
 }
+
+export interface PublicSummary {
+  slug: string
+  title: string
+  tags: string[]
+  publishedAt: string
+}

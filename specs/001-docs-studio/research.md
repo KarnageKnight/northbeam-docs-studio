@@ -1,13 +1,13 @@
 # Research: Northbeam Docs Studio
 
 **Date**: 2026-11-07
-**Status**: Research consolidated. The Phase 6 application passes build/typecheck,
-98 unit tests, and 93 PostgreSQL/HTTP cases on macOS arm64 with Linux containers.
+**Status**: Research consolidated. The Phase 7 application passes build/typecheck,
+98 unit tests, and 96 PostgreSQL/HTTP cases on macOS arm64 with Linux containers.
 Production Docker migrations/startup, restart idempotence, failure/interrupt cleanup, and
-overlap rejection were verified. Phases 1–5 are approved; [tabbed UI design](ui-design.md) is selected.
+overlap rejection were verified. Phases 1–6 are approved; [tabbed UI design](ui-design.md) is selected.
 Writer create/list/open, draft saving/restart persistence, safe Markdown preview, and
 two-tab save conflict/reload behavior are verified. Publish API atomicity and rollback/crash
-recovery and the writer Publish UI are verified. Phase 6 awaits human review. Later lifecycle/UI
+recovery and the writer Publish UI are verified. Phase 7 public API/SSR/browser checks pass; human phase approval is pending. Later lifecycle/UI
 features and Windows/Linux host execution remain future verification.
 
 Public content is writer-published articles on any topic. Generic article wording is a
@@ -210,3 +210,15 @@ Browser checks on the production Docker build also verify stale-publish feedback
 reload/cancel/resubmit, newer edits surviving a delayed publish response, and a subsequent
 save using its returned revision. SQL confirms saves leave the live snapshot unchanged.
 No architecture/pattern/dependency change was needed.
+
+
+## Phase 7 public list evidence
+
+The public list uses one Read Committed statement joining the published article to its
+owned current immutable snapshot. Its narrow four-field projection follows the existing
+summary-query pattern and prevents body/draft/internal fields from entering the response.
+Existing tests now prove empty/live-only responses, private-content exclusion, save/live
+isolation, republish/date retention, safe server-rendered text/links, unchanged audits,
+and restart persistence. Browser checks verify the approved list and fetch feedback at
+mobile/desktop widths. Detail destinations remain in Phase 8; no additional architectural
+choice or dependency was needed.

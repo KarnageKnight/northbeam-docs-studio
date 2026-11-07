@@ -427,3 +427,63 @@ describe('publish saved content', () => {
     expect((await pool.query('SELECT version_number FROM article_versions WHERE article_id=$1', [other.id])).rows).toEqual([{ version_number: 1 }])
   })
 })
+
+
+describe('public article list', () => {
+  const publicUrl = `${appUrl}/api/public/articles`
+  const publish = (id: string, expectedRevision = 0) => fetch(`${writerUrl}/${id}/publish`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ expectedRevision }),
+  })
+
+  it('returns an anonymous empty array and renders an understandable empty state', async () => {
+    const response = await fetch(publicUrl)
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual([])
+    const page = await fetch(appUrl)
+    expect(page.status).toBe(200)
+    expect(await page.text()).toContain('No published articles yet')
+  })
+
+  it('returns only live summaries, renders safe title/tags/date/links, and leaves stored state unchanged', async () => {
+    const article = await (await createDraft({ title: 'Live title <strong>literal</strong>', slug: 'live-article', body: 'Never expose body in summaries', tags: ['live'] })).json()
+    const published = await (await publish(article.id)).json()
+    await createDraft({ title: 'Draft-only secret marker', slug: 'draft-secret', body: 'Private draft' })
+    const hidden = await (await createDraft({ title: 'Unpublished secret marker', slug: 'hidden-secret', body: 'Formerly live' })).json()
+    await publish(hidden.id)
+    await pool.query("UPDATE articles SET status='unpublished' WHERE id=$1", [hidden.id])
+    await fetch(`${writerUrl}/${article.id}/draft`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: 'Private saved title marker', body: 'Private saved body marker', tags: ['private-secret'], expectedRevision: 1 }) })
+    const before = (await pool.query('SELECT * FROM articles ORDER BY id')).rows
+    const versions = (await pool.query('SELECT * FROM article_versions ORDER BY id')).rows
+    const response = await fetch(publicUrl)
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual([{ slug: article.slug, title: article.draft.title, tags: ['live'], publishedAt: published.publishedAt }])
+    const html = await (await fetch(appUrl)).text()
+    expect(html).toContain('Live title &lt;strong&gt;literal&lt;/strong&gt;')
+    expect(html).toContain('href="/articles/live-article"')
+    expect(html).toContain(`datetime="${published.publishedAt}"`)
+    expect(html).toContain('live')
+    expect(html).not.toMatch(/Draft-only secret marker|Unpublished secret marker|Private saved title marker|Private saved body marker|private-secret|Never expose body in summaries/)
+    expect((await pool.query('SELECT * FROM articles ORDER BY id')).rows).toEqual(before)
+    expect((await pool.query('SELECT * FROM article_versions ORDER BY id')).rows).toEqual(versions)
+  })
+
+  it('keeps a saved draft isolated until republish, retaining the original date and surviving restart', async () => {
+    const article = await (await createDraft({ ...input, body: 'First body', tags: ['original'] })).json()
+    const first = await (await publish(article.id)).json()
+    const original = [{ slug: article.slug, title: article.draft.title, tags: ['original'], publishedAt: first.publishedAt }]
+    expect(await (await fetch(publicUrl)).json()).toEqual(original)
+    const draft = { title: 'New live title', body: 'New body', tags: ['updated'] }
+    const saved = await fetch(`${writerUrl}/${article.id}/draft`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...draft, expectedRevision: 1 }) })
+    expect(saved.status).toBe(200)
+    expect(await (await fetch(publicUrl)).json()).toEqual(original)
+    const republished = await publish(article.id, 2)
+    expect(republished.status).toBe(200)
+    const updated = [{ slug: article.slug, title: draft.title, tags: draft.tags, publishedAt: first.publishedAt }]
+    expect(await (await fetch(publicUrl)).json()).toEqual(updated)
+    await restartApp()
+    expect(await (await fetch(publicUrl)).json()).toEqual(updated)
+    const html = await (await fetch(appUrl)).text()
+    expect(html).toContain(draft.title)
+    expect(html).toContain('href="/articles/finding-inspiration"')
+  })
+})

@@ -7,7 +7,8 @@ and the documented responsive layouts and feedback states. Only this approved de
 is retained in the preview assets.
 **Scope**: Five screen wireframes, rendered visual mockups, and feedback states.
 Writer list/creation, editable Write/Preview/save, and Phase 6 Publish follow this design.
-Unpublish, history, and public-reading wireframes remain targets for later feature phases.
+The Phase 7 public list is implemented. Unpublish, history, and public-detail wireframes
+remain targets for later feature phases.
 
 Use the approved [specification](spec.md), [plan](plan.md),
 [HTTP contract](contracts/http-api.md), and [UI/service boundaries](contracts/ui-and-services.md).
@@ -35,11 +36,11 @@ may dismiss to the public side. The popup is navigation, not authentication or a
 The user explicitly selected “Add chooser now; keep public list in Phase 7”. Writer opens
 the implemented `/writer/articles` list; Public dismisses the popup to an Articles
 placeholder at `/`. That placeholder makes no claim that a public list was loaded or
-that no articles are published. Remove the workspace landing action. T011 remains pending
-and will replace the placeholder with the real public list in Phase 7.
+that no articles are published. The workspace landing action was removed. T011 has now
+replaced the placeholder with the real public list in Phase 7.
 Prototype checks passed Public/Writer selection, autofocus, Escape-to-Public, and
-320/390/1440px fit in headless Chrome with no runtime exceptions. The application now
-implements the same chooser with the agreed Articles placeholder: live-browser checks
+320/390/1440px fit in headless Chrome with no runtime exceptions. The Phase 4 application
+implemented the same chooser with the agreed Articles placeholder: live-browser checks
 also passed both choices, modal focus containment, Escape, root reload behavior, client
 navigation, and deep links without hydration warnings. Typecheck, production build,
 and all 108 existing tests pass.
@@ -261,6 +262,12 @@ show “Reloading replaces your local edits with the saved draft” with Confirm
 After reload, the writer may edit and explicitly resubmit using the refreshed revision.
 Failed/uncertain requests do not silently become successes or trigger another write.
 
+
+**Phase 7 implementation**: T011 replaces the earlier root placeholder with the real public
+list while retaining the chooser and portal navigation. Rows use live summary fields,
+wrap on mobile, omit empty tag groups, and provide loading/empty/error/retry feedback.
+Article-detail links retain their approved URLs; destination pages arrive in Phase 8.
+
 ## 4. Public article list — `/`
 
 ```text
@@ -344,8 +351,8 @@ After reviewing the rendered previews, the user explicitly approved the final
 black/white/green tabbed design on 2026-11-07. This approval covers the current styling,
 layouts, and documented interaction/feedback states.
 
-T035 is complete. Phases 1–5 are approved. Phase 6 publishing is implemented and verified,
-pending human phase approval. Unpublish/history and public pages arrive later.
+T035 is complete. Phases 1–6 are approved. Phase 7 public listing is implemented and verified,
+pending human approval. Unpublish/history and public detail arrive later.
 Later visual changes require human approval.
 Wireframes and rendered previews demonstrate design intent. Prototype checks are recorded
 above; actual application browser, responsive, and accessibility behavior must still be

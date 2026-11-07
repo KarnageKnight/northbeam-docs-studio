@@ -158,9 +158,10 @@ on 2026-11-07, retaining history below and lifecycle feedback, then explicitly a
 Deloitte-inspired black/white/green visual theme with tabs on 2026-11-07. Only the approved design is retained; the design adds no routes, dependencies, or architecture changes. The validation app used a temporary port-3300 mapping
 because port 3000 was occupied; the committed default remains loopback 3000. Temporary
 validation/test resources were removed, preserving the existing development database.
-Phases 1–5 are approved. Phase 6 publication API, rollback, and crash recovery are verified
+Phases 1–6 are approved. Phase 6 publication API, rollback, and crash recovery are verified
 (98 unit + 93 PostgreSQL/HTTP tests and typecheck/build); the writer Publish control passed
-real Chrome/SQL validation, including stale and delayed responses. Phase 6 awaits human approval. No new product assumption or architecture decision is introduced. Remaining lifecycle APIs/UI, coordinated lifecycle races, and
+real Chrome/SQL validation, including stale and delayed responses. Phase 6 is approved. Phase 7 public-list API/SSR checks pass (98 unit + 96 integration
+tests) and browser checks pass; Phase 7 awaits human approval. No new product assumption or architecture decision is introduced. Remaining lifecycle APIs/UI, coordinated lifecycle races, and
 Windows/Linux host execution remain future work; mocks alone cannot replace the required PostgreSQL evidence. See [quickstart](quickstart.md).
 
 The user selected feature-by-feature delivery: each feature phase combines its API, UI,

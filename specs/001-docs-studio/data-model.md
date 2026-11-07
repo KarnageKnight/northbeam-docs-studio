@@ -9,7 +9,9 @@ stale/no-op behavior are tested. Phase 6 publication now atomically creates a sa
 snapshot and advances reference/status/counter/revision, preserving the original publication
 date and prior snapshots. Forced post-insert failure and app-crash rollback/recovery are
 verified against real PostgreSQL; writer Publish controls are implemented;
-remaining lifecycle rules are targets for later phases.
+Phase 7 public listing uses one statement joining published articles to their owned current
+snapshot, projecting only slug/live title/live tags/original date. Remaining lifecycle
+and public-detail rules are targets for later phases.
 
 Authority: [spec.md](spec.md), [plan.md](plan.md) P006–P075, and approved
 [assumptions](assumptions.md). API projections are defined in [the HTTP contract](contracts/http-api.md).
