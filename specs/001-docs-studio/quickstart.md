@@ -1,15 +1,15 @@
 # Quickstart and Verification Guide
 
 **Date**: 2026-11-07
-**Status**: Phases 1–5 approved. Phase 6 publishing is implemented and verified, pending human phase approval.
-Unpublish/history and public article features have not started.
+**Status**: Phases 1–6 approved. Phase 7 public listing is implemented and verified, pending human approval.
+Unpublish/history and public detail features have not started.
 
 ## Current commands and evidence
 
 With Node 24.22.2 and pnpm 12.18.0: `pnpm install --frozen-lockfile`, `pnpm dev`,
 `pnpm run test:unit`, `pnpm run test:integration`, `pnpm test`, `pnpm exec nuxt typecheck`,
 and `pnpm run build` are available. Full verification passes 98 database-free unit cases
-and 93 real PostgreSQL/HTTP integration cases, plus typecheck and production build.
+and 96 real PostgreSQL/HTTP integration cases, plus typecheck and production build.
 Docker startup builds the application, applies migrations, and serves the writer feature.
 See [README.md](../../README.md) for prerequisites, configuration, and cleanup procedures.
 
@@ -33,7 +33,8 @@ docker compose up --build
 ```
 
 Open `http://localhost:3000`, choose Writer in the entry popup, or visit `/writer/articles` to
-create/list/open drafts. Public article reading and draft editing arrive in later phases. No authentication setup or mandatory
+create/list/edit/save/publish articles. Choose Public for the published article list;
+article detail pages arrive in Phase 8. No authentication setup or mandatory
 `.env` copy is required.
 
 Expected startup: build the runtime image, start PostgreSQL, wait for its TCP readiness,
@@ -216,8 +217,7 @@ Extend shared cases/fixtures where clear; do not duplicate lifecycle tests for p
 Open `/writer/articles`, create a draft with title/slug, edit title/body/tags, preview
 unsaved Markdown, save, return to the list, reopen, and reload. Try blank title/invalid slug, then a normalized slug
 collision; entered values remain available after errors. Body/tags start empty in the form.
-The API also accepts validated body/tags at creation. Public dismisses the entry popup to an Articles placeholder; the public list remains
-pending in Phase 7. Fresh root visits show the chooser; direct writer links and client
+The API also accepts validated body/tags at creation. Public dismisses the entry popup to the implemented published article list. Fresh root visits show the chooser; direct writer links and client
 portal switching do not reopen it. Editing/preview/save and Publish are available; Unpublish/history
 actions arrive in their owning phases. Preview escapes raw HTML and rejects unsafe links.
 
@@ -261,6 +261,31 @@ while subsequent saves leave the live snapshot unchanged. Layouts at 320/390/144
 without overflow, action targets meet 44px, and no runtime/hydration errors were observed.
 Validation resources were removed without touching the normal app/development database.
 
+
+## Public list walkthrough
+
+Choose Public from a fresh entry popup or the header. With no published articles, expect
+“No published articles yet.” Publish an article in Writer, return to Public, and confirm
+its live title/tags/original date and `/articles/:slug` links. Saving a different draft
+title/tags must leave the list unchanged; republish updates the list while retaining the
+date. Draft-only and SQL-fixture unpublished articles are excluded. Real Unpublish remains
+in its own phase. Detail destinations are not implemented until Phase 8.
+
+Existing integration tests now cover the exact anonymous four-field projection, empty
+API/UI, server-rendered title/tags/date/links, literal HTML-looking title text, exclusion
+of private content, unchanged read audits, save/republish isolation, and restart persistence.
+
+
+**Phase 7 browser evidence**: Real Chrome against a fresh production Docker app at temporary
+loopback port 3300 passed entry chooser/public navigation, empty list, live-only summaries,
+empty-tag rows, literal HTML-looking titles, first dates and destination links. Saving
+changed draft title/tags kept the list unchanged; republish updated it with the original
+date. A blocked public fetch showed error/Retry; paused retry showed loading and then
+recovered the list. At 320/390/1440px maximum-length title/tag fixtures fit without page
+overflow, links met 44px targets, and no runtime exceptions/hydration warnings occurred.
+The full suite passes 98 unit + 96 integration cases. Disposable validation resources were
+removed; normal app/development resources were preserved. Detail links remain Phase 8 work.
+
 ## Acceptance coverage
 
 These are final acceptance targets; the feature walkthroughs and lifecycle checks remain pending.
@@ -301,14 +326,14 @@ Implementation follows [tasks.md](tasks.md): build each feature's API and UI tog
 run its existing/new meaningful checks and browser walkthrough, then present the results
 for human phase approval. Do not wait until all APIs exist to exercise writer screens.
 The later integrated walkthrough repeats the combined experience; it does not defer
-feature-level feedback, conflict preservation, or verification. Phases 1–5 are approved.
-T001–T010, T013, T022–T024, and T035 are verified and checked (15 tasks).
-Phase 6 awaits human approval; later tasks remain unchecked.
+feature-level feedback, conflict preservation, or verification. Phases 1–6 are approved.
+T001–T011, T013, T022–T024, and T035 are verified and checked (16 tasks).
+Phase 7 awaits human approval; later tasks remain unchecked.
 
 ## Design handoff
 
 Review [plan.md](plan.md), [data-model.md](data-model.md), and [contracts](contracts/http-api.md).
 Analysis and the spec-first checkpoint were verified before the authorized Phase 1
 implementation. The [tabbed design](ui-design.md) and Phase 4 create/list/open are approved;
-review Phase 6 publishing before starting Phase 7 public lists. AI creates no commits. Full application behavior and
+review Phase 7 public listing before starting Phase 8 article detail. AI creates no commits. Full application behavior and
 Windows/Linux host support remain unverified.

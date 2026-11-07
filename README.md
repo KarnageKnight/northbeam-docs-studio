@@ -3,9 +3,9 @@
 An article-publishing application for writing on any topic. Public readers see articles
 explicitly published by writers.
 
-Phase 6 adds explicit publication of saved articles and immutable numbered snapshots to
-the writer editor. Phases 1–5 are approved; Phase 6 is implemented and awaits human review.
-Unpublish, history actions, and public article lists/details remain in later phases of
+Phase 7 adds an anonymous public article list to the writer creation/editing/publishing
+flow. Phases 1–6 are approved; Phase 7 is verified and awaits human review.
+Unpublish, history actions, and public article details remain in later phases of
 [tasks.md](specs/001-docs-studio/tasks.md).
 
 ## Run with Docker
@@ -97,17 +97,28 @@ while a response is pending. Reload is explicit; stale saves are never automatic
 Publish remains unavailable while dirty or while saved title/body is blank, with an
 adjacent explanation. It never saves implicitly. Saving later draft changes preserves the
 live snapshot until the next explicit Publish. Unpublish and history controls arrive later.
-The **Public** choice opens an Articles placeholder; the real public list remains in
-Phase 7. The chooser appears on fresh root-page visits, keeps the choice during client
+The **Public** choice opens the published article list at `/`. The chooser appears on fresh root-page visits, keeps the choice during client
 navigation, and leaves direct writer links uninterrupted. Escape dismisses to Public.
 There is no separate “Open writer workspace” landing page or persistent role selection.
 
-Current API: `POST /api/writer/articles`, `GET /api/writer/articles`, and
+Current API: `POST /api/writer/articles`, `GET /api/writer/articles`,
 `GET /api/writer/articles/:articleId`, `PUT /api/writer/articles/:articleId/draft`, and
-`POST /api/writer/articles/:articleId/publish`.
+`POST /api/writer/articles/:articleId/publish`, and `GET /api/public/articles`.
 A save requires complete `title`, `body`, `tags`, and `expectedRevision`; it returns the
 updated WriterArticle. Publish accepts only `expectedRevision` and also returns WriterArticle.
 See the [HTTP contract](specs/001-docs-studio/contracts/http-api.md).
+
+
+## Browse published articles
+
+Choose Public in the entry popup or header. The list shows only published snapshot titles,
+tags, and original publication dates; draft-only and unpublished articles are excluded.
+Saving draft edits leaves the public list unchanged until explicit republish. Empty,
+loading, and error/retry states are provided. Titles are rendered as text.
+
+Title/Read article links target `/articles/:slug`. Those detail pages are scheduled for
+Phase 8 and are not implemented yet. No authentication, search, pagination, or ordering
+promise is added.
 
 ## Verify
 
@@ -143,7 +154,7 @@ Reviewers are not required to execute tests.
 
 Verified on macOS arm64 on 2026-11-07:
 
-- 98 unit tests for title/create/save/publish validation and safe Markdown; 93 real PostgreSQL/HTTP integration tests.
+- 98 unit tests for title/create/save/publish validation and safe Markdown; 96 real PostgreSQL/HTTP integration tests.
 - Save normalization, stale/no-op revisions, publication/snapshot preservation, transaction
   rollback/recovery, and draft persistence after restart.
 - Real Chrome editor checks: unsaved preview, keyboard tabs, validation, two-tab stale saves,
@@ -157,6 +168,10 @@ Verified on macOS arm64 on 2026-11-07:
 - Real Chrome publishing checks: dirty/blank guards, first publication, unchanged republish,
   retained date/reference, two-tab stale publish, explicit reload/resubmit, in-flight text
   retention, network failure, and responsive controls. SQL confirms live snapshot isolation.
+- Public API/server-rendering checks cover the exact live-only summary, private-content
+  exclusion, literal title text, links, unchanged read audits, and restart persistence.
+- Real Chrome public-list checks cover chooser/portal navigation, empty/list/tag states,
+  save/republish isolation, error/retry/loading, and 320/390/1440px maximum-content layouts.
 - Creation normalization/defaults, malformed input, slug collisions, exact read projections,
   valid/malformed/missing UUIDs, unchanged read audits, and draft persistence after app restart.
 - Unexpected database failures return generic production 500 responses.
@@ -204,7 +219,7 @@ separates build/test dependencies from the production runtime, which retains mig
 
 The current testing tradeoff is sequential cases and one disposable database per run,
 keeping fixture reset and cleanup straightforward at the cost of overlapping/parallel runs.
-Remaining lifecycle tests, coordinated database races, history/public screens, and final platform
+Remaining lifecycle tests, coordinated database races, history/public-detail screens, and final platform
 verification will be added with their owning feature phases. See the [plan](specs/001-docs-studio/plan.md),
 [data model](specs/001-docs-studio/data-model.md), and [contracts](specs/001-docs-studio/contracts/http-api.md).
 
@@ -212,8 +227,8 @@ The approved Phase 3 [UI design](specs/001-docs-studio/ui-design.md) contains fi
 wireframes and a Deloitte-inspired black/white/green visual theme. The editor uses
 Write/Preview tabs in one panel at every width,
 with history planned below. A top-header Public / Writer switch links the two portals.
-Switching tabs preserves local edits without saving or publishing. Phases 1–5 are approved;
-Phase 6 publication is verified and awaits human review.
+Switching tabs preserves local edits without saving or publishing. Phases 1–6 are approved;
+Phase 7 public listing is verified and awaits human review.
 
 For visual review, open [the offline design preview](specs/001-docs-studio/design-preview/index.html)
 in a browser. It shows only the approved tabbed editor across all five screens, mobile sizing, and feedback

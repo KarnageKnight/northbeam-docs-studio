@@ -1,9 +1,8 @@
 # Tasks: Northbeam Docs Studio
 
 **Feature**: `001-docs-studio` · **Created**: 2026-11-07
-**Status**: Phases 1–5 approved. Phase 6 publishing is implemented and verified,
-pending human phase approval.
-T035 retains the user-approved Write/Preview tabbed design. Phase 7 and later work have not started.
+**Status**: Phases 1–6 approved. Phase 7 public article list is implemented and verified, pending human approval.
+T035 retains the user-approved Write/Preview tabbed design. Phase 8 and later work have not started.
 **Input**: [specification](spec.md), [plan](plan.md), [research](research.md),
 [data model](data-model.md), [HTTP contract](contracts/http-api.md),
 [UI/service contract](contracts/ui-and-services.md), [quickstart](quickstart.md),
@@ -324,7 +323,8 @@ Nuxt typecheck, explicit changed-test typecheck, production build, and full suit
 removed; normal application/development resources were preserved. No schema/migration
 or dependency changes were needed. Phase 7 public lists remain unstarted.
 
-**Phase approval**: Pending human review. Demonstrate this phase, present verification results, and wait for explicit human approval before starting the next phase.
+**Phase approval**: Approved by the user by requesting the next task.
+Phase 7 public list is authorized; later phases retain their review gates.
 
 ## Phase 7: US9 — Public article list (P1)
 
@@ -332,7 +332,27 @@ or dependency changes were needed. Phase 7 public lists remain unstarted.
 **Dependencies**: Publishing phase approved for real fixtures.
 **Independent test**: List published title/tags/original date, exclude draft-only records, handle empty list, and prove saved draft edits do not change live list content. Use an isolated SQL unpublished fixture until real unpublish is added and retested in that phase.
 
-- [ ] T011 [US9] Extend `tests/integration/articles.test.ts` for direct public list projections, draft isolation after save, empty arrays, and status exclusion before implementing the public list query in `server/services/articles/queries.ts`, types in `shared/types/articles.ts`, `server/api/public/articles/index.get.ts`, and `app/pages/index.vue`. Use one SQL statement joining published articles to their owned current snapshot; expose only slug/title/tags/publishedAt, with original date, and make the anonymous universal-rendered page show an understandable empty state and detail links. Inspect rendered output through the existing HTTP harness and manually verify the page; add no auth, ordering promise, search, pagination, or caching.
+- [x] T011 [US9] Extend `tests/integration/articles.test.ts` for direct public list projections, draft isolation after save, empty arrays, and status exclusion before implementing the public list query in `server/services/articles/queries.ts`, types in `shared/types/articles.ts`, `server/api/public/articles/index.get.ts`, and `app/pages/index.vue`. Use one SQL statement joining published articles to their owned current snapshot; expose only slug/title/tags/publishedAt, with original date, and make the anonymous universal-rendered page show an understandable empty state and detail links. Inspect rendered output through the existing HTTP harness and manually verify the page; add no auth, ordering promise, search, pagination, or caching.
+
+**T011 / Phase 7 evidence**: Extended existing integration cases before implementation;
+the three new public API/SSR cases failed while the prior 93 integration cases passed.
+The public query joins published articles to their owned current snapshot in one statement,
+returning only slug, snapshot title/tags, and original publication date. Anonymous reads,
+empty arrays, draft/unpublished exclusion, unchanged read audits, safe server-rendered
+text/links/date, save/republish isolation, and restart persistence pass. Unpublished fixtures
+use isolated SQL until real Unpublish is delivered in its own phase.
+The public page replaces the earlier placeholder, retains the entry chooser/header switch,
+and follows the approved rows with tags/date and title/Read article links. It handles
+loading/empty/error/retry without a new component library, auth, search, or pagination.
+Real Chrome checks passed chooser-to-empty/list, exact public fields, literal HTML-looking
+titles, empty-tag groups, live/draft isolation, republish/date retention, client portal
+switching, network failure/retry/loading, and 320/390/1440px maximum-title/tag layouts.
+Links meet 44px action targets; no runtime exceptions or hydration warnings were observed.
+Nuxt typecheck, changed-test typecheck, production build, and the full suite pass: 98 unit
++ 96 PostgreSQL/HTTP tests (194 total). Disposable test/browser resources were removed;
+normal app/development resources were preserved. No schema/dependency change was needed.
+Detail links use the approved /articles/:slug destination; those pages remain unimplemented
+until Phase 8. No detail endpoint/page or later lifecycle control was added.
 
 **Phase approval**: Pending human review. Demonstrate this phase, present verification results, and wait for explicit human approval before starting the next phase.
 
@@ -463,8 +483,8 @@ or dependency changes were needed. Phase 7 public lists remain unstarted.
 Execute the phases above in order, with explicit human approval at every boundary.
 Task IDs are stable references rather than a numeric execution sequence. UI tasks moved
 into their owning story retain their original ID; newly split UI tasks are T036–T039.
-T001–T010, T013, T022–T024, and T035 are complete with evidence above (15 tasks).
-Phases 1–5 are approved; Phase 6 awaits human approval.
+T001–T011, T013, T022–T024, and T035 are complete with evidence above (16 tasks).
+Phases 1–6 are approved; Phase 7 awaits human approval.
 Later phase approvals and tasks remain pending.
 
 ```text

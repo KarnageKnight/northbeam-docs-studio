@@ -4,7 +4,8 @@
 **Status**: Writer creation/list/open, shared header, native request errors, Phase 5
 editable form/composable, safe Markdown preview, and revision-checked save are implemented.
 Phase 6 adds the Publish handler/service and writer action using the same transaction and
-editor state patterns. Later Unpublish/history/public interfaces below remain target contracts.
+editor state patterns. Phase 7 adds the public list page/query and PublicSummary type. Later Unpublish/history/
+public-detail interfaces below remain target contracts.
 
 Use the approved [HTTP contract](http-api.md), [data model](../data-model.md), and
 [plan](../plan.md). These interfaces derive from the selected thin-handler, function,
@@ -47,7 +48,7 @@ sample-screen navigation; application pages retain their approved URLs.
 
 On a fresh root-page entry, show a native modal Public/Writer chooser. Keep its choice
 during client navigation; do not interrupt direct writer/detail links. Public dismisses
-to the Articles placeholder until T011; Writer opens `/writer/articles`. Escape chooses
+to the published article list implemented by T011; Writer opens `/writer/articles`. Escape chooses
 Public. The user explicitly kept public listing in Phase 7. No role/authentication or
 persisted preference is added, and the separate workspace landing action is removed.
 

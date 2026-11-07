@@ -1,7 +1,7 @@
-import { eq } from 'drizzle-orm'
-import type { WriterSummary } from '../../../shared/types/articles'
+import { and, eq } from 'drizzle-orm'
+import type { PublicSummary, WriterSummary } from '../../../shared/types/articles'
 import { db } from '../../db/client'
-import { articles } from '../../db/schema'
+import { articles, articleVersions } from '../../db/schema'
 import { toWriterArticle } from './toWriterArticle'
 
 export async function listWriterArticles(): Promise<WriterSummary[]> {
@@ -14,4 +14,13 @@ export async function listWriterArticles(): Promise<WriterSummary[]> {
 export async function getWriterArticle(id: string) {
   const [article] = await db.select().from(articles).where(eq(articles.id, id))
   return article ? toWriterArticle(article) : null
+}
+
+export async function listPublicArticles(): Promise<PublicSummary[]> {
+  const rows = await db.select({
+    slug: articles.slug, title: articleVersions.title, tags: articleVersions.tags, publishedAt: articles.publishedAt,
+  }).from(articles).innerJoin(articleVersions, and(
+    eq(articles.id, articleVersions.articleId), eq(articles.currentPublishedVersionId, articleVersions.id),
+  )).where(eq(articles.status, 'published'))
+  return rows.map((row) => ({ ...row, publishedAt: row.publishedAt!.toISOString() }))
 }

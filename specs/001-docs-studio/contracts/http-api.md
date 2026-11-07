@@ -4,7 +4,9 @@
 **Status**: Writer POST/list/detail, PUT draft, and Phase 6 POST publish endpoints are implemented and
 verified, including complete payload validation, stale revision conflicts, and rollback.
 Publish copies saved content into a numbered immutable snapshot and atomically updates
-publication fields/counters/revision; republish preserves the first date. Remaining endpoint
+publication fields/counters/revision; republish preserves the first date. Phase 7 GET
+`/api/public/articles` is implemented and verified with its exact live-only PublicSummary
+projection and anonymous access. Remaining endpoint
 definitions are targets for later feature phases.
 
 Authority: [specification](../spec.md) and [plan](../plan.md) P025–P033. The
