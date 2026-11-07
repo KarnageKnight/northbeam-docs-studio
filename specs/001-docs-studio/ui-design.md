@@ -7,8 +7,8 @@ and the documented responsive layouts and feedback states. Only this approved de
 is retained in the preview assets.
 **Scope**: Five screen wireframes, rendered visual mockups, and feedback states.
 Writer list/creation, editable Write/Preview/save, and Phase 6 Publish follow this design.
-Public list and Phase 8 article detail follow the approved design. Unpublish and history
-wireframes remain targets for later feature phases.
+Public list/detail and Phase 9 Unpublish follow the approved design. History wireframes
+remain targets for later feature phases.
 
 Use the approved [specification](spec.md), [plan](plan.md),
 [HTTP contract](contracts/http-api.md), and [UI/service boundaries](contracts/ui-and-services.md).
@@ -320,6 +320,14 @@ failed reads offer Retry/loading recovery. Browser checks verified matching prev
 draft isolation/republish, and 320/390/1440px long-title/code layouts without hydration or
 runtime errors. Return-link targets meet 44px; code scrolling stays within the content block.
 
+
+**Phase 9 implementation**: Unpublish is offered only while published, remains usable
+with dirty content, and retains the local buffer even during delayed responses. Metadata
+retains the first date and labels Last published snapshot after success. Existing pending/
+conflict/reload feedback is reused; state errors request explicit reload. Browser checks
+verified actual public removal, republish, two-tab conflicts, network retry, and responsive
+three-action layouts with 44px targets. History controls remain in later phases.
+
 ## Feedback states across screens
 
 | State | Approved presentation and recovery |
@@ -358,8 +366,8 @@ After reviewing the rendered previews, the user explicitly approved the final
 black/white/green tabbed design on 2026-11-07. This approval covers the current styling,
 layouts, and documented interaction/feedback states.
 
-T035 is complete. Phases 1–7 are approved. Phase 8 public detail is implemented and verified,
-pending human approval. Unpublish/history arrive later.
+T035 is complete. Phases 1–8 are approved. Phase 9 Unpublish is implemented and verified,
+pending human approval. History arrives later.
 Later visual changes require human approval.
 Wireframes and rendered previews demonstrate design intent. Prototype checks are recorded
 above; actual application browser, responsive, and accessibility behavior must still be

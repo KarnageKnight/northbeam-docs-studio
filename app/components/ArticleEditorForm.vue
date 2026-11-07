@@ -6,6 +6,7 @@ const props = defineProps<{
   pending: boolean
   conflict: boolean
   publishDisabledReason: string
+  canUnpublish: boolean
   fieldErrors: Record<string, string[]>
 }>()
 const emit = defineEmits<{
@@ -14,6 +15,7 @@ const emit = defineEmits<{
   'update:tagsText': [value: string]
   save: []
   publish: []
+  unpublish: []
 }>()
 const activeTab = ref<'write' | 'preview'>('write')
 const writeTab = ref<HTMLButtonElement | null>(null)
@@ -63,6 +65,7 @@ function onTabKey(event: KeyboardEvent) {
       <div class="editor-action-buttons">
         <button type="submit" class="button" :disabled="props.pending || conflict">{{ pending ? 'Please wait…' : 'Save draft' }}</button>
         <button type="button" class="button primary" :disabled="pending || conflict || !!publishDisabledReason" aria-describedby="publish-hint" @click="emit('publish')">{{ pending ? 'Please wait…' : 'Publish' }}</button>
+        <button v-if="canUnpublish" type="button" class="button" :disabled="pending || conflict" @click="emit('unpublish')">{{ pending ? 'Please wait…' : 'Unpublish' }}</button>
       </div>
     </div>
     <p id="publish-hint" class="hint" role="status">{{ publishDisabledReason }}</p>

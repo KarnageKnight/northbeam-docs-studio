@@ -11,6 +11,12 @@ function createDraft(body: unknown = input) {
   })
 }
 
+function unpublish(id: string, body: unknown) {
+  return fetch(`${writerUrl}/${id}/unpublish`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+  })
+}
+
 beforeAll(startApp)
 beforeEach(resetDatabase)
 afterAll(async () => { await stopApp(); await resetDatabase(); await pool.end() })
@@ -325,10 +331,12 @@ describe('publish saved content', () => {
   })
 
   it.each([{}, { expectedRevision: null }, { expectedRevision: '0' }, { expectedRevision: -1 }, { expectedRevision: 0.5 }, { expectedRevision: Number.MAX_SAFE_INTEGER + 1 }, { expectedRevision: 0, title: 'Browser text' }])(
-    'rejects invalid publish payloads before lookup (case %#)', async (body) => {
-      const response = await publish(randomUUID(), body)
-      expect(response.status).toBe(400)
-      expect((await response.json()).data.code).toBe('VALIDATION_ERROR')
+    'rejects invalid publication action payloads before lookup (case %#)', async (body) => {
+      for (const action of [publish, unpublish]) {
+        const response = await action(randomUUID(), body)
+        expect(response.status).toBe(400)
+        expect((await response.json()).data.code).toBe('VALIDATION_ERROR')
+      }
       expect((await pool.query('SELECT * FROM articles')).rows).toEqual([])
       expect((await pool.query('SELECT * FROM article_versions')).rows).toEqual([])
     },
@@ -341,13 +349,17 @@ describe('publish saved content', () => {
       ['invalid', 0, 400, 'VALIDATION_ERROR'], [randomUUID(), 0, 404, 'ARTICLE_NOT_FOUND'],
       [article.id, Number.MAX_SAFE_INTEGER, 409, 'STALE_REVISION'],
     ] as const) {
-      const response = await publish(id, { expectedRevision: revision })
-      expect(response.status).toBe(status)
-      expect((await response.json()).data.code).toBe(code)
+      for (const action of [publish, unpublish]) {
+        const response = await action(id, { expectedRevision: revision })
+        expect(response.status).toBe(status)
+        expect((await response.json()).data.code).toBe(code)
+      }
     }
-    const malformed = await fetch(`${writerUrl}/${article.id}/publish`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{' })
-    expect(malformed.status).toBe(400)
-    expect((await malformed.json()).data.code).toBe('VALIDATION_ERROR')
+    for (const action of ['publish', 'unpublish']) {
+      const malformed = await fetch(`${writerUrl}/${article.id}/${action}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{' })
+      expect(malformed.status).toBe(400)
+      expect((await malformed.json()).data.code).toBe('VALIDATION_ERROR')
+    }
     expect((await pool.query('SELECT * FROM articles')).rows).toEqual(before)
     expect((await pool.query('SELECT * FROM article_versions')).rows).toEqual([])
   })
@@ -419,13 +431,13 @@ describe('publish saved content', () => {
     expect((await pool.query('SELECT version_number FROM article_versions')).rows).toEqual([{ version_number: 1 }])
   })
 
-  it('republishes an unpublished fixture with its retained date and advances only that article counter', async () => {
+  it('republishes an unpublished article with its retained date and advances only that article counter', async () => {
     const article = await (await createDraft({ ...input, body: 'Words' })).json()
     const first = await (await publish(article.id, { expectedRevision: 0 })).json()
-    await pool.query("UPDATE articles SET status='unpublished' WHERE id=$1", [article.id])
-    const response = await publish(article.id, { expectedRevision: 1 })
+    expect((await unpublish(article.id, { expectedRevision: 1 })).status).toBe(200)
+    const response = await publish(article.id, { expectedRevision: 2 })
     expect(response.status).toBe(200)
-    expect(await response.json()).toMatchObject({ status: 'published', revision: 2, publishedAt: first.publishedAt })
+    expect(await response.json()).toMatchObject({ status: 'published', revision: 3, publishedAt: first.publishedAt })
     const other = await (await createDraft({ ...input, slug: 'second-article', body: 'Other words' })).json()
     expect((await publish(other.id, { expectedRevision: 0 })).status).toBe(200)
     expect((await pool.query('SELECT version_number FROM article_versions WHERE article_id=$1', [other.id])).rows).toEqual([{ version_number: 1 }])
@@ -456,7 +468,7 @@ describe('public article reads', () => {
     await createDraft({ title: 'Draft-only secret marker', slug: 'draft-secret', body: 'Private draft' })
     const hidden = await (await createDraft({ title: 'Unpublished secret marker', slug: 'hidden-secret', body: 'Formerly live' })).json()
     await publish(hidden.id)
-    await pool.query("UPDATE articles SET status='unpublished' WHERE id=$1", [hidden.id])
+    expect((await unpublish(hidden.id, { expectedRevision: 1 })).status).toBe(200)
     await fetch(`${writerUrl}/${article.id}/draft`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: 'Private saved title marker', body: 'Private saved body marker', tags: ['private-secret'], expectedRevision: 1 }) })
     const before = (await pool.query('SELECT * FROM articles ORDER BY id')).rows
     const versions = (await pool.query('SELECT * FROM article_versions ORDER BY id')).rows
@@ -520,7 +532,7 @@ describe('public article reads', () => {
       slug = article.slug
       if (state === 'unpublished') {
         expect((await publish(article.id)).status).toBe(200)
-        await pool.query("UPDATE articles SET status='unpublished' WHERE id=$1", [article.id])
+        expect((await unpublish(article.id, { expectedRevision: 1 })).status).toBe(200)
       }
     }
     const before = (await pool.query('SELECT * FROM articles')).rows
@@ -541,4 +553,75 @@ describe('public article reads', () => {
     expect((await pool.query('SELECT * FROM article_versions')).rows).toEqual(versions)
   })
 
+})
+
+
+describe('unpublish while retaining publication history', () => {
+  it('removes public access, changes only state/revision/update time, and preserves history/date through restart and republish', async () => {
+    const article = await (await createDraft({ ...input, body: 'Saved words', tags: ['ideas'] })).json()
+    const publish = (expectedRevision: number) => fetch(`${writerUrl}/${article.id}/publish`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ expectedRevision }) })
+    const first = await (await publish(0)).json()
+    const published = await (await publish(1)).json()
+    const before = (await pool.query('SELECT * FROM articles')).rows[0]
+    const snapshots = (await pool.query('SELECT * FROM article_versions ORDER BY version_number')).rows
+    const response = await unpublish(article.id, { expectedRevision: 2 })
+    expect(response.status).toBe(200)
+    const hidden = await response.json()
+    expect(hidden).toEqual({ ...published, status: 'unpublished', revision: 3 })
+    const after = (await pool.query('SELECT * FROM articles')).rows[0]
+    expect(after).toEqual({ ...before, status: 'unpublished', revision: 3, updated_at: expect.any(Date) })
+    expect(after.updated_at.getTime()).toBeGreaterThan(before.updated_at.getTime())
+    expect((await pool.query('SELECT * FROM article_versions ORDER BY version_number')).rows).toEqual(snapshots)
+    expect(await (await fetch(`${appUrl}/api/public/articles`)).json()).toEqual([])
+    expect((await fetch(`${appUrl}/api/public/articles/${article.slug}`)).status).toBe(404)
+    expect((await fetch(`${appUrl}/articles/${article.slug}`)).status).toBe(404)
+    await restartApp()
+    expect(await (await fetch(`${writerUrl}/${article.id}`)).json()).toEqual(hidden)
+    expect((await pool.query('SELECT * FROM articles')).rows[0]).toEqual(after)
+    const republished = await publish(3)
+    expect(republished.status).toBe(200)
+    expect(await republished.json()).toMatchObject({ status: 'published', revision: 4, publishedAt: first.publishedAt })
+    expect((await pool.query('SELECT version_number FROM article_versions ORDER BY version_number')).rows).toEqual([{ version_number: 1 }, { version_number: 2 }, { version_number: 3 }])
+    expect((await pool.query('SELECT * FROM article_versions ORDER BY version_number')).rows.slice(0, 2)).toEqual(snapshots)
+    expect((await fetch(`${appUrl}/api/public/articles/${article.slug}`)).status).toBe(200)
+  })
+
+  it.each(['draft', 'unpublished'])('rejects %s state, with stale revision taking precedence and no mutation', async (state) => {
+    const article = await (await createDraft({ ...input, body: 'Words' })).json()
+    let revision = 0
+    if (state === 'unpublished') {
+      await fetch(`${writerUrl}/${article.id}/publish`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ expectedRevision: 0 }) })
+      expect((await unpublish(article.id, { expectedRevision: 1 })).status).toBe(200)
+      revision = 2
+    }
+    const before = (await pool.query('SELECT * FROM articles')).rows
+    const snapshots = (await pool.query('SELECT * FROM article_versions')).rows
+    for (const [token, code] of [[revision, 'INVALID_PUBLICATION_STATE'], [revision + 1, 'STALE_REVISION']] as const) {
+      const response = await unpublish(article.id, { expectedRevision: token })
+      expect(response.status).toBe(409)
+      expect((await response.json()).data.code).toBe(code)
+    }
+    expect((await pool.query('SELECT * FROM articles')).rows).toEqual(before)
+    expect((await pool.query('SELECT * FROM article_versions')).rows).toEqual(snapshots)
+  })
+
+  it('rolls back failed unpublish, leaves public access intact, and permits recovery', async () => {
+    const article = await (await createDraft({ ...input, body: 'Words' })).json()
+    const published = await fetch(`${writerUrl}/${article.id}/publish`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ expectedRevision: 0 }) })
+    expect(published.status).toBe(200)
+    const before = (await pool.query('SELECT * FROM articles')).rows
+    const snapshots = (await pool.query('SELECT * FROM article_versions')).rows
+    await pool.query(`CREATE FUNCTION fail_test_unpublish() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'private unpublish detail'; END; $$;
+      CREATE TRIGGER fail_test_unpublish BEFORE UPDATE ON articles FOR EACH ROW EXECUTE FUNCTION fail_test_unpublish()`)
+    try {
+      const failed = await unpublish(article.id, { expectedRevision: 1 })
+      expect(failed.status).toBe(500)
+      expect(await failed.text()).not.toContain('private unpublish detail')
+      expect((await pool.query('SELECT * FROM articles')).rows).toEqual(before)
+      expect((await pool.query('SELECT * FROM article_versions')).rows).toEqual(snapshots)
+      expect((await fetch(`${appUrl}/api/public/articles/${article.slug}`)).status).toBe(200)
+    }
+    finally { await pool.query('DROP TRIGGER fail_test_unpublish ON articles; DROP FUNCTION fail_test_unpublish()') }
+    expect((await unpublish(article.id, { expectedRevision: 1 })).status).toBe(200)
+  })
 })

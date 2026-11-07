@@ -1,8 +1,8 @@
 # Tasks: Northbeam Docs Studio
 
 **Feature**: `001-docs-studio` · **Created**: 2026-11-07
-**Status**: Phases 1–7 approved. Phase 8 public article detail is implemented and verified, pending human approval.
-T035 retains the user-approved Write/Preview tabbed design. Phase 9 and later work have not started.
+**Status**: Phases 1–8 approved. Phase 9 Unpublish is implemented and verified, pending human approval.
+T035 retains the user-approved Write/Preview tabbed design. Phase 10 and later work have not started.
 **Input**: [specification](spec.md), [plan](plan.md), [research](research.md),
 [data model](data-model.md), [HTTP contract](contracts/http-api.md),
 [UI/service contract](contracts/ui-and-services.md), [quickstart](quickstart.md),
@@ -391,7 +391,8 @@ full suite pass: 98 unit + 99 PostgreSQL/HTTP cases (197 total). Disposable reso
 removed; normal application/development resources were preserved. No schema, migration,
 dependency, or Markdown-policy change was needed. Phase 9 Unpublish remains unstarted.
 
-**Phase approval**: Pending human review. Demonstrate this phase, present verification results, and wait for explicit human approval before starting the next phase.
+**Phase approval**: Approved by the user by requesting the next task.
+Phase 9 Unpublish is authorized; later phases retain their review gates.
 
 ## Phase 9: US4 — Unpublish (P1)
 
@@ -399,8 +400,35 @@ dependency, or Markdown-policy change was needed. Phase 9 Unpublish remains unst
 **Dependencies**: Publishing and public list/detail approved.
 **Independent test**: Unpublish in browser, verify actual list exclusion/detail 404, retained draft/snapshots/reference/date, invalid/stale rejection, and republish preserving the original date.
 
-- [ ] T014 [US4] After T011/T012, extend `tests/integration/articles.test.ts` and implement `server/services/articles/unpublishArticle.ts`, its action schema in `server/validation/articles.ts`, and `server/api/writer/articles/[articleId]/unpublish.post.ts` using the shared transaction helper. Compare revision before state eligibility; reject never-published/already-unpublished state with 409 INVALID_PUBLICATION_STATE. On success change status/revision/updated_at only; preserve draft, counter, snapshots, reference, created_at, and first published_at. Prove public exclusion/404, stale requests make no changes, and later republish preserves the date.
-- [ ] T036 [US4] Extend `app/composables/useArticleEditor.ts`, `app/components/ArticleEditorForm.vue`, and `app/pages/writer/articles/[articleId].vue` with Unpublish and its pending/success/error states. Use the saved revision, preserve unsaved local text on conflicts, retain the reference/date after success, and show invalid-state feedback consistently with the API. Walk through publish → unpublish → public list exclusion/detail 404 → republish with the original date, plus stale-unpublish rejection; extend existing HTTP cases only for uncovered behavior. Follow the approved wireframes and retain separate Save/Publish/Unpublish actions.
+- [x] T014 [US4] After T011/T012, extend `tests/integration/articles.test.ts` and implement `server/services/articles/unpublishArticle.ts`, its action schema in `server/validation/articles.ts`, and `server/api/writer/articles/[articleId]/unpublish.post.ts` using the shared transaction helper. Compare revision before state eligibility; reject never-published/already-unpublished state with 409 INVALID_PUBLICATION_STATE. On success change status/revision/updated_at only; preserve draft, counter, snapshots, reference, created_at, and first published_at. Prove public exclusion/404, stale requests make no changes, and later republish preserves the date.
+- [x] T036 [US4] Extend `app/composables/useArticleEditor.ts`, `app/components/ArticleEditorForm.vue`, and `app/pages/writer/articles/[articleId].vue` with Unpublish and its pending/success/error states. Use the saved revision, preserve unsaved local text on conflicts, retain the reference/date after success, and show invalid-state feedback consistently with the API. Walk through publish → unpublish → public list exclusion/detail 404 → republish with the original date, plus stale-unpublish rejection; extend existing HTTP cases only for uncovered behavior. Follow the approved wireframes and retain separate Save/Publish/Unpublish actions.
+
+**T014 evidence**: Extended existing strict publication-action validation/revision cases
+and added focused unpublish state/preservation/rollback scenarios. Missing schema tests
+failed before implementation. Unpublish now reuses the article-first Read Committed helper,
+checks revision before state, and changes only status/revision/updated_at. Real public
+list/detail exclusion and page 404, retained history/reference/date/counter/draft, stale/
+invalid/missing requests, rollback/recovery, restart, and republish pass. Earlier public
+unpublished SQL fixtures now use the real API. Typecheck, changed-test typecheck, build, and the
+full suite pass: 98 unit + 103 PostgreSQL/HTTP cases. T036 writer/browser work is next.
+
+**T036 / Phase 9 evidence**: Added a separate Unpublish action only while published.
+It uses the saved revision and shared pending/conflict handling, always retains local
+title/body/tags, and updates only the saved baseline/publication metadata after success.
+Dirty content does not disable Unpublish or get saved implicitly. Retained references are
+labeled Last published snapshot. State errors offer explicit reload; no automatic rebase
+or newer-token retry is added.
+Real Chrome/SQL checks passed publish → dirty Unpublish → public list exclusion/detail
+404 → explicit save/republish with original date. Text entered before and during a paused
+Unpublish response survived. Two-tab stale rejection, cancel/confirm reload/resubmit,
+client portal navigation without stale list data, network failure/deliberate retry, and
+controlled matching-revision invalid-state feedback/reload passed. At 320/390/1440px all
+three action buttons fit with 44px targets; no runtime/hydration errors or later history
+controls were observed. Typecheck, changed-test typecheck, build, and full suite pass:
+98 unit + 103 PostgreSQL/HTTP cases (201 total). Pinned-type deprecation audit: 39 files,
+eight Vue scripts, no findings. Disposable test/browser resources were removed; normal
+resources were preserved. No schema, migration, dependency, or architecture change was
+needed. Phase 10 history inspection remains unstarted.
 
 **Phase approval**: Pending human review. Demonstrate this phase, present verification results, and wait for explicit human approval before starting the next phase.
 
@@ -509,8 +537,8 @@ dependency, or Markdown-policy change was needed. Phase 9 Unpublish remains unst
 Execute the phases above in order, with explicit human approval at every boundary.
 Task IDs are stable references rather than a numeric execution sequence. UI tasks moved
 into their owning story retain their original ID; newly split UI tasks are T036–T039.
-T001–T013, T022–T024, T035, and T039 are complete with evidence above (18 tasks).
-Phases 1–7 are approved; Phase 8 awaits human approval.
+T001–T014, T022–T024, T035–T036, and T039 are complete with evidence above (20 tasks).
+Phases 1–8 are approved; Phase 9 awaits human approval.
 Later phase approvals and tasks remain pending.
 
 ```text

@@ -1,13 +1,13 @@
 # Research: Northbeam Docs Studio
 
 **Date**: 2026-11-07
-**Status**: Research consolidated. The Phase 8 application passes build/typecheck,
-98 unit tests, and 99 PostgreSQL/HTTP cases on macOS arm64 with Linux containers.
+**Status**: Research consolidated. The Phase 9 application passes build/typecheck,
+98 unit tests, and 103 PostgreSQL/HTTP cases on macOS arm64 with Linux containers.
 Production Docker migrations/startup, restart idempotence, failure/interrupt cleanup, and
-overlap rejection were verified. Phases 1–7 are approved; [tabbed UI design](ui-design.md) is selected.
+overlap rejection were verified. Phases 1–8 are approved; [tabbed UI design](ui-design.md) is selected.
 Writer create/list/open, draft saving/restart persistence, safe Markdown preview, and
 two-tab save conflict/reload behavior are verified. Publish API atomicity and rollback/crash
-recovery and the writer Publish UI are verified. Phase 7 is approved. Phase 8 detail API/SSR/browser checks pass; human phase approval is pending. Later lifecycle/UI
+recovery and the writer Publish UI are verified. Phase 7 is approved. Phase 8 is approved. Phase 9 Unpublish API/browser checks pass; human phase approval is pending. Later lifecycle/UI
 features and Windows/Linux host execution remain future verification.
 
 Public content is writer-published articles on any topic. Generic article wording is a
@@ -236,4 +236,18 @@ Existing integration cases now cover exact detail fields, safe server Markdown, 
 read state, private draft isolation, republish/date retention, restart, and matching API/
 page 404. Real-browser checks also verify matching preview output, navigation, fetch
 retry/loading, responsive code containment, and 44px back navigation. No new architecture
-choice or dependency was needed; Unpublish remains its own subsequent feature.
+choice or dependency was needed; Phase 9 subsequently implements Unpublish.
+
+
+## Phase 9 Unpublish evidence
+
+Unpublish reuses the locked expected-revision transaction and native errors. It changes
+only publication status/revision/update time, retaining history/reference/date/counter and
+draft. Existing public fixtures now use the actual API. Tests prove public exclusion/404,
+stale-before-state ordering, invalid states, rollback, restart, and republish/date retention.
+
+The writer action retains the local buffer unconditionally while updating saved state;
+it never implicitly saves dirty content. Browser checks prove before/in-flight edit
+retention, conflicts with explicit reload/cancel/resubmit, network retry, invalid-state
+feedback, public navigation, and responsive action layout. No new abstraction, library,
+or persistence decision was needed; history remains its own subsequent feature.

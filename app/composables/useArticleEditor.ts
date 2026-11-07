@@ -23,7 +23,7 @@ export async function useArticleEditor(articleId: string) {
     : !article.value?.draft.title.trim() || !article.value.draft.body.trim()
         ? 'Save a nonblank title and body before publishing.' : '')
 
-  function reportWriteError(error: unknown, action: 'save' | 'publish') {
+  function reportWriteError(error: unknown, action: 'save' | 'publish' | 'unpublish') {
     const failure = error as { data?: { data?: { code?: string; fieldErrors?: Record<string, string[]> } } }
     const details = failure.data?.data
     fieldErrors.value = details?.fieldErrors ?? {}
@@ -31,8 +31,12 @@ export async function useArticleEditor(articleId: string) {
       conflict.value = true
       errorMessage.value = 'This article changed in another tab or session. Your local text is still here.'
     }
+    else if (details?.code === 'INVALID_PUBLICATION_STATE') {
+      conflict.value = true
+      errorMessage.value = 'This article is not currently published. Your local text is still here. Reload the saved article before trying again.'
+    }
     else if (details?.code === 'VALIDATION_ERROR') errorMessage.value = 'Check the highlighted fields and try again.'
-    else errorMessage.value = `We could not ${action} your draft. Your local text is still here. Please try again.`
+    else errorMessage.value = `We could not ${action} your ${action === 'save' ? 'draft' : 'article'}. Your local text is still here. Please try again.`
   }
 
   function acceptSaved(saved: WriterArticle, submitted: ReturnType<typeof localContent>) {
@@ -109,5 +113,24 @@ export async function useArticleEditor(articleId: string) {
     finally { pending.value = false }
   }
 
-  return { article, draft, tagsText, dirty, pending, conflict, publishDisabledReason, loadError, fieldErrors, errorMessage, successMessage, save, publish, reload }
+  async function unpublish() {
+    if (pending.value || conflict.value || article.value?.status !== 'published') return
+    const expectedRevision = article.value.revision
+    pending.value = true
+    errorMessage.value = ''
+    successMessage.value = ''
+    fieldErrors.value = {}
+    try {
+      article.value = await $fetch<WriterArticle>(`${url}/unpublish`, {
+        method: 'POST', retry: 0, body: { expectedRevision },
+      })
+      successMessage.value = 'Article unpublished. It is no longer publicly available.'
+    }
+    catch (error) {
+      reportWriteError(error, 'unpublish')
+    }
+    finally { pending.value = false }
+  }
+
+  return { article, draft, tagsText, dirty, pending, conflict, publishDisabledReason, loadError, fieldErrors, errorMessage, successMessage, save, publish, unpublish, reload }
 }
