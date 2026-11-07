@@ -5,8 +5,9 @@
 editable form/composable, safe Markdown preview, and revision-checked save are implemented.
 Phase 6 adds the Publish handler/service and writer action using the same transaction and
 editor state patterns. Public list and detail APIs/types/pages are implemented in Phases
-7–8. Detail reuses MarkdownContent and native Nuxt fetching/status helpers. Later Unpublish/
-history interfaces below remain target contracts.
+7–8. Detail reuses MarkdownContent and native Nuxt fetching/status helpers. Phase 9 Unpublish
+uses the existing transaction/editor/action patterns while always retaining the local
+buffer. Later history interfaces below remain target contracts.
 
 Use the approved [HTTP contract](http-api.md), [data model](../data-model.md), and
 [plan](../plan.md). These interfaces derive from the selected thin-handler, function,

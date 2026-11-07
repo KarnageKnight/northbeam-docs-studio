@@ -1,7 +1,7 @@
 <script setup lang="ts">
 definePageMeta({ key: route => String(route.params.articleId) })
 const route = useRoute()
-const { article, draft, tagsText, dirty, pending, conflict, publishDisabledReason, loadError, fieldErrors, errorMessage, successMessage, save, publish, reload } = await useArticleEditor(String(route.params.articleId))
+const { article, draft, tagsText, dirty, pending, conflict, publishDisabledReason, loadError, fieldErrors, errorMessage, successMessage, save, publish, unpublish, reload } = await useArticleEditor(String(route.params.articleId))
 const missing = computed(() => loadError.value?.status === 404)
 const confirmReload = ref(false)
 
@@ -30,7 +30,7 @@ useHead({ title: computed(() => `${article.value?.draft.title ?? 'Article'} · N
         <div class="editor-title"><h1>{{ article.draft.title }}</h1><span class="badge" :class="article.status">{{ article.status }}</span></div>
         <p class="metadata">Slug: <code>{{ article.slug }}</code> · fixed</p>
         <p v-if="article.publishedAt" class="metadata">First published {{ new Date(article.publishedAt).toISOString().slice(0, 10) }}</p>
-        <p v-if="article.currentPublishedVersionId" class="metadata">Published snapshot: <code>{{ article.currentPublishedVersionId }}</code></p>
+        <p v-if="article.currentPublishedVersionId" class="metadata">{{ article.status === 'unpublished' ? 'Last published snapshot' : 'Published snapshot' }}: <code>{{ article.currentPublishedVersionId }}</code></p>
       </header>
       <div v-if="errorMessage" class="notice" :class="conflict ? 'warning' : 'error'" role="alert">
         <p>{{ errorMessage }}</p>
@@ -41,7 +41,7 @@ useHead({ title: computed(() => `${article.value?.draft.title ?? 'Article'} · N
         <div class="confirmation-actions"><button class="button" :disabled="pending" @click="confirmDiscard">Confirm reload</button><button class="button" @click="confirmReload = false">Cancel</button></div>
       </div>
       <p v-if="successMessage" class="notice success" role="status">{{ successMessage }}</p>
-      <ArticleEditorForm :draft="draft" :tags-text="tagsText" :dirty="dirty" :pending="pending" :conflict="conflict" :publish-disabled-reason="publishDisabledReason" :field-errors="fieldErrors" @update:title="draft.title = $event" @update:body="draft.body = $event" @update:tags-text="tagsText = $event" @save="save" @publish="publish" />
+      <ArticleEditorForm :draft="draft" :tags-text="tagsText" :dirty="dirty" :pending="pending" :conflict="conflict" :publish-disabled-reason="publishDisabledReason" :can-unpublish="article.status === 'published'" :field-errors="fieldErrors" @update:title="draft.title = $event" @update:body="draft.body = $event" @update:tags-text="tagsText = $event" @save="save" @publish="publish" @unpublish="unpublish" />
     </template>
   </div>
 </template>

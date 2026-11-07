@@ -8,7 +8,10 @@ publication fields/counters/revision; republish preserves the first date. Phase 
 `/api/public/articles` is implemented and verified with its exact live-only PublicSummary
 projection and anonymous access. Phase 8 GET `/api/public/articles/:slug` is implemented
 and verified with its exact live-only PublicDetail projection and identical 404 for
-missing/draft-only/unpublished articles. Remaining endpoints are targets for later phases.
+missing/draft-only/unpublished articles. Phase 9 POST `/:articleId/unpublish` is implemented
+and verified: revision precedes state checks, successful unpublish retains history/reference/
+first date/draft/counter, and public list/detail access is removed. Remaining history
+endpoints are targets for later phases.
 
 Authority: [specification](../spec.md) and [plan](../plan.md) P025–P033. The
 [data model](../data-model.md) owns storage; this contract owns wire representations.

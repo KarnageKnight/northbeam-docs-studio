@@ -2,9 +2,9 @@
 
 **Feature**: `001-docs-studio` | **Date**: 2026-11-07 | **Spec**: [spec.md](spec.md)
 
-**Status**: Phases 1–7 approved. The user selected the Write/Preview tabbed UI design in
-[ui-design.md](ui-design.md); T035 is complete. Phase 8 public article detail is implemented and verified,
-pending human approval; Phase 9 and later work have not started. The spec-first checkpoint was verified before
+**Status**: Phases 1–8 approved. The user selected the Write/Preview tabbed UI design in
+[ui-design.md](ui-design.md); T035 is complete. Phase 9 Unpublish is implemented and verified,
+pending human approval. Phase 10 and later work have not started. The spec-first checkpoint was verified before
 code without git commands. The feature identifier is `001-docs-studio`; it does not establish
 a git branch name. Individual architecture decisions P001–P077 remain authoritative.
 
@@ -114,11 +114,11 @@ execution evidence follows implementation.
 
 | Principle | Planning obligation | Current status |
 | --- | --- | --- |
-| I. Specification before implementation | Complete and review spec, plan, and tasks before code; human records git checkpoint. | Spec, design, tasks, and analysis recorded; the spec-first checkpoint was verified before the authorized Phase 1 implementation. Phases 1–7 approved; Write/Preview tabs selected. |
+| I. Specification before implementation | Complete and review spec, plan, and tasks before code; human records git checkpoint. | Spec, design, tasks, and analysis recorded; the spec-first checkpoint was verified before the authorized Phase 1 implementation. Phases 1–8 approved; Write/Preview tabs selected. |
 | II. Draft and snapshot isolation | Public reads use live snapshots; immutable history and referenced-snapshot protection. | Data model and contracts specify table separation, immutable-row trigger, owned reference, and retained-reference deletion protection. |
 | III. Atomic lifecycle and concurrency | Transactional publication and revision checks; no partial state or stale overwrites. | Contracts specify article-first locking, revision-before-eligibility ordering, transactional allocation, rollback, and SQL constraints. |
-| IV. Database-backed evidence | Real PostgreSQL lifecycle/failure/race tests; passing build and suite once scaffolded. | Quickstart maps invariants to real HTTP/SQL evidence, independent connections, rollback and restart checks. Build/typecheck, 98 unit cases, and 99 real PostgreSQL/HTTP cases pass, including publication, post-insert failure/crash rollback, restart, and safe rendering. Remaining lifecycle/race evidence follows its feature tasks. |
-| V. Small reviewable changes | Small scoped tasks, verification, explanation, human review, and no AI commits. | Implement one small task at a time; keep subsequent tasks separate unless explicitly requested together. Leave changes for human review and approval. T001–T013/T022–T024/T039 verified; T035 approved; Phases 1–7 approved and Phase 8 review pending. |
+| IV. Database-backed evidence | Real PostgreSQL lifecycle/failure/race tests; passing build and suite once scaffolded. | Quickstart maps invariants to real HTTP/SQL evidence, independent connections, rollback and restart checks. Build/typecheck, 98 unit cases, and 103 real PostgreSQL/HTTP cases pass, including publication, post-insert failure/crash rollback, restart, and safe rendering. Remaining lifecycle/race evidence follows its feature tasks. |
+| V. Small reviewable changes | Small scoped tasks, verification, explanation, human review, and no AI commits. | Implement one small task at a time; keep subsequent tasks separate unless explicitly requested together. Leave changes for human review and approval. T001–T014/T022–T024/T036/T039 verified; T035 approved; Phases 1–8 approved and Phase 9 review pending. |
 | VI. Human architecture decisions | Present alternatives and record each human selection before dependent work. | P001–P077 record selections and rationale; consolidated artifacts await final human review. |
 | VII. Consistent patterns | Establish approved patterns and reuse them across implementation tasks. | UI/service contract fixes shared validation, handlers/errors, transaction helper, data access, renderer, and local-state patterns. |
 
@@ -152,8 +152,8 @@ Generated design artifacts:
 - [quickstart.md](quickstart.md): verified foundation commands and future feature acceptance procedures.
 
 [tasks.md](tasks.md) contains 39 dependency-ordered tasks across all 14 stories, with
-verification and human review gates. T001–T013, T022–T024, T035, and T039 are verified
-and checked (18 tasks); Phases 1–7 are approved. Phase 8 review is pending; later tasks have not started.
+verification and human review gates. T001–T014, T022–T024, T035–T036, and T039 are verified
+and checked (20 tasks); Phases 1–8 are approved. Phase 9 review is pending; later tasks have not started.
 
 ### UI design review before page implementation
 
@@ -163,7 +163,7 @@ guidance, responsive behavior, and required interaction/feedback states. The use
 in one full-width panel at all screen widths, with history below. Switching tabs preserves
 local edits, dirty state, saved revision, and feedback; it never saves or publishes.
 Shared visual guidance and lifecycle behavior remain selected. Writer create/list/open
-and editing/preview/save/Publish/public list are implemented; public detail is verified and later lifecycle screens remain future work. Routes, component boundaries, and lifecycle rules remain those
+and editing/preview/save/Publish/public list are implemented; public detail is verified; Unpublish is implemented and history screens remain future work. Routes, component boundaries, and lifecycle rules remain those
 in the existing contracts. Target 30–60 minutes for design and review within the agreed overall budget.
 
 Execute T035 immediately after the foundation (Phase 3), and obtain explicit human
@@ -2147,7 +2147,7 @@ resources were preserved. The temporary validation project was removed after che
 Port 3000 was already occupied; the validation app used a temporary loopback-3300 override.
 The committed default is loopback 3000. Windows/Linux host execution, lifecycle operations,
 concurrency races, and later feature UI remain unverified/unimplemented. Phases 1–3 are approved;
-Write/Preview tabs are the selected UI design; Phases 1–7 are approved and Phase 8 awaits human review. See [README.md](../../README.md) for current commands.
+Write/Preview tabs are the selected UI design; Phases 1–8 are approved and Phase 9 awaits human review. See [README.md](../../README.md) for current commands.
 
 ## Entry chooser requested during Phase 4 review
 
@@ -2296,4 +2296,32 @@ A browser-observed small return-link target was enlarged locally to 44px; all ch
 passed again. Code scrolls within its block; no runtime/hydration errors occurred.
 Disposable resources were removed; normal resources were preserved. No schema, dependency,
 Markdown policy, architecture, or later lifecycle feature changed. Phase 8 awaits human
-review; Phase 9 Unpublish remains unstarted.
+review at that point; the user subsequently approved Phase 8 and requested Phase 9.
+
+
+## Phase 9 implementation evidence
+
+T014/T036 implement revision-checked Unpublish through the existing thin-handler,
+operation-function, and shared Read Committed article-lock patterns. Request validation
+precedes lookup; missing articles return 404, stale tokens are checked before publication
+eligibility, and draft/already-unpublished state returns INVALID_PUBLICATION_STATE.
+Success changes only status/revision/update time, preserving draft, immutable snapshots,
+retained reference, first date, counter, and creation time. Public queries immediately
+exclude the article and detail/page return 404. Republish retains the date.
+
+Existing unit/request cases were extended across Publish/Unpublish; public SQL unpublished
+fixtures now use the real API. New focused cases prove preservation, actual public removal,
+stale/state rejection, rollback/recovery, restart, and republish. Typecheck, changed-test typecheck, build,
+and full suite pass: 98 unit + 103 PostgreSQL/HTTP cases (201 total).
+
+The writer shows Unpublish only while published and allows it with unsaved local edits.
+Its response updates the saved article without replacing local title/body/tags. Pending
+and conflict states reuse existing controls; retained references are labeled Last published
+snapshot and invalid-state feedback offers explicit reload. Real Chrome/SQL checks prove
+text retention before/during responses, publish/unpublish/public/republish flow, original
+date, two-tab conflicts/reload/cancel/resubmit, network failure/retry, current public
+navigation, invalid-state feedback, and 320/390/1440px layouts with 44px action targets.
+No runtime/hydration errors occurred. Pinned-type audit: 39 files/eight Vue scripts, no
+findings. Disposable resources were removed; normal resources were preserved. No schema,
+dependency, architecture, or later history feature changed. Phase 9 awaits human review;
+Phase 10 history inspection remains unstarted.

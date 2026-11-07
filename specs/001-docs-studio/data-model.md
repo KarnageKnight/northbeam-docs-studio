@@ -13,7 +13,9 @@ Phase 7 public listing uses one statement joining published articles to their ow
 snapshot, projecting only slug/live title/live tags/original date. Phase 8 detail uses
 the same one-statement ownership/publication filter plus slug, adding only live Markdown
 body. API isolation, unchanged read audits, and unavailable-state 404 are verified.
-Remaining lifecycle rules are targets for later phases.
+Unpublish now changes only status/revision/updated_at; actual public exclusion/404, retained
+history/reference/date/counter/draft, rollback, and republish are verified. Remaining
+history lifecycle rules are targets for later phases.
 
 Authority: [spec.md](spec.md), [plan.md](plan.md) P006–P075, and approved
 [assumptions](assumptions.md). API projections are defined in [the HTTP contract](contracts/http-api.md).

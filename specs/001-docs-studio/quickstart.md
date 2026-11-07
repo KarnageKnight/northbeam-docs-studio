@@ -1,15 +1,15 @@
 # Quickstart and Verification Guide
 
 **Date**: 2026-11-07
-**Status**: Phases 1–7 approved. Phase 8 public article detail is implemented and verified,
-pending human approval. Unpublish/history features have not started.
+**Status**: Phases 1–8 approved. Phase 9 Unpublish is implemented and verified,
+pending human approval. History features have not started.
 
 ## Current commands and evidence
 
 With Node 24.22.2 and pnpm 12.18.0: `pnpm install --frozen-lockfile`, `pnpm dev`,
 `pnpm run test:unit`, `pnpm run test:integration`, `pnpm test`, `pnpm exec nuxt typecheck`,
 and `pnpm run build` are available. Full verification passes 98 database-free unit cases
-and 99 real PostgreSQL/HTTP integration cases, plus typecheck and production build.
+and 103 real PostgreSQL/HTTP integration cases, plus typecheck and production build.
 Docker startup builds the application, applies migrations, and serves the writer feature.
 See [README.md](../../README.md) for prerequisites, configuration, and cleanup procedures.
 
@@ -218,7 +218,7 @@ Open `/writer/articles`, create a draft with title/slug, edit title/body/tags, p
 unsaved Markdown, save, return to the list, reopen, and reload. Try blank title/invalid slug, then a normalized slug
 collision; entered values remain available after errors. Body/tags start empty in the form.
 The API also accepts validated body/tags at creation. Public dismisses the entry popup to the implemented published article list. Fresh root visits show the chooser; direct writer links and client
-portal switching do not reopen it. Editing/preview/save and Publish are available; Unpublish/history
+portal switching do not reopen it. Editing/preview/save, Publish, and Unpublish are available; history
 actions arrive in their owning phases. Preview escapes raw HTML and rejects unsafe links.
 
 For conflict review, open the same article in two tabs, save one, then save the older tab.
@@ -268,8 +268,8 @@ Choose Public from a fresh entry popup or the header. With no published articles
 “No published articles yet.” Publish an article in Writer, return to Public, and confirm
 its live title/tags/original date and `/articles/:slug` links. Saving a different draft
 title/tags must leave the list unchanged; republish updates the list while retaining the
-date. Draft-only and SQL-fixture unpublished articles are excluded. Real Unpublish remains
-in its own phase. Detail destinations are now implemented by Phase 8.
+date. Draft-only and unpublished articles are excluded. These public-read cases now use
+the real Unpublish API. Detail destinations are now implemented by Phase 8.
 
 Existing integration tests now cover the exact anonymous four-field projection, empty
 API/UI, server-rendered title/tags/date/links, literal HTML-looking title text, exclusion
@@ -297,7 +297,7 @@ private. Explicit republish updates public list/detail while preserving the firs
 
 Visit missing, draft-only, and SQL-fixture unpublished slugs directly. API and page return
 404; the reader shows Article not found and All articles without private content. Real
-Unpublish remains scheduled for its feature phase. Unexpected fetch failures provide Retry.
+Unpublish is now implemented in Phase 9. Unexpected fetch failures provide Retry.
 Existing public-read integration cases now also verify exact detail fields, safe server
 rendering, matching unavailable-state HTTP 404, unchanged read audits, and restart persistence.
 
@@ -312,7 +312,7 @@ adjusted to a 44px target after browser review; all checks passed again. Code ov
 inside its block, empty tags are omitted, and no writer controls/runtime/hydration errors
 were observed. The full suite passes 98 unit + 99 integration cases. Nuxt/changed-test
 typechecks and production build pass; disposable resources were removed without touching
-normal resources. Real Unpublish remains Phase 9 work.
+normal resources. Phase 9 now adds real Unpublish.
 
 **Phase 8 review follow-up**: Reader missing-state detection uses Nuxt’s canonical
 `error.status` property instead of its deprecated `statusCode` alias. Existing unavailable-
@@ -325,6 +325,37 @@ the server request event. Existing HTTP 404 tests verify the behavior.
 The installed TypeScript suggestion-diagnostic audit covers 37 source/configuration files,
 including eight Vue script blocks, and reports no remaining deprecations after this fix.
 Template legacy-syntax checks, Nuxt typecheck, production build, and all 197 tests pass.
+
+
+## Unpublish walkthrough
+
+Publish an article and confirm its public list/detail. Make unsaved local changes in
+Writer, then choose Unpublish. Local title/body/tags must stay intact while public listing
+excludes the article and detail returns 404. The header retains the first date and shows
+Last published snapshot. Save deliberately, then republish; the date is unchanged and a
+new snapshot is allocated. A second-tab stale unpublish preserves local text and offers
+explicit reload with confirmation/cancel when dirty. No automatic rebase or retry occurs.
+
+Existing strict-action cases now cover Publish and Unpublish. New focused HTTP/SQL cases
+prove state/revision/update-time-only mutation, retained draft/reference/date/counter/history,
+public exclusion/page/API 404, stale-before-state error order, invalid states, rollback,
+restart persistence, and later republish. Earlier public unpublished SQL fixtures now
+use the real API. All 98 unit + 103 integration cases pass alongside typecheck/build.
+
+
+**Phase 9 browser evidence**: A fresh production Docker app at temporary loopback 3300
+passed dirty Unpublish without implicit save, preservation of all local fields before/
+during a delayed response, retained last reference/first date/history, actual public UI
+exclusion/detail 404, and explicit save/republish with original date. Two-tab stale
+Unpublish preserved text; cancel/confirm reload and deliberate resubmission worked.
+Client Public navigation fetched current visibility without reopening the chooser.
+Network failure kept local/public state intact; deliberate retry succeeded. A controlled
+isolated SQL state fixture verified matching-revision INVALID_PUBLICATION_STATE feedback
+and explicit reload. At 320/390/1440px the three action buttons fit with 44px targets,
+with no runtime/hydration errors or later history controls. Nuxt/changed-test typechecks,
+build, and full suite pass (98 unit + 103 integration); the pinned-type audit found no
+deprecations across 39 files/eight Vue scripts. Disposable resources were removed,
+preserving normal resources. History inspection remains Phase 10 work.
 
 ## Acceptance coverage
 
@@ -366,14 +397,14 @@ Implementation follows [tasks.md](tasks.md): build each feature's API and UI tog
 run its existing/new meaningful checks and browser walkthrough, then present the results
 for human phase approval. Do not wait until all APIs exist to exercise writer screens.
 The later integrated walkthrough repeats the combined experience; it does not defer
-feature-level feedback, conflict preservation, or verification. Phases 1–7 are approved.
-T001–T013, T022–T024, T035, and T039 are verified and checked (18 tasks).
-Phase 8 awaits human approval; later tasks remain unchecked.
+feature-level feedback, conflict preservation, or verification. Phases 1–8 are approved.
+T001–T014, T022–T024, T035–T036, and T039 are verified and checked (20 tasks).
+Phase 9 awaits human approval; later tasks remain unchecked.
 
 ## Design handoff
 
 Review [plan.md](plan.md), [data-model.md](data-model.md), and [contracts](contracts/http-api.md).
 Analysis and the spec-first checkpoint were verified before the authorized Phase 1
 implementation. The [tabbed design](ui-design.md) and Phase 4 create/list/open are approved;
-review Phase 8 public article detail before starting Phase 9 Unpublish. AI creates no commits. Full application behavior and
+review Phase 9 Unpublish before starting Phase 10 history inspection. AI creates no commits. Full application behavior and
 Windows/Linux host support remain unverified.
