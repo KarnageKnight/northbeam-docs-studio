@@ -21,6 +21,18 @@ Shared DB configuration fits the selected single-database application.
 **Alternatives**: Separate backend, handler-only business logic, one large operation module,
 and passing the database through every call were considered and not selected.
 
+## Incremental delivery
+
+**Decision**: At the user's request, [tasks.md](tasks.md) now delivers each feature's
+API, UI, feedback, and verification together, with approval between phases. UI design
+precedes the first feature screen; shared foundation remains a prerequisite.
+
+**Rationale**: Review usable behavior after each feature rather than waiting for a later
+UI-building phase. Split bundled editor actions into their owning lifecycle phases.
+
+**Alternative**: Completing all lifecycle APIs before connecting writer screens is no
+longer the selected execution order. The application architecture/dependency pins are unchanged.
+
 ## Persistence and concurrency
 
 **Decision**: Two tables, application-generated UUIDv4 IDs, text content, text-array tags,
@@ -145,6 +157,6 @@ Evidence: [PostgreSQL image storage](https://github.com/docker-library/docs/blob
 [TRUNCATE semantics](https://www.postgresql.org/docs/18/sql-truncate.html).
 
 The [quickstart](quickstart.md) defines expected procedures and evidence. There are no
-remaining architecture questions in this research; the generated design artifacts await
-the user's final review. Implementation, task generation, and the human git checkpoint
-remain subsequent steps.
+remaining architecture questions in this research. The user requested decomposition into
+[tasks.md](tasks.md); cross-artifact analysis, human task review, and the human git
+checkpoint remain before application implementation. Runtime verification is still unavailable.

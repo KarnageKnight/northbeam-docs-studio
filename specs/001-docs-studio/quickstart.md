@@ -198,10 +198,20 @@ verification alongside the tested HTTP operations.
 The final README must cover prerequisites, these procedures, model rationale, an actual
 time-pressure tradeoff, and known omissions. Reviewers are not required to execute tests.
 
+## Feature-phase review
+
+Implementation follows [tasks.md](tasks.md): build each feature's API and UI together,
+run its existing/new meaningful checks and browser walkthrough, then present the results
+for human phase approval. Do not wait until all APIs exist to exercise writer screens.
+The later integrated walkthrough repeats the combined experience; it does not defer
+feature-level feedback, conflict preservation, or verification. All phases are currently
+pending review and all task boxes remain unchecked.
+
 ## Design handoff
 
 Review [plan.md](plan.md), [data-model.md](data-model.md), and [contracts](contracts/http-api.md).
-After final design approval, generate `tasks.md` through Spec Kit. The human records the
-required specification/plan/task git checkpoint before application implementation. AI
+[tasks.md](tasks.md) is generated for review. Next run cross-artifact analysis, resolve
+material findings, and review the task list. The human records the required
+specification/plan/task git checkpoint before application implementation. AI
 creates no commits. No application build, test, restart, or Windows/Linux support result
 has been claimed by this planning guide.
