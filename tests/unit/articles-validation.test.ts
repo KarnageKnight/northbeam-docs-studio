@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createArticleSchema, saveDraftSchema, titleSchema } from '../../server/validation/articles'
+import { createArticleSchema, publishArticleSchema, saveDraftSchema, titleSchema } from '../../server/validation/articles'
 
 describe('article title', () => {
   it('preserves supplied text, including surrounding whitespace', () => {
@@ -80,7 +80,10 @@ describe('complete draft save', () => {
   })
 
   it.each([undefined, null, '0', -1, 0.5, Number.MAX_SAFE_INTEGER + 1, false, {}])('rejects invalid revision %j', (expectedRevision) => {
-    expect(saveDraftSchema.safeParse({ ...input, expectedRevision }).success).toBe(false)
+    for (const schema of [saveDraftSchema, publishArticleSchema]) {
+      const body = schema === saveDraftSchema ? input : {}
+      expect(schema.safeParse({ ...body, expectedRevision }).success).toBe(false)
+    }
   })
 
   it.each(['title', 'body', 'tags', 'expectedRevision'])('requires %s on every save', (field) => {
@@ -94,4 +97,16 @@ describe('complete draft save', () => {
       expect(saveDraftSchema.safeParse({ ...input, ...fields }).success).toBe(false)
     },
   )
+})
+
+
+describe('publish request', () => {
+  it('accepts only a safe expected revision, including values beyond the database integer range', () => {
+    expect(publishArticleSchema.parse({ expectedRevision: Number.MAX_SAFE_INTEGER }))
+      .toEqual({ expectedRevision: Number.MAX_SAFE_INTEGER })
+    expect(publishArticleSchema.parse({ expectedRevision: 0 })).toEqual({ expectedRevision: 0 })
+    for (const body of [{}, null, [], { expectedRevision: 0, body: 'Unsaved text' }]) {
+      expect(publishArticleSchema.safeParse(body).success).toBe(false)
+    }
+  })
 })

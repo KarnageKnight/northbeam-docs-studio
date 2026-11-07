@@ -1,12 +1,13 @@
 # Research: Northbeam Docs Studio
 
 **Date**: 2026-11-07
-**Status**: Research consolidated. The Phase 5 application passes build/typecheck,
-97 unit tests, and 75 PostgreSQL/HTTP cases on macOS arm64 with Linux containers.
+**Status**: Research consolidated. The Phase 6 application passes build/typecheck,
+98 unit tests, and 93 PostgreSQL/HTTP cases on macOS arm64 with Linux containers.
 Production Docker migrations/startup, restart idempotence, failure/interrupt cleanup, and
-overlap rejection were verified. Phases 1–4 are approved; [tabbed UI design](ui-design.md) is selected.
+overlap rejection were verified. Phases 1–5 are approved; [tabbed UI design](ui-design.md) is selected.
 Writer create/list/open, draft saving/restart persistence, safe Markdown preview, and
-two-tab conflict/reload behavior are verified. Phase 5 awaits human review; later lifecycle/UI
+two-tab save conflict/reload behavior are verified. Publish API atomicity and rollback/crash
+recovery and the writer Publish UI are verified. Phase 6 awaits human review. Later lifecycle/UI
 features and Windows/Linux host execution remain future verification.
 
 Public content is writer-published articles on any topic. Generic article wording is a
@@ -194,3 +195,18 @@ The editor uses the shared component through Nuxt's `#shared` alias. Browser che
 a production Docker app verify unsaved preview, two-tab conflicts, explicit confirmed
 reload/cancel/resubmit, and newer local text surviving a paused save response. No renderer,
 state-management, or browser-testing framework beyond the approved choices was introduced.
+
+
+## Phase 6 atomic publication evidence
+
+The existing transaction helper now supports Publish as well as Save. Tests inject a
+failure after snapshot insertion and observe complete rollback of first/republish state.
+An independent PostgreSQL connection holds a test-only advisory-lock barrier reached by
+an AFTER INSERT trigger; actual blocking precedes SIGKILL. After restart the transaction
+is absent and publication recovers with the original version allocation. All fixture
+triggers/functions/locks are removed; production code contains no test hook.
+
+Browser checks on the production Docker build also verify stale-publish feedback,
+reload/cancel/resubmit, newer edits surviving a delayed publish response, and a subsequent
+save using its returned revision. SQL confirms saves leave the live snapshot unchanged.
+No architecture/pattern/dependency change was needed.

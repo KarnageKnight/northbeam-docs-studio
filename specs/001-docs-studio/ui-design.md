@@ -6,8 +6,8 @@ Deloitte-inspired black/white/green styling with Write/Preview tabs, history bel
 and the documented responsive layouts and feedback states. Only this approved design
 is retained in the preview assets.
 **Scope**: Five screen wireframes, rendered visual mockups, and feedback states.
-Writer list/creation and Phase 5 editable Write/Preview/save follow this design. Publication,
-history, and public-reading wireframes remain targets for later feature phases.
+Writer list/creation, editable Write/Preview/save, and Phase 6 Publish follow this design.
+Unpublish, history, and public-reading wireframes remain targets for later feature phases.
 
 Use the approved [specification](spec.md), [plan](plan.md),
 [HTTP contract](contracts/http-api.md), and [UI/service boundaries](contracts/ui-and-services.md).
@@ -344,8 +344,8 @@ After reviewing the rendered previews, the user explicitly approved the final
 black/white/green tabbed design on 2026-11-07. This approval covers the current styling,
 layouts, and documented interaction/feedback states.
 
-T035 is complete. Phases 1–4 are approved. Phase 5 editing/preview/save is implemented
-and verified, pending human phase approval. Publishing/history and public pages arrive later.
+T035 is complete. Phases 1–5 are approved. Phase 6 publishing is implemented and verified,
+pending human phase approval. Unpublish/history and public pages arrive later.
 Later visual changes require human approval.
 Wireframes and rendered previews demonstrate design intent. Prototype checks are recorded
 above; actual application browser, responsive, and accessibility behavior must still be

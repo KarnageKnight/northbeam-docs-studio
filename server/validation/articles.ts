@@ -13,6 +13,7 @@ const bodySchema = z.string()
 const tagsSchema = z.array(z.string()).transform((tags) => [...new Set(
   tags.map((tag) => tag.trim().toLowerCase()).filter(Boolean),
 )]).pipe(z.array(z.string().max(30).regex(slugCharacters, 'Use letters, numbers, and single hyphens in tags.')).max(10))
+const expectedRevisionSchema = z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER)
 
 export const createArticleSchema = z.strictObject({
   title: titleSchema,
@@ -25,5 +26,12 @@ export const saveDraftSchema = z.strictObject({
   title: titleSchema,
   body: bodySchema,
   tags: tagsSchema,
-  expectedRevision: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
+  expectedRevision: expectedRevisionSchema,
+})
+
+export const publishArticleSchema = z.strictObject({ expectedRevision: expectedRevisionSchema })
+
+export const publishContentSchema = z.object({
+  title: titleSchema,
+  body: bodySchema.refine((body) => body.trim().length > 0, 'Save a nonblank body before publishing.'),
 })

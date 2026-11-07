@@ -1,15 +1,15 @@
 # Quickstart and Verification Guide
 
 **Date**: 2026-11-07
-**Status**: Phases 1–4 approved. Phase 5 editing/preview/save is implemented and verified,
-pending human phase approval. Publishing/history and public article features have not started.
+**Status**: Phases 1–5 approved. Phase 6 publishing is implemented and verified, pending human phase approval.
+Unpublish/history and public article features have not started.
 
 ## Current commands and evidence
 
 With Node 24.22.2 and pnpm 12.18.0: `pnpm install --frozen-lockfile`, `pnpm dev`,
 `pnpm run test:unit`, `pnpm run test:integration`, `pnpm test`, `pnpm exec nuxt typecheck`,
-and `pnpm run build` are available. Full verification passes 97 database-free unit cases
-and 75 real PostgreSQL/HTTP integration cases, plus typecheck and production build.
+and `pnpm run build` are available. Full verification passes 98 database-free unit cases
+and 93 real PostgreSQL/HTTP integration cases, plus typecheck and production build.
 Docker startup builds the application, applies migrations, and serves the writer feature.
 See [README.md](../../README.md) for prerequisites, configuration, and cleanup procedures.
 
@@ -129,14 +129,16 @@ pnpm install --frozen-lockfile
 | Command | Current coverage |
 | --- | --- |
 | `pnpm dev` | Host Nuxt development server; configured PostgreSQL and applied migrations required |
-| `pnpm run test:unit` | 97 database-free title/create/save validation and safe Markdown cases |
+| `pnpm run test:unit` | 98 database-free title/create/save/publish validation and safe Markdown cases |
 | `pnpm run test:integration` | Automatic isolated Compose database, migrations, built HTTP server, PostgreSQL assertions |
 | `pnpm test` | Both suites; nonzero result if either fails |
 | `pnpm exec nuxt typecheck` | Application/Vue typechecking with the approved toolchain |
 | `pnpm run build` | Production Nuxt build |
 
 All commands above are implemented. Integration checks cover database protections, draft creation/reads/restart, native
-HTTP errors, and production readiness; remaining lifecycle coverage follows each feature.
+HTTP errors, and production readiness; publish API checks now also prove first publish/republish, saved/live isolation, retained
+dates, stale ordering, post-insert failure rollback, and SIGKILL recovery at an observed
+PostgreSQL lock barrier. Remaining lifecycle coverage follows each feature.
 Task completion requires the production build and existing suite;
 maintain required type checks and update affected documentation.
 
@@ -216,7 +218,7 @@ unsaved Markdown, save, return to the list, reopen, and reload. Try blank title/
 collision; entered values remain available after errors. Body/tags start empty in the form.
 The API also accepts validated body/tags at creation. Public dismisses the entry popup to an Articles placeholder; the public list remains
 pending in Phase 7. Fresh root visits show the chooser; direct writer links and client
-portal switching do not reopen it. Editing/preview/save are available; publication/history
+portal switching do not reopen it. Editing/preview/save and Publish are available; Unpublish/history
 actions arrive in their owning phases. Preview escapes raw HTML and rejects unsafe links.
 
 For conflict review, open the same article in two tabs, save one, then save the older tab.
@@ -225,6 +227,39 @@ confirmed reload refreshes the saved revision for explicit resubmission. Unchang
 also advance revision. Real Chrome checks verified these flows, field errors, network
 failure, separate article state, keyboard tabs, and newer edits surviving a delayed save
 response at 320/390/1440px, without runtime exceptions or hydration warnings.
+
+
+## Publish walkthrough
+
+Save a nonblank title/body, then choose Publish separately. Dirty or blank saved content
+disables Publish with a reason. First publish shows published status, the original date,
+and a snapshot reference; unchanged republish creates another numbered snapshot while
+preserving the date. Saving new draft content leaves earlier snapshots untouched.
+
+Open the same article in two tabs. Save in one, then Publish from the older clean tab;
+the older tab shows STALE_REVISION feedback without automatic retry. Local edits remain
+available; reload is explicit and confirms replacement when dirty. After reload, publish
+again explicitly. Edits made while a publish response is in flight must stay local and
+must not become published implicitly.
+
+HTTP/SQL checks verify first publication, unchanged/changed republish, first-date retention,
+stale-before-blank ordering, strict expectedRevision input, and restart persistence.
+Test-only trigger failures after snapshot insertion prove first/republish rollback.
+An independent connection holds an advisory lock reached by a test-only AFTER INSERT
+trigger; observed blocking precedes SIGKILL. Restart shows no partial snapshot or changed
+article/counter/audit state, and the next publication uses version 1. All fixture DDL/locks
+are removed; no production test hook or database migration was needed.
+
+
+**Phase 6 browser evidence**: A fresh production Docker application on temporary loopback
+port 3300 passed real Chrome checks for blank/dirty guards, explicit save then Publish,
+unchanged republish/date retention, current snapshot reference, saved/live isolation,
+two-tab stale publication, in-flight edit retention, reload/cancel/resubmit, and network
+failure. Successful delayed publish responses retain newer local text; the next explicit
+save uses the returned revision. SQL confirms four publications create four snapshots
+while subsequent saves leave the live snapshot unchanged. Layouts at 320/390/1440px fit
+without overflow, action targets meet 44px, and no runtime/hydration errors were observed.
+Validation resources were removed without touching the normal app/development database.
 
 ## Acceptance coverage
 
@@ -266,14 +301,14 @@ Implementation follows [tasks.md](tasks.md): build each feature's API and UI tog
 run its existing/new meaningful checks and browser walkthrough, then present the results
 for human phase approval. Do not wait until all APIs exist to exercise writer screens.
 The later integrated walkthrough repeats the combined experience; it does not defer
-feature-level feedback, conflict preservation, or verification. Phases 1–4 are approved.
-T001–T008, T013, T022–T023, and T035 are checked (12 tasks); Phase 5 approval is pending.
-Later tasks remain unchecked.
+feature-level feedback, conflict preservation, or verification. Phases 1–5 are approved.
+T001–T010, T013, T022–T024, and T035 are verified and checked (15 tasks).
+Phase 6 awaits human approval; later tasks remain unchecked.
 
 ## Design handoff
 
 Review [plan.md](plan.md), [data-model.md](data-model.md), and [contracts](contracts/http-api.md).
 Analysis and the spec-first checkpoint were verified before the authorized Phase 1
 implementation. The [tabbed design](ui-design.md) and Phase 4 create/list/open are approved;
-review Phase 5 editing/preview/save before starting Phase 6 publishing. AI creates no commits. Full application behavior and
+review Phase 6 publishing before starting Phase 7 public lists. AI creates no commits. Full application behavior and
 Windows/Linux host support remain unverified.

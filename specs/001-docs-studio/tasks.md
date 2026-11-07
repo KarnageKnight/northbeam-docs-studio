@@ -1,9 +1,9 @@
 # Tasks: Northbeam Docs Studio
 
 **Feature**: `001-docs-studio` · **Created**: 2026-11-07
-**Status**: Phases 1–4 approved. Phase 5 editing/preview/save is implemented and verified,
-pending human phase approval. T035 retains the user-approved Write/Preview tabbed design.
-Phase 6 and later work have not started.
+**Status**: Phases 1–5 approved. Phase 6 publishing is implemented and verified,
+pending human phase approval.
+T035 retains the user-approved Write/Preview tabbed design. Phase 7 and later work have not started.
 **Input**: [specification](spec.md), [plan](plan.md), [research](research.md),
 [data model](data-model.md), [HTTP contract](contracts/http-api.md),
 [UI/service contract](contracts/ui-and-services.md), [quickstart](quickstart.md),
@@ -276,7 +276,8 @@ Nuxt typecheck, explicit changed-test typecheck, production build, and the full 
 97 unit + 75 PostgreSQL/HTTP tests. Disposable browser/test resources were removed,
 preserving the development database. Phase 6 publishing and Phase 7 public lists remain unstarted.
 
-**Phase approval**: Pending human review. Demonstrate this phase, present verification results, and wait for explicit human approval before starting the next phase.
+**Phase approval**: Approved by the user by requesting the next phase.
+Phase 6 publishing is authorized; later phases retain their review gates.
 
 ## Phase 6: US3 — Publish saved content (P1)
 
@@ -284,9 +285,44 @@ preserving the development database. Phase 6 publishing and Phase 7 public lists
 **Dependencies**: Editing/preview approved; no dependency on a later public-page task.
 **Independent test**: Browser first publish/republish reports correct status/reference/original date, dirty draft requires explicit save, blank/stale publish is rejected; HTTP/SQL prove immutability, counters, rollback and crash atomicity. Public-reader rendering is its own subsequent feature.
 
-- [ ] T009 [US3] Extend `tests/integration/articles.test.ts` before implementing `server/services/articles/publishArticle.ts`, its request schema in `server/validation/articles.ts`, and `server/api/writer/articles/[articleId]/publish.post.ts`. Enforce "Saved title and body must be nonblank" after article lock/revision comparison; blank saved content gives 400 VALIDATION_ERROR with no mutation. Generate snapshot UUIDv4, allocate its positive per-article number from the locked counter, insert saved title/body/tags, and atomically advance counter/revision, set published status/new owned reference, set published_at only on first publication using CURRENT_TIMESTAMP, and update updated_at. Return WriterArticle; verify repeated/unchanged publication creates new immutable rows and preserves first date, draft, slug, and earlier snapshot content.
-- [ ] T010 [US3] Extend the publish scenarios in `tests/integration/articles.test.ts` using existing SQL/process helpers in `tests/integration/helpers.ts` to inject a temporary isolated-DB failure after snapshot insertion but before publication completes; remove fixture DDL reliably. Reuse a database lock barrier to terminate the built app during an uncommitted publish, restart against the same DB, and inspect persisted state; no production test hooks. For failure and crash, prove snapshot insertion, counter allocation, reference/status/date/revision, and audit changes roll back, and the next successful publish uses the uncommitted allocation correctly. Retain the existing direct snapshot-update rejection assertions without duplication. Fix only demonstrated lifecycle/transaction defects in `server/services/articles/publishArticle.ts` or `server/services/articles/withArticleTransaction.ts` if needed.
-- [ ] T024 [US3] Extend `app/composables/useArticleEditor.ts`, `app/components/ArticleEditorForm.vue`, and `app/pages/writer/articles/[articleId].vue` with a separate Publish action, current status/reference/date, success/error feedback, and explicit reload after conflict. Require a successful explicit save of dirty content before publish; never auto-save, silently rebase, or auto-retry with a newer revision. Refresh saved revision from successful responses, serialize conflicting actions while pending, and preserve unsaved text on 409 or responses arriving after newer edits. Walk through first publication, unchanged republish, blank-body rejection, and stale publish with explicit reload/resubmit using real API/SQL evidence. Unpublish is added with its own feature in T036; no unimplemented action controls.
+- [x] T009 [US3] Extend `tests/integration/articles.test.ts` before implementing `server/services/articles/publishArticle.ts`, its request schema in `server/validation/articles.ts`, and `server/api/writer/articles/[articleId]/publish.post.ts`. Enforce "Saved title and body must be nonblank" after article lock/revision comparison; blank saved content gives 400 VALIDATION_ERROR with no mutation. Generate snapshot UUIDv4, allocate its positive per-article number from the locked counter, insert saved title/body/tags, and atomically advance counter/revision, set published status/new owned reference, set published_at only on first publication using CURRENT_TIMESTAMP, and update updated_at. Return WriterArticle; verify repeated/unchanged publication creates new immutable rows and preserves first date, draft, slug, and earlier snapshot content.
+- [x] T010 [US3] Extend the publish scenarios in `tests/integration/articles.test.ts` using existing SQL/process helpers in `tests/integration/helpers.ts` to inject a temporary isolated-DB failure after snapshot insertion but before publication completes; remove fixture DDL reliably. Reuse a database lock barrier to terminate the built app during an uncommitted publish, restart against the same DB, and inspect persisted state; no production test hooks. For failure and crash, prove snapshot insertion, counter allocation, reference/status/date/revision, and audit changes roll back, and the next successful publish uses the uncommitted allocation correctly. Retain the existing direct snapshot-update rejection assertions without duplication. Fix only demonstrated lifecycle/transaction defects in `server/services/articles/publishArticle.ts` or `server/services/articles/withArticleTransaction.ts` if needed.
+- [x] T024 [US3] Extend `app/composables/useArticleEditor.ts`, `app/components/ArticleEditorForm.vue`, and `app/pages/writer/articles/[articleId].vue` with a separate Publish action, current status/reference/date, success/error feedback, and explicit reload after conflict. Require a successful explicit save of dirty content before publish; never auto-save, silently rebase, or auto-retry with a newer revision. Refresh saved revision from successful responses, serialize conflicting actions while pending, and preserve unsaved text on 409 or responses arriving after newer edits. Walk through first publication, unchanged republish, blank-body rejection, and stale publish with explicit reload/resubmit using real API/SQL evidence. Unpublish is added with its own feature in T036; no unimplemented action controls.
+
+**T009 evidence**: Extended existing validation/HTTP suites first; the missing publish
+schema failed before implementation. The native publish handler reuses the locked
+transaction helper, validates saved content after the revision check, inserts a UUIDv4
+snapshot with the locked per-article number, and atomically updates publication state.
+First publish/unchanged republish, save/live isolation, retained dates, separate article
+numbering, restart persistence, invalid bodies/IDs, and stale precedence pass. Existing
+immutable-row checks remain in place. Typecheck/build/full suite pass: 98 unit + 90
+PostgreSQL/HTTP cases. T010 failure/crash evidence is next; writer Publish controls follow T024.
+
+**T010 evidence**: Existing HTTP/SQL scenarios now force an article-update failure after
+the transaction has inserted its snapshot, for first publication and republish. Both
+rollback article fields/audit/counters and all new history; the next publication uses the
+expected number. A test-only AFTER INSERT trigger pauses at an advisory lock held by an
+independent connection; observed PostgreSQL lock contention precedes SIGKILL of the app.
+After restart, there is no partial snapshot/article state and the next publication uses
+version 1. All fixture DDL/locks are cleaned up. No production test hook was added.
+Typecheck/build/full suite pass: 98 unit + 93 PostgreSQL/HTTP cases. T024 writer controls
+and browser verification are next.
+
+**T024 / Phase 6 evidence**: A separate Publish button requires clean, nonblank saved
+content and explains why it is disabled. It sends only expectedRevision, never auto-saves
+or silently retries, and shares pending/conflict handling with Save. Success shows saved
+status, first date, and current snapshot reference. New edits made while a response is
+pending stay local; a subsequent save uses the returned revision.
+A fresh isolated production Docker app passed real Chrome checks for blank-body rejection,
+explicit save/publish, unchanged republish/date retention, saved/live isolation, stale
+publish with in-flight edits, reload/cancel/resubmit, delayed successful responses,
+network failure, reopening metadata, and 320/390/1440px layouts with 44px action targets.
+No runtime exceptions or hydration warnings were observed. SQL checks confirmed each
+publication creates a snapshot and later saves leave the live snapshot unchanged.
+Nuxt typecheck, explicit changed-test typecheck, production build, and full suite pass:
+98 unit + 93 PostgreSQL/HTTP tests (191 total). Disposable test/browser resources were
+removed; normal application/development resources were preserved. No schema/migration
+or dependency changes were needed. Phase 7 public lists remain unstarted.
 
 **Phase approval**: Pending human review. Demonstrate this phase, present verification results, and wait for explicit human approval before starting the next phase.
 
@@ -427,8 +463,8 @@ preserving the development database. Phase 6 publishing and Phase 7 public lists
 Execute the phases above in order, with explicit human approval at every boundary.
 Task IDs are stable references rather than a numeric execution sequence. UI tasks moved
 into their owning story retain their original ID; newly split UI tasks are T036–T039.
-T001–T008, T013, T022–T023, and T035 are complete with evidence above (12 tasks).
-Phases 1–4 are approved; Phase 5 awaits human approval.
+T001–T010, T013, T022–T024, and T035 are complete with evidence above (15 tasks).
+Phases 1–5 are approved; Phase 6 awaits human approval.
 Later phase approvals and tasks remain pending.
 
 ```text

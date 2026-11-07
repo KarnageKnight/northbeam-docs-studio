@@ -5,7 +5,11 @@
 against PostgreSQL 18.6. Draft creation/read/default/normalization and Phase 5 revision-checked
 saves are implemented and verified. Saves lock the article, replace draft fields, advance
 revision/update time, and preserve publication/history/slug/allocation state; rollback and
-stale/no-op behavior are tested. Remaining lifecycle rules are targets for later phases.
+stale/no-op behavior are tested. Phase 6 publication now atomically creates a saved-content
+snapshot and advances reference/status/counter/revision, preserving the original publication
+date and prior snapshots. Forced post-insert failure and app-crash rollback/recovery are
+verified against real PostgreSQL; writer Publish controls are implemented;
+remaining lifecycle rules are targets for later phases.
 
 Authority: [spec.md](spec.md), [plan.md](plan.md) P006–P075, and approved
 [assumptions](assumptions.md). API projections are defined in [the HTTP contract](contracts/http-api.md).
