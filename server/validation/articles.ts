@@ -20,3 +20,10 @@ export const createArticleSchema = z.strictObject({
   body: bodySchema.nullish().transform((body) => body ?? ''),
   tags: tagsSchema.nullish().transform((tags) => tags ?? []),
 })
+
+export const saveDraftSchema = z.strictObject({
+  title: titleSchema,
+  body: bodySchema,
+  tags: tagsSchema,
+  expectedRevision: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
+})

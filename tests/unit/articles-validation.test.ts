@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createArticleSchema, titleSchema } from '../../server/validation/articles'
+import { createArticleSchema, saveDraftSchema, titleSchema } from '../../server/validation/articles'
 
 describe('article title', () => {
   it('preserves supplied text, including surrounding whitespace', () => {
@@ -69,4 +69,29 @@ describe('article creation', () => {
   it.each([null, [], 'text', {}, { title: 'Title' }, { slug: 'slug' }])('rejects invalid input %j', (input) => {
     expect(createArticleSchema.safeParse(input).success).toBe(false)
   })
+})
+
+describe('complete draft save', () => {
+  const input = { title: 'Draft title', body: '', tags: [], expectedRevision: 0 }
+
+  it('normalizes tags, preserves text, and accepts safe integer revisions', () => {
+    expect(saveDraftSchema.parse({ ...input, body: '  Text\n', tags: [' Ideas ', '', 'IDEAS', 'life'], expectedRevision: Number.MAX_SAFE_INTEGER }))
+      .toEqual({ ...input, body: '  Text\n', tags: ['ideas', 'life'], expectedRevision: Number.MAX_SAFE_INTEGER })
+  })
+
+  it.each([undefined, null, '0', -1, 0.5, Number.MAX_SAFE_INTEGER + 1, false, {}])('rejects invalid revision %j', (expectedRevision) => {
+    expect(saveDraftSchema.safeParse({ ...input, expectedRevision }).success).toBe(false)
+  })
+
+  it.each(['title', 'body', 'tags', 'expectedRevision'])('requires %s on every save', (field) => {
+    const value: Record<string, unknown> = { ...input }
+    delete value[field]
+    expect(saveDraftSchema.safeParse(value).success).toBe(false)
+  })
+
+  it.each([{ title: ' ' }, { body: null }, { tags: null }, { slug: 'new-slug' }, { unknown: 1 }, { body: '😀'.repeat(100001) }, { tags: ['bad tag'] }])(
+    'rejects invalid complete-save input (case %#)', (fields) => {
+      expect(saveDraftSchema.safeParse({ ...input, ...fields }).success).toBe(false)
+    },
+  )
 })

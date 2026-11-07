@@ -1,8 +1,9 @@
 # Tasks: Northbeam Docs Studio
 
 **Feature**: `001-docs-studio` · **Created**: 2026-11-07
-**Status**: Phases 1–3 approved. T035 is complete with the Write/Preview tabbed design selected by the user.
-Phase 4 T006/T007/T022 is implemented and verified, pending human approval. Later phases have not started.
+**Status**: Phases 1–4 approved. Phase 5 editing/preview/save is implemented and verified,
+pending human phase approval. T035 retains the user-approved Write/Preview tabbed design.
+Phase 6 and later work have not started.
 **Input**: [specification](spec.md), [plan](plan.md), [research](research.md),
 [data model](data-model.md), [HTTP contract](contracts/http-api.md),
 [UI/service contract](contracts/ui-and-services.md), [quickstart](quickstart.md),
@@ -236,7 +237,8 @@ without runtime exceptions or hydration warnings. Typecheck/build and all 108 te
 (48 unit + 60 integration) pass. Temporary test/browser resources were removed; Phase 4
 remains pending human approval and Phase 5 has not started.
 
-**Phase approval**: Pending human review. Demonstrate this phase, present verification results, and wait for explicit human approval before starting the next phase.
+**Phase approval**: Approved by the user on 2026-11-07 by requesting the next phase.
+Phase 5 editing/preview implementation is authorized; later phases retain their gates.
 
 ## Phase 5: US2 — Edit a draft with Markdown preview (P1)
 
@@ -244,9 +246,35 @@ remains pending human approval and Phase 5 has not started.
 **Dependencies**: Create/open draft approved.
 **Independent test**: Edit title/body/tags, preview safe Markdown, save and reopen after restart; unchanged save advances revision, invalid save does not, and two-tab stale save preserves local text with explicit reload/resubmit.
 
-- [ ] T008 [US2] First extend the existing validation and HTTP/SQL cases in `tests/unit/articles-validation.test.ts` and `tests/integration/articles.test.ts`, then add the complete-save schema in `server/validation/articles.ts`, `server/services/articles/withArticleTransaction.ts`, `server/services/articles/saveDraft.ts`, and `server/api/writer/articles/[articleId]/draft.put.ts`. Require title/body/tags and expectedRevision with no coercion/null defaults or slug updates; the token rule is "Nonnegative safe integer JSON number; no coercion". Begin Read Committed transaction, lock article FOR UPDATE, return 404 if missing, compare revision before mutation, then replace only draft fields and increment revision once/update updated_at with CURRENT_TIMESTAMP. Return WriterArticle after success; unchanged saves also advance revision. Verify 409 STALE_REVISION makes no changes, creation timestamp/slug/counter/publication/history survive saves, and transaction queries use the callback transaction rather than the shared pool.
-- [ ] T013 [US2] Add `shared/utils/markdown.ts` and `app/components/MarkdownContent.vue` for the editor preview, first creating meaningful cases in `tests/unit/markdown.test.ts`. Render standard Markdown, show raw HTML literally, and allow only HTTP/HTTPS/mailto/relative-path/#heading links; unsafe schemes never become clickable, including encoded/case variations. Preserve universal rendering and use this same renderer/component for the later public detail page in T039. Verify rendering through the preview in T023; do not build a public page or add a new library here.
-- [ ] T023 [US2] Extend the read-only editor into an editable feature with per-invocation state/actions in `app/composables/useArticleEditor.ts`, present the form in `app/components/ArticleEditorForm.vue`, and compose them in `app/pages/writer/articles/[articleId].vue`. Implement load/save for title/Markdown/tags, immutable displayed slug, and Write/Preview tabs in one panel, rendering the current local Markdown through `app/components/MarkdownContent.vue` without saving; keep editable content separate from the saved baseline/revision. Implement visible save-conflict feedback and explicit reload/resubmit now; preserve local text on 409 and edits made while a response is in flight, with no silent retry/rebase. Manually verify title/body/tags, shared preview, dirty/loading/pending states, validation feedback, unchanged saves, restart/reopen, and a two-tab stale-save conflict. Reuse existing unit/HTTP cases if a discovered server defect needs a regression; add no Pinia or module-global editor singleton.
+- [x] T008 [US2] First extend the existing validation and HTTP/SQL cases in `tests/unit/articles-validation.test.ts` and `tests/integration/articles.test.ts`, then add the complete-save schema in `server/validation/articles.ts`, `server/services/articles/withArticleTransaction.ts`, `server/services/articles/saveDraft.ts`, and `server/api/writer/articles/[articleId]/draft.put.ts`. Require title/body/tags and expectedRevision with no coercion/null defaults or slug updates; the token rule is "Nonnegative safe integer JSON number; no coercion". Begin Read Committed transaction, lock article FOR UPDATE, return 404 if missing, compare revision before mutation, then replace only draft fields and increment revision once/update updated_at with CURRENT_TIMESTAMP. Return WriterArticle after success; unchanged saves also advance revision. Verify 409 STALE_REVISION makes no changes, creation timestamp/slug/counter/publication/history survive saves, and transaction queries use the callback transaction rather than the shared pool.
+- [x] T013 [US2] Add `shared/utils/markdown.ts` and `app/components/MarkdownContent.vue` for the editor preview, first creating meaningful cases in `tests/unit/markdown.test.ts`. Render standard Markdown, show raw HTML literally, and allow only HTTP/HTTPS/mailto/relative-path/#heading links; unsafe schemes never become clickable, including encoded/case variations. Preserve universal rendering and use this same renderer/component for the later public detail page in T039. Verify rendering through the preview in T023; do not build a public page or add a new library here.
+- [x] T023 [US2] Extend the read-only editor into an editable feature with per-invocation state/actions in `app/composables/useArticleEditor.ts`, present the form in `app/components/ArticleEditorForm.vue`, and compose them in `app/pages/writer/articles/[articleId].vue`. Implement load/save for title/Markdown/tags, immutable displayed slug, and Write/Preview tabs in one panel, rendering the current local Markdown through `app/components/MarkdownContent.vue` without saving; keep editable content separate from the saved baseline/revision. Implement visible save-conflict feedback and explicit reload/resubmit now; preserve local text on 409 and edits made while a response is in flight, with no silent retry/rebase. Manually verify title/body/tags, shared preview, dirty/loading/pending states, validation feedback, unchanged saves, restart/reopen, and a two-tab stale-save conflict. Reuse existing unit/HTTP cases if a discovered server defect needs a regression; add no Pinia or module-global editor singleton.
+
+**T008 evidence (2026-11-07)**: Extended existing unit/HTTP cases before implementation;
+missing save validation failed as expected. Save requires all draft fields and a safe
+nonnegative revision, locks the article in Read Committed, checks revision, and updates
+only draft fields/revision/audit time through the transaction callback. Exact HTTP/SQL
+assertions cover normalized save, restart persistence, unchanged-save increments, stale/
+invalid/missing requests, publication/history/counter preservation, and rollback/recovery.
+Typecheck/build/full suite pass. T013 rendering is next; later phases remain unstarted.
+
+**T013 evidence (2026-11-07)**: Added the approved markdown-it 15.0.3 pin and shared
+renderer/component after missing-renderer tests failed. Standard Markdown renders; raw
+HTML is escaped. Allowed link schemes/relative paths/headings work; unsafe, entity/percent-
+encoded schemes and scheme-relative URLs remain unclickable. Existing and renderer tests,
+Nuxt typecheck, and production build pass. T023 editor/browser integration is next.
+
+**T023 / Phase 5 evidence (2026-11-07)**: Editable title/body/tags, keyboard-accessible
+Write/Preview tabs, explicit Save, and per-invocation editor state are implemented.
+Success updates the saved revision; errors and stale responses preserve local text.
+Reload requires confirmation when dirty; cancellation keeps edits. Newer text entered
+while a save response is pending survives the response and can be saved with its new revision.
+Production Chrome checks passed safe unsaved preview, validation, unchanged saves,
+two-tab conflicts, reload/cancel/resubmit, delayed-response retention, network failure,
+article-state isolation, and 320/390/1440px layouts without runtime/hydration errors.
+Nuxt typecheck, explicit changed-test typecheck, production build, and the full suite pass:
+97 unit + 75 PostgreSQL/HTTP tests. Disposable browser/test resources were removed,
+preserving the development database. Phase 6 publishing and Phase 7 public lists remain unstarted.
 
 **Phase approval**: Pending human review. Demonstrate this phase, present verification results, and wait for explicit human approval before starting the next phase.
 
@@ -399,8 +427,9 @@ remains pending human approval and Phase 5 has not started.
 Execute the phases above in order, with explicit human approval at every boundary.
 Task IDs are stable references rather than a numeric execution sequence. UI tasks moved
 into their owning story retain their original ID; newly split UI tasks are T036–T039.
-T001–T007, T022, and T035 are complete with evidence above; Phases 1–3 are approved.
-Phase 4 approval is pending; later phase approvals and tasks remain pending.
+T001–T008, T013, T022–T023, and T035 are complete with evidence above (12 tasks).
+Phases 1–4 are approved; Phase 5 awaits human approval.
+Later phase approvals and tasks remain pending.
 
 ```text
 Setup T001–T002 → Foundation T003–T005 → UI design T035

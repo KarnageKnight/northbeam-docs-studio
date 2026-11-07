@@ -1,9 +1,9 @@
 # UI and Internal Service Contracts
 
 **Date**: 2026-11-07
-**Status**: Phase 4 writer creation/list/read-only detail, shared header, request errors,
-and creation/read services are implemented. Later editing/lifecycle/public interfaces
-below remain target contracts.
+**Status**: Writer creation/list/open, shared header, native request errors, Phase 5
+editable form/composable, safe Markdown preview, and revision-checked save are implemented.
+Later lifecycle/history/public interfaces below remain target contracts.
 
 Use the approved [HTTP contract](http-api.md), [data model](../data-model.md), and
 [plan](../plan.md). These interfaces derive from the selected thin-handler, function,
@@ -20,8 +20,8 @@ Before implementing these pages, complete T035 in Phase 3 of [tasks.md](../tasks
 propose wireframes and visual/interaction guidance in `specs/001-docs-studio/ui-design.md`,
 then obtain human approval. This precedes the first writer listing/creation/read-only
 editor screens in T022. The user approved [tabbed design](../ui-design.md); T035 and Phase 3 are complete.
-Phase 4 writer creation/list/read-only detail screens are implemented; later controls
-are added only with their owning features.
+Writer creation/list/open and Phase 5 editing/preview/save screens are implemented;
+later controls are added only with their owning features.
 
 Each feature phase adds only its required UI alongside its API and tests. The editor
 starts with load-only draft display, then editing/preview/save, Publish, Unpublish,
