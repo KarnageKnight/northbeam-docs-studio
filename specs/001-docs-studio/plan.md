@@ -159,10 +159,10 @@ Later tasks have not started.
 
 The user approved adding a separate UI design task. T035 is approved in
 [ui-design.md](ui-design.md) with wireframes for all five screens, basic Tailwind visual
-guidance, responsive behavior, and required interaction/feedback states. The user replaced the earlier option A selection on 2026-11-07 with Write/Preview tabs
+guidance, responsive behavior, and required interaction/feedback states. The user selected Write/Preview tabs on 2026-11-07
 in one full-width panel at all screen widths, with history below. Switching tabs preserves
 local edits, dirty state, saved revision, and feedback; it never saves or publishes.
-Shared visual guidance and lifecycle behavior remain selected. A/B are reference alternatives. No application
+Shared visual guidance and lifecycle behavior remain selected. No application
 screens are implemented. Routes, component boundaries, and lifecycle rules remain those
 in the existing contracts. Target 30–60 minutes for design and review within the agreed overall budget.
 
@@ -185,7 +185,7 @@ the current portal on every screen, and retain the switch on mobile. This adds n
 authentication behavior, or dependencies.
 
 The user also requested rendered visual designs. The isolated
-[offline preview](design-preview/index.html) and linked screenshots show the selected design and earlier alternatives
+[offline preview](design-preview/index.html) and linked screenshots show only the approved design
 across the five screens, responsive widths, and feedback states. This extends T035
 without changing application architecture, routes, dependencies, or APIs. The Write/Preview tabbed editor is
 the selected design. Prototype browser verification is recorded in [ui-design.md](ui-design.md).

@@ -153,10 +153,9 @@ Cross-artifact analysis and the recorded spec/plan/task checkpoint were verified
 code. Phase 1 was approved and Phase 2 implemented at the user's request. Build/typecheck,
 15 unit cases, 32 PostgreSQL/HTTP integration cases, migration startup/idempotence, and
 runner failure/interrupt/overlap handling passed on macOS arm64 with Linux containers.
-Phases 1–3 are approved. The user replaced the original A selection with the [Write/Preview tabbed design](ui-design.md)
+Phases 1–3 are approved. The user selected the [Write/Preview tabbed design](ui-design.md)
 on 2026-11-07, retaining history below and lifecycle feedback, then explicitly approved the final rendered
-Deloitte-inspired black/white/green visual theme with tabs on 2026-11-07. A/B are
-reference alternatives; the design adds no routes, dependencies, or architecture changes. The validation app used a temporary port-3300 mapping
+Deloitte-inspired black/white/green visual theme with tabs on 2026-11-07. Only the approved design is retained; the design adds no routes, dependencies, or architecture changes. The validation app used a temporary port-3300 mapping
 because port 3000 was occupied; the committed default remains loopback 3000. Temporary
 validation/test resources were removed, preserving the existing development database.
 Lifecycle APIs/UI, coordinated lifecycle races, and Windows/Linux host execution remain

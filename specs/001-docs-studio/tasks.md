@@ -126,8 +126,7 @@ were preserved. Windows/Linux host runs, lifecycle APIs, and UI features remain 
 
 **Approved design**: [ui-design.md](ui-design.md) defines all five wireframes, shared styling,
 responsive behavior, and required feedback states. The user selected Write/Preview tabs in one full-width panel at all
-widths, with history below. This supersedes the earlier option A selection; option B
-remains unselected. Tab changes preserve unsaved content and never save or publish. Approved routes/components and lifecycle rules are preserved. No application
+widths, with history below. Unused layouts and superseded screenshots have been removed. Tab changes preserve unsaved content and never save or publish. Approved routes/components and lifecycle rules are preserved. No application
 code, dependencies, or tests were added.
 
 **Draft verification (2026-11-07)**: Reviewed five screens and all required feedback
@@ -138,15 +137,15 @@ PostgreSQL/HTTP cases); owned test resources were removed. These checks preserve
 existing application baseline and do not claim browser/UI implementation or visual approval.
 
 **Rendered-preview follow-up**: At the user's request, added an offline HTML preview
-and screenshots for both layouts, all five screens, and mobile sizing. The toolbar
+and screenshots for the approved tabbed design, all five screens, and mobile sizing. The toolbar
 exercises applicable loading/empty/validation/success/conflict/protection/error states.
-Headless Chrome verified 72 desktop/mobile screen-state combinations without JavaScript
-exceptions or horizontal page overflow, plus key review controls. These are visual
+Headless Chrome verified the current 48 desktop/mobile screen-state combinations without
+JavaScript exceptions or horizontal page overflow, plus key review controls. These are visual
 prototype checks; application code and dependencies remain unchanged. Existing passing
 47-test/typecheck/build evidence is retained; no application lifecycle implementation is claimed.
 The subsequent user requests select Write/Preview tabs and a more polished
-Deloitte-inspired black/white/green palette; earlier A/B layouts remain
-reference alternatives. Tab keyboard behavior and local edit preservation are verified
+Deloitte-inspired black/white/green palette. Only the approved tabbed layout and current
+screenshots are retained. Tab keyboard behavior and local edit preservation are verified
 with the rendered follow-up: 48 desktop/mobile screen-state checks pass without JavaScript
 exceptions or horizontal page overflow; keyboard and typed-content retention checks pass
 at 320px, 390px, and 1440px. The requested black/white/green restyle passes the same
@@ -157,7 +156,9 @@ scenarios pass across five screens at 320px, 390px, and 1440px, with 44px-high t
 the existing 48 screen-state and editor keyboard/text-retention checks also pass. The user clarified that public content is published articles on any topic. Public
 headings, navigation, empty states, sample content, and the shell tagline use article
 language. Current five-screen
-and mobile screenshots are linked from ui-design.md. No application
+and mobile screenshots are linked from ui-design.md. The user requested removal of unused wireframes: 12 superseded screenshots and the
+legacy split/stacked layout controls/code were removed. All 9 current screenshots remain
+unchanged; document links and approved-preview behavior were verified. No application
 feature implementation is added.
 
 **Article-copy follow-up (2026-11-07)**: Public headings/back links/empty states and
@@ -171,8 +172,7 @@ feature-screen implementation was started.
 
 **Phase approval**: Final rendered Deloitte-inspired black/white/green design with
 Write/Preview tabs explicitly approved by the user on 2026-11-07 after reviewing the
-previews and verification results. This supersedes the earlier option A selection.
-T035 is complete; Phase 4 is next and has not started.
+previews and verification results. T035 is complete; Phase 4 is next and has not started.
 
 ## Phase 4: US1 — Create and open a draft (P1)
 

@@ -156,5 +156,5 @@ Write/Preview tabs in one panel at every width,
 with history below. A top-header Public / Writer switch links the two portals. Switching tabs preserves local edits without saving or publishing. Phases 1–3 are approved; feature-screen implementation is next.
 
 For visual review, open [the offline design preview](specs/001-docs-studio/design-preview/index.html)
-in a browser. It shows the tabbed editor and earlier alternatives across all five screens, mobile sizing, and feedback
+in a browser. It shows only the approved tabbed editor across all five screens, mobile sizing, and feedback
 states using sample content; it does not run application features or write data.

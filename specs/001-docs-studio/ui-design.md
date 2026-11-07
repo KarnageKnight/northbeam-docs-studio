@@ -3,8 +3,8 @@
 **Task**: T035 / Phase 3 / FR-012 (US12)
 **Status**: Final rendered design explicitly approved by the user on 2026-11-07:
 Deloitte-inspired black/white/green styling with Write/Preview tabs, history below,
-and the documented responsive layouts and feedback states. A/B are superseded/unselected
-alternatives, not implementation guidance.
+and the documented responsive layouts and feedback states. Only this approved design
+is retained in the preview assets.
 **Scope**: Five screen wireframes, rendered visual mockups, and feedback states.
 Application screens are not implemented.
 
@@ -21,8 +21,7 @@ content. The assignment/product name remains Northbeam Docs Studio.
 
 Open [the interactive preview](design-preview/index.html) directly in a browser; no server,
 installation, or internet connection is needed. Use its review toolbar to switch between
-the selected tabbed editor and earlier A/B alternatives, all five screens, desktop/mobile
-canvas widths, and relevant feedback states.
+all five screens, desktop/mobile canvas widths, and relevant feedback states.
 The preview uses fixed sample content. Field edits and buttons do not connect to the
 application or database; the Markdown preview is a fixed visual sample, not a live parser.
 The actual feature UI still follows the implementation phases below.
@@ -40,12 +39,11 @@ The actual feature UI still follows the implementation phases below.
 | Public article detail | [Public article](design-preview/studio-article.png) |
 | Mobile editor and history | [Tabbed editor](design-preview/studio-editor-mobile.png) |
 
-The user replaced A/B with a GitHub-style Write/Preview tab layout. Tabs are the default
-preview; [earlier A/B screenshots](design-preview/comparison.png) remain available for
-reference. Any later visual change must be recorded before dependent application work.
+The preview contains the approved Write/Preview tab layout only. Unused layouts and
+older screenshots were removed at the user's request. Any later visual change must be
+recorded before dependent application work.
 
-Earlier A/B prototype checks covered 72 screen/state combinations. The selected tabbed
-layout passed 48 desktop/mobile screen-state checks in headless Chrome, with no JavaScript
+The approved tabbed layout passed 48 desktop/mobile screen-state checks in headless Chrome, with no JavaScript
 exceptions or horizontal page overflow. Additional checks at 320px, 390px, and 1440px
 verified tab selection, keyboard operation, and preservation of typed title/body/tags,
 unsaved state, and Publish availability. The mockup's preview remains a fixed sample;
@@ -60,16 +58,13 @@ one portal is current, and both links retain at least 44px-high touch targets. T
 existing screen-state checks, tab keyboard behavior, and text-retention checks still pass.
 These are prototype checks, not evidence that application lifecycle APIs/UI are implemented.
 
-## Selected visual direction and alternatives
+## Approved visual direction
 
 | Option | Layout and appearance | Tradeoff |
 | --- | --- | --- |
 | Tabs — selected | Black navigation/heading surfaces, white content cards, green primary actions, compact article rows, and one full-width editor panel with Write and Preview tabs at every width. History stays below. | Gives writing and preview the full panel width; only one is visible at a time. Switching tabs preserves local edits and never saves or publishes. |
-| A — superseded | Quiet light interface, compact article rows, blue primary actions, side-by-side Markdown and preview on wide screens; history below the editor. | Keeps source and preview visible together and fits the existing slate/Tailwind shell. The editor becomes taller when history is open. |
-| B — not selected | Same light palette and controls, with Markdown followed by preview at every width and roomier article rows. History remains below both. | Simpler single-column reading order and more writing width; comparing source and preview requires more scrolling. |
 
-The wireframes below define the selected tabbed editor. A/B are retained as alternatives,
-not current implementation guidance. Routes, dependencies, component boundaries, lifecycle
+The wireframes below define the approved tabbed editor. Routes, dependencies, component boundaries, lifecycle
 rules, and feature scope remain those already approved.
 
 ### Approved shared styling
@@ -317,12 +312,6 @@ Component filenames above are under `app/components/`; the composable is under
 There are no additional routes, libraries, authentication flows, or backend changes.
 
 ## Review gate
-
-The user initially selected A, then requested Write/Preview tabs on 2026-11-07. That
-explicit instruction replaces the layout selection. The subsequent request selects a
-Deloitte-inspired palette and more polished presentation, retaining history below and
-existing lifecycle feedback/behavior. The selected tabbed layout is recorded
-in the plan and task gate; no additional architecture or dependency is introduced.
 
 After reviewing the rendered previews, the user explicitly approved the final
 black/white/green tabbed design on 2026-11-07. This approval covers the current styling,
