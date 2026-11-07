@@ -164,6 +164,22 @@ design approval before the first writer screens in T022. Existing IDs remain sta
 phase order in the task list defines execution, not numeric ID order. No wireframes or
 UI code are created by this planning change. Later visual changes require approval.
 
+### Initial migration verification order
+
+To resolve analysis finding U1, T003 generates/reviews the schema, SQL, and migration
+metadata without connecting to PostgreSQL or initializing the application pool. Its
+completion evidence is generation/review, typechecking, and the existing build/unit suite;
+database enforcement is not yet claimed. T004 supplies the app image and first applies
+those migrations using the installed CLI through the existing app startup entry point,
+connecting to private `db:5432` on the Compose network. Direct constraint/trigger checks use
+PostgreSQL tools inside the db container. T005 automates the same assertions against the
+isolated test database. Phase 2 approval still requires all three tasks' evidence.
+
+This sequencing needs no host database port, locally installed PostgreSQL, or extra service.
+The separate P077 host-development workflow still uses a host-accessible database when chosen.
+Drizzle distinguishes [schema-based SQL generation](https://orm.drizzle.team/docs/drizzle-kit-generate)
+from applying migrations; retain the approved stable CLI pin and reviewed migration format.
+
 ### Feature-by-feature implementation
 
 The user requires each feature's API, UI, feedback states, and meaningful verification
