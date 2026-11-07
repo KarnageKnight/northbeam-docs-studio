@@ -1,12 +1,8 @@
 <!--
 Sync Impact Report — review-only; remove this comment before committing.
-Version change: 1.3.0 -> 1.4.0 (task completion gates, current documentation, and local deployment).
-Modified principles (titles unchanged):
-  I. Specification Before Implementation — keep affected documentation current in each task.
-  IV. Database-Backed Evidence for Lifecycle Correctness — build and test before task completion.
-Updated sections:
-  Technology and Scope — single-line local deployment for Linux and Windows.
-  Development Workflow and Quality Gates — explicit completion checks and documentation review.
+Version change: 1.4.0 -> 1.5.0 (branch-wide PR descriptions in Markdown against main).
+Modified principle (title unchanged):
+  V. Small, Reviewable Changes Within the Time Budget — PR description scope and format.
 Added principles or sections: none.
 Removed sections: none.
 Template synchronization: dependent templates read this constitution at runtime;
@@ -113,6 +109,10 @@ AI MUST NOT create git commits, including through scripts, extension hooks, or a
 workflow actions. All changes MUST remain uncommitted for human review and approval;
 creating commits is the human's responsibility.
 
+When asked for a PR description, AI MUST provide copy-ready Markdown covering the current
+branch's full changes relative to `main`. The description MUST be based on the inspected
+branch diff and explain the problem, resulting behavior, and relevant verification for a reviewer.
+
 The implementation MUST complete required lifecycle behavior, the minimal UI, tests, local
 setup, and documentation before adding a stretch goal. Keep abstractions and dependencies
 proportional to this application; additional complexity MUST have a documented requirement
@@ -216,4 +216,4 @@ be made explicit and resolved through a documented amendment or a conforming imp
 it cannot silently weaken a required assignment invariant. Temporary amendment-review comments
 MUST be removed before committing the constitution.
 
-**Version**: 1.4.0 | **Ratified**: 2026-11-06 | **Last Amended**: 2026-11-06
+**Version**: 1.5.0 | **Ratified**: 2026-11-06 | **Last Amended**: 2026-11-06
