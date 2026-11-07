@@ -3,7 +3,6 @@ import { once } from 'node:events'
 import { mkdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { setTimeout as delay } from 'node:timers/promises'
 import { fileURLToPath } from 'node:url'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
@@ -11,7 +10,6 @@ const project = 'northbeam-docs-studio-test'
 const lock = join(tmpdir(), `${project}.lock`)
 const compose = ['compose', '-f', join(root, 'compose.yaml'), '-p', project, '--profile', 'test']
 let foreground
-let server
 let interrupted = 0
 let cleaning = false
 
@@ -19,7 +17,6 @@ for (const [signal, code] of [['SIGINT', 130], ['SIGTERM', 143]]) {
   process.on(signal, () => {
     interrupted = code
     if (!cleaning) foreground?.kill('SIGTERM')
-    server?.kill('SIGTERM')
   })
 }
 
@@ -46,49 +43,12 @@ async function run(command, args, { capture = false, cleanup = false } = {}) {
   }
 }
 
-async function stopServer() {
-  if (!server || server.exitCode !== null || server.signalCode !== null) return
-  const exited = once(server, 'exit')
-  server.kill('SIGTERM')
-  const timeout = setTimeout(() => server.kill('SIGKILL'), 5000)
-  try { await exited }
-  finally { clearTimeout(timeout) }
-}
-
 async function runInsideContainer() {
   const target = new URL(process.env.DATABASE_URL ?? '')
   if (target.hostname !== 'test-db' || target.pathname !== '/northbeam_test') {
     throw new Error('The test runner requires the dedicated test database.')
   }
-  server = spawn(process.execPath, ['.output/server/index.mjs'], {
-    cwd: root,
-    env: { ...process.env, NODE_ENV: 'production', HOST: '127.0.0.1', PORT: '3000' },
-    stdio: 'inherit',
-  })
-  try {
-    const deadline = Date.now() + 30000
-    let ready = false
-    while (Date.now() < deadline) {
-      if (interrupted || server.exitCode !== null || server.signalCode !== null) {
-        throw new Error('Production server stopped before readiness.')
-      }
-      try {
-        const response = await fetch('http://127.0.0.1:3000', { signal: AbortSignal.timeout(1000) })
-        if (response.ok && (await response.text()).includes('Northbeam Docs Studio')) {
-          ready = true
-          break
-        }
-      }
-      catch { /* Retry while the production server starts. */ }
-      await delay(200)
-    }
-    if (!ready) throw new Error('Production server did not become ready within 30 seconds.')
-    await run(process.execPath, ['node_modules/vitest/vitest.mjs', 'run', '--project', 'integration'])
-    if (server.exitCode !== null || server.signalCode !== null) throw new Error('Production server exited during tests.')
-  }
-  finally {
-    await stopServer()
-  }
+  await run(process.execPath, ['node_modules/vitest/vitest.mjs', 'run', '--project', 'integration'])
 }
 
 async function runOnHost() {

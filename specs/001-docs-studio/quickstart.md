@@ -1,30 +1,27 @@
 # Quickstart and Verification Guide
 
 **Date**: 2026-11-07
-**Status**: Phases 1–3 approved. Persistence, Docker startup, and isolated integration
-verification are implemented and verified. Phase 3 [tabbed UI design](ui-design.md) is approved
-and T035 is complete. Feature APIs and
-writer/public screens remain future work.
+**Status**: Phases 1–3 approved. Phase 4 draft creation, writer list/detail API, and
+read-only writer pages are implemented and verified, pending human phase approval.
+Phase 5 editing/preview and later lifecycle/public features have not started.
 
 ## Current commands and evidence
 
 With Node 24.22.2 and pnpm 12.18.0: `pnpm install --frozen-lockfile`, `pnpm dev`,
 `pnpm run test:unit`, `pnpm run test:integration`, `pnpm test`, `pnpm exec nuxt typecheck`,
-and `pnpm run build` are available. The full suite requires Docker/Compose and runs both
-15 database-free unit cases and 32 real PostgreSQL integration cases. Docker startup
-builds the production shell, applies migrations, and serves HTTP.
+and `pnpm run build` are available. Full verification passes 48 database-free unit cases
+and 60 real PostgreSQL/HTTP integration cases, plus typecheck and production build.
+Docker startup builds the application, applies migrations, and serves the writer feature.
 See [README.md](../../README.md) for prerequisites, configuration, and cleanup procedures.
 
-Verified 2026-11-07 on macOS arm64 with Linux containers: all 47 tests, typecheck, production
-build, schema generation without a live database, named constraints, snapshot update
-protection, migration idempotence, and migration-failure startup blocking. Repeated integration
-runs started empty and cleaned up. Disposable failure/interruption/overlap probes confirmed
-cleanup and rejection without changing the active run's resources.
-
-A separate validation project used host port 3300 because an existing process occupied 3000;
-its containers and volume were removed afterward. The existing process and development
-database were preserved. Windows/Linux host workflows and feature lifecycle behavior remain
-unverified. Only the shell is currently served; it does not list or edit articles.
+Verified 2026-11-07 on macOS arm64 with Linux containers: the database foundation,
+creation normalization/defaults/errors, unique-slug conflicts, exact list/detail projections,
+UUID validation, generic production failures, unchanged read audits, and reopening drafts
+after built-server restart. Chrome walkthrough passed create/list/open/reload, validation,
+collision/input retention, failed submission, missing draft, and responsive 320/390/1440px
+screens with no runtime exceptions/hydration warnings. The separate validation app used
+port 3300; normal settings and existing development resources were preserved.
+Windows/Linux host workflows and later lifecycle behavior remain unverified.
 
 ## Reviewer startup
 
@@ -36,8 +33,8 @@ these host workflows have not yet been exercised:
 docker compose up --build
 ```
 
-Open `http://localhost:3000` for the current shell. Later feature phases add the public
-listing and writer pages at `/writer/articles`. No authentication setup or mandatory
+Open `http://localhost:3000`, choose Writer in the entry popup, or visit `/writer/articles` to
+create/list/open drafts. Public article reading and draft editing arrive in later phases. No authentication setup or mandatory
 `.env` copy is required.
 
 Expected startup: build the runtime image, start PostgreSQL, wait for its TCP readiness,
@@ -71,8 +68,8 @@ network, and disposable volume; they never reset the application database.
 
 ## Local development without Docker
 
-The Nuxt development server runs directly on the host with hot reload. The current shell
-and migration commands are available; feature APIs and screens come later. This workflow requires
+The Nuxt development server runs directly on the host with hot reload. The writer create/list/read-only detail feature
+and migration commands are available; editing/publication/public reading come later. This workflow requires
 Node `24.22.2`, pnpm `12.18.0`, and a running PostgreSQL `18.6` instance reachable from
 the host. For a completely Docker-free setup, install PostgreSQL locally and create the
 development database/user first. These examples assume database/user `northbeam`, password
@@ -115,7 +112,7 @@ address; Compose's `db` hostname is internal to Docker. Stop any other app using
 3000 before starting. Host development does not automatically provision PostgreSQL or
 apply migrations. It uses the same schema, services, and renderer as the Docker workflow.
 
-The `pnpm dev` command is verified for the shell. Host development against a locally
+The `pnpm dev` command uses the same writer application as the Docker build. Host development against a locally
 installed PostgreSQL instance has not been exercised. Integration tests use their
 isolated Docker/PostgreSQL workflow; Docker-free development does not change that requirement.
 
@@ -133,14 +130,14 @@ pnpm install --frozen-lockfile
 | Command | Current coverage |
 | --- | --- |
 | `pnpm dev` | Host Nuxt development server; configured PostgreSQL and applied migrations required |
-| `pnpm run test:unit` | 15 database-free title-validation cases; rendering/helpers added with their features |
+| `pnpm run test:unit` | 48 database-free title/creation validation cases; rendering/helpers added with their features |
 | `pnpm run test:integration` | Automatic isolated Compose database, migrations, built HTTP server, PostgreSQL assertions |
 | `pnpm test` | Both suites; nonzero result if either fails |
 | `pnpm exec nuxt typecheck` | Application/Vue typechecking with the approved toolchain |
 | `pnpm run build` | Production Nuxt build |
 
-All commands above are implemented. Integration checks currently cover database protections
-and production HTTP readiness; lifecycle coverage is added with each feature.
+All commands above are implemented. Integration checks cover database protections, draft creation/reads/restart, native
+HTTP errors, and production readiness; remaining lifecycle coverage follows each feature.
 Task completion requires the production build and existing suite;
 maintain required type checks and update affected documentation.
 
@@ -170,7 +167,8 @@ Its DATABASE_URL targets the dedicated test service/database, not host applicati
 2. Start from fresh test resources. Build the test target and start the dedicated database;
    wait for readiness. Explicitly target test services, not the normal app/db service set.
 3. Apply the same versioned application migrations against the test database.
-4. Launch the built Nuxt server with test configuration; wait for an actual ready response.
+4. Shared integration process helpers start/await/stop the built Nuxt server for each
+   sequential test file. Restart tests stop/start that same server against the same database.
 5. Run Vitest integration cases sequentially. Reset only `articles` and `article_versions`
    together between cases, preserving schema, constraints, triggers, and migration journal.
 6. Complete requests/transactions and stop the server. Attempt test-project cleanup on
@@ -211,6 +209,15 @@ Native HTTP tests include malformed JSON/IDs/revisions, missing/wrong-article ta
 expected conflicts and error codes, direct response projections, 204 bodies, and generic
 unexpected production 500 responses. SQL assertions verify immutable rows and foreign keys.
 Extend shared cases/fixtures where clear; do not duplicate lifecycle tests for private helpers.
+
+## Current writer walkthrough
+
+Open `/writer/articles`, create a draft with title/slug, inspect its read-only saved detail,
+return to the list, reopen, and reload. Try blank title/invalid slug, then a normalized slug
+collision; entered values remain available after errors. Body/tags start empty in the form.
+The API also accepts validated body/tags at creation. Public dismisses the entry popup to an Articles placeholder; the public list remains
+pending in Phase 7. Fresh root visits show the chooser; direct writer links and client
+portal switching do not reopen it. Editing/preview/publication/history actions are not yet shown.
 
 ## Acceptance coverage
 
@@ -253,12 +260,12 @@ run its existing/new meaningful checks and browser walkthrough, then present the
 for human phase approval. Do not wait until all APIs exist to exercise writer screens.
 The later integrated walkthrough repeats the combined experience; it does not defer
 feature-level feedback, conflict preservation, or verification. Phases 1–3 are approved.
-T001–T005 and T035 are checked; all later tasks remain unchecked.
+T001–T007, T022, and T035 are checked; Phase 4 approval is pending and later tasks remain unchecked.
 
 ## Design handoff
 
 Review [plan.md](plan.md), [data-model.md](data-model.md), and [contracts](contracts/http-api.md).
 Analysis and the spec-first checkpoint were verified before the authorized Phase 1
-implementation. Phase 3 [tabbed design](ui-design.md) is approved; Phase 4 create/open draft
-implementation is next. AI creates no commits. Full application behavior and
+implementation. Phase 3 [tabbed design](ui-design.md) is approved; review the implemented Phase 4
+create/list/open feature before starting Phase 5 editing/preview. AI creates no commits. Full application behavior and
 Windows/Linux host support remain unverified.

@@ -1,11 +1,12 @@
 # Research: Northbeam Docs Studio
 
 **Date**: 2026-11-07
-**Status**: Research consolidated. The active Phase 2 package subset passes build/typecheck,
-15 unit tests, and 32 PostgreSQL/HTTP foundation cases on macOS arm64 with Linux containers.
+**Status**: Research consolidated. The Phase 4 application passes build/typecheck,
+48 unit tests, and 60 PostgreSQL/HTTP cases on macOS arm64 with Linux containers.
 Production Docker migrations/startup, restart idempotence, failure/interrupt cleanup, and
 overlap rejection were verified. Phases 1–3 are approved; [tabbed UI design](ui-design.md) is selected.
-Lifecycle/UI features and Windows/Linux host execution remain future verification.
+Phase 4 writer create/list/open and restart persistence are verified; later lifecycle/UI
+features and Windows/Linux host execution remain future verification.
 
 Public content is writer-published articles on any topic. Generic article wording is a
 confirmed product clarification, with no change to lifecycle behavior or architecture.

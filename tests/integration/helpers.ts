@@ -1,3 +1,6 @@
+import { spawn, type ChildProcess } from 'node:child_process'
+import { once } from 'node:events'
+import { setTimeout as delay } from 'node:timers/promises'
 import { pool } from '../../server/db/client'
 
 const target = new URL(process.env.DATABASE_URL ?? '')
@@ -10,4 +13,38 @@ export const appUrl = 'http://127.0.0.1:3000'
 
 export async function resetDatabase() {
   await pool.query('TRUNCATE TABLE articles, article_versions')
+}
+
+let server: ChildProcess | undefined
+
+export async function startApp() {
+  server = spawn(process.execPath, ['.output/server/index.mjs'], {
+    env: { ...process.env, NODE_ENV: 'production', HOST: '127.0.0.1', PORT: '3000' },
+    stdio: 'inherit',
+  })
+  const deadline = Date.now() + 30000
+  while (Date.now() < deadline) {
+    if (server.exitCode !== null || server.signalCode !== null) throw new Error('Application exited before readiness.')
+    try {
+      const response = await fetch(appUrl, { signal: AbortSignal.timeout(1000) })
+      if (response.ok && (await response.text()).includes('Northbeam Docs Studio')) return
+    }
+    catch { /* Retry until the production server is ready. */ }
+    await delay(200)
+  }
+  throw new Error('Application did not become ready within 30 seconds.')
+}
+
+export async function stopApp() {
+  if (!server || server.exitCode !== null || server.signalCode !== null) return
+  const exited = once(server, 'exit')
+  server.kill('SIGTERM')
+  const timeout = setTimeout(() => server?.kill('SIGKILL'), 5000)
+  try { await exited }
+  finally { clearTimeout(timeout) }
+}
+
+export async function restartApp() {
+  await stopApp()
+  await startApp()
 }
