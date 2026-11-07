@@ -9,6 +9,18 @@ local-state, and component patterns; they add no framework or repository layer.
 
 ## Browser pages
 
+Before implementing these pages, complete T035 in Phase 3 of [tasks.md](../tasks.md):
+propose wireframes and visual/interaction guidance in `specs/001-docs-studio/ui-design.md`,
+then obtain human approval. This precedes the first writer listing/creation/read-only
+editor screens in T022. The design document has not been created yet.
+
+Each feature phase adds only its required UI alongside its API and tests. The editor
+starts with load-only draft display, then editing/preview/save, Publish, Unpublish,
+history inspection, Restore, and Delete in their respective phases. Components/composable
+expose only implemented actions; the tables below describe the final combined interface,
+not an instruction to scaffold every action in advance. Public list/detail are separate
+API-and-page slices, reusing the renderer first introduced for editor preview.
+
 | URL | Planned source | Responsibility |
 | --- | --- | --- |
 | `/` | `app/pages/index.vue` | Published list and navigation |

@@ -141,13 +141,18 @@ remaining choices under Constitution Principle VI.
 All product clarifications and architecture selections through P077 are recorded. The
 consolidated [plan](plan.md), [research](research.md), [data model](data-model.md),
 [HTTP contract](contracts/http-api.md), [UI/service contract](contracts/ui-and-services.md),
-and [quickstart](quickstart.md) await final human review. No further architectural defaults
-are open in this planning pass.
+and [quickstart](quickstart.md) have been decomposed into [tasks.md](tasks.md) at the user's
+request. No further architectural defaults are open in this planning pass.
 
-Task generation and the human specification/plan/task git checkpoint precede application
-implementation. Build, typecheck, tests, dependency installation, restart persistence, and
+Cross-artifact analysis, human task review, and the human specification/plan/task git
+checkpoint precede application implementation. Build, typecheck, tests, dependency installation, restart persistence, and
 platform compatibility remain unverified until implementation. PostgreSQL integration
 evidence remains required; mocks alone cannot replace it.
+
+The user selected feature-by-feature delivery: each feature phase combines its API, UI,
+feedback states, and checks, then waits for human approval. UI design precedes the first
+writer screens. [tasks.md](tasks.md) preserves existing task IDs and splits bundled UI
+work into T036–T039; the architecture and required product scope remain unchanged.
 
 ## Maintenance
 

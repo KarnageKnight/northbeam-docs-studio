@@ -2,10 +2,11 @@
 
 **Feature**: `001-docs-studio` | **Date**: 2026-11-07 | **Spec**: [spec.md](spec.md)
 
-**Status**: Phase 0 research and Phase 1 design prepared for final human review.
+**Status**: Research/design recorded; implementation tasks generated for human review.
 The feature identifier comes from Spec Kit's setup output; it does not verify the git branch.
-Individual architecture choices P001–P077 are approved. The consolidated artifacts below
-await final review; task generation and the human git checkpoint remain subsequent steps.
+Individual architecture choices P001–P077 are approved. At the user's request, the design
+has been decomposed into [tasks.md](tasks.md). Cross-artifact analysis, human task review,
+and the human git checkpoint remain before application code.
 This plan does not authorize application implementation.
 
 ## Summary
@@ -104,20 +105,35 @@ through SC-006. Required field limits and lifecycle rules remain those in the sp
 
 ## Constitution Check
 
-Post-design review against constitution v1.5.0 found no design exception. The artifacts
-describe the required protections and verification; execution evidence follows implementation.
+Post-design review against [constitution v1.5.0](../../.specify/memory/constitution.md)
+found no design exception. The artifacts describe the required protections and verification;
+execution evidence follows implementation.
 
 | Principle | Planning obligation | Current status |
 | --- | --- | --- |
-| I. Specification before implementation | Complete and review spec, plan, and tasks before code; human records git checkpoint. | Spec and design artifacts available; final design review, task generation, and human checkpoint remain. No app code. |
+| I. Specification before implementation | Complete and review spec, plan, and tasks before code; human records git checkpoint. | Spec, design, and tasks available; analysis, human task review, and human checkpoint remain. No app code. |
 | II. Draft and snapshot isolation | Public reads use live snapshots; immutable history and referenced-snapshot protection. | Data model and contracts specify table separation, immutable-row trigger, owned reference, and retained-reference deletion protection. |
 | III. Atomic lifecycle and concurrency | Transactional publication and revision checks; no partial state or stale overwrites. | Contracts specify article-first locking, revision-before-eligibility ordering, transactional allocation, rollback, and SQL constraints. |
 | IV. Database-backed evidence | Real PostgreSQL lifecycle/failure/race tests; passing build and suite once scaffolded. | Quickstart maps invariants to real HTTP/SQL evidence, independent connections, rollback and restart checks. App build/typecheck/tests unavailable until scaffolding. |
-| V. Small reviewable changes | Minimal tasks, no AI commits, required behavior before stretch goals. | Documentation-only design; small implementation tasks follow separately. No git commands or commits in this task. |
+| V. Small reviewable changes | Small scoped tasks, verification, explanation, human review, and no AI commits. | Implement one small task at a time; keep subsequent tasks separate unless explicitly requested together. Leave changes for human review and approval. No implementation has started. |
 | VI. Human architecture decisions | Present alternatives and record each human selection before dependent work. | P001–P077 record selections and rationale; consolidated artifacts await final human review. |
 | VII. Consistent patterns | Establish approved patterns and reuse them across implementation tasks. | UI/service contract fixes shared validation, handlers/errors, transaction helper, data access, renderer, and local-state patterns. |
 
 Do not treat this design review as evidence that application behavior has passed checks.
+
+Follow constitution v1.5.0: implement one small task at a time, run the required checks,
+and explain changes, results, and limitations at each task boundary. Subsequent tasks
+remain separate unless the user explicitly requests them in the same prompt. Leave all
+changes uncommitted for human review and approval. Architecture/pattern changes, the
+spec-first human checkpoint, and T035's UI-design approval retain their specific gates.
+
+The user additionally requires human approval between phases. After all tasks and checks
+for a phase are complete, present its changes, acceptance evidence, documentation updates,
+and remaining issues, then stop. Wait for explicit approval of that phase before starting
+the next. Record phase approval separately from task completion in `tasks.md`; phase
+corrections require renewed verification and review. This applies to all 18 phase sections,
+including Phase 3 (UI design) and Phase 18 (final delivery review). Individual tasks within a phase continue to
+follow constitution v1.5.0. The constitution itself is unchanged.
 
 ## Project Structure
 
@@ -132,7 +148,42 @@ Generated design artifacts:
 - [contracts/ui-and-services.md](contracts/ui-and-services.md): UI and internal module responsibilities.
 - [quickstart.md](quickstart.md): planned setup and verification, without claiming execution.
 
-`tasks.md` is generated separately through `speckit-tasks` after final plan approval.
+[tasks.md](tasks.md) contains 39 dependency-ordered tasks across all 14 stories, with
+verification and human review gates. No implementation task is marked complete.
+
+### UI design review before page implementation
+
+The user approved adding a separate UI design task. T035 will produce `ui-design.md`
+with simple wireframes for all five screens, basic Tailwind visual guidance, responsive
+behavior, and the required interaction/feedback states. Routes, component boundaries,
+and lifecycle rules remain those in the existing contracts; visual choices await human
+selection. Target 30–60 minutes for design and review within the agreed overall budget.
+
+Execute T035 immediately after the foundation (Phase 3), and obtain explicit human
+design approval before the first writer screens in T022. Existing IDs remain stable;
+phase order in the task list defines execution, not numeric ID order. No wireframes or
+UI code are created by this planning change. Later visual changes require approval.
+
+### Feature-by-feature implementation
+
+The user requires each feature's API, UI, feedback states, and meaningful verification
+in the same phase. After foundation and design, deliver create/open draft, editing with
+preview, publishing, public list, public detail, unpublish, history inspection, restore,
+and deletion as separate usable increments. Demonstrate each phase and obtain human
+approval before starting the next. Shared runtime/schema/test infrastructure comes first;
+no complete business-API layer or unused UI skeleton is built in advance.
+
+Writer listing/creation moves into US1; editing/preview and immediate conflict feedback
+into US2; Publish into US3; Unpublish into US4; history inspection into US5; Restore into
+US6; and Delete into US7. Public API/page tasks remain together in US9/US10. US12's later
+phase reviews the already-integrated screens; US8/US11 extend concurrency/slug evidence
+already introduced with each affected feature rather than postponing correctness.
+
+T013 now provides the shared renderer for editor preview. T039 implements the later
+public detail page with the same component. T024/T025 are narrowed to Publish and history
+inspection; T036–T038 split Unpublish/Restore/Delete UI work into their owning features.
+These four new task IDs split existing scope; no architecture or product scope changes.
+The full dependency and acceptance map lives in [tasks.md](tasks.md).
 
 ### Source Code (repository root)
 
@@ -2030,5 +2081,5 @@ required during implementation. No package script or application code is created
 ## Complexity Tracking
 
 No constitutional exceptions proposed. The post-design gates above have been reviewed.
-Final human design approval precedes `speckit-tasks`; reviewed tasks and the human git
+Task generation is complete; cross-artifact analysis, reviewed tasks, and the human git
 checkpoint precede application implementation.
