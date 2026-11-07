@@ -1,17 +1,18 @@
 # Tasks: Northbeam Docs Studio
 
 **Feature**: `001-docs-studio` · **Created**: 2026-11-07
-**Status**: Generated for human review; no implementation task has started.
+**Status**: Phase 1 T001/T002 implemented and verified; Phase 1 awaits human approval.
+Phase 2 and all subsequent phases remain unstarted.
 **Input**: [specification](spec.md), [plan](plan.md), [research](research.md),
 [data model](data-model.md), [HTTP contract](contracts/http-api.md),
 [UI/service contract](contracts/ui-and-services.md), [quickstart](quickstart.md),
 and [constitution](../../.specify/memory/constitution.md).
 
-The request to generate tasks authorizes this planning artifact. Before application code,
-review these tasks, run `speckit-analyze`, resolve material findings, and have the human
-record the required specification/plan/task git checkpoint. AI runs no git commands and
-creates no commits. All task boxes remain unchecked until implementation and required
-verification are complete; leave changes for human review and approval.
+The specification/plan/task checkpoint was verified against recorded repository objects
+before application code, without git commands; the files matched that checkpoint. Analysis
+findings were resolved and rechecked. The user authorized Phase 1 only. AI creates no
+commits; changes remain for human review. Check task boxes only after implementation
+and required verification; phase approval is recorded separately.
 
 ## Execution and completion rules
 
@@ -65,8 +66,17 @@ verification are complete; leave changes for human review and approval.
 **Dependencies**: No feature dependencies.
 **Independent test**: Start the shell, pass build/typecheck/unit checks, and restart PostgreSQL without losing a disposable probe.
 
-- [ ] T001 Establish the runnable Nuxt/Vue/TypeScript shell and Tailwind Vite integration in `package.json`, `pnpm-lock.yaml`, `nuxt.config.ts`, `tsconfig.json`, `app/app.vue`, and `app/assets/css/main.css`, using the exact P069 pins and packageManager `pnpm@12.18.0`; configure `vitest.config.ts`, implement the first reusable title rule in `server/validation/articles.ts` with its meaningful boundary/Unicode tests in `tests/unit/articles-validation.test.ts`, and provide `pnpm dev`, `test:unit`, `test`, and build entry points. Verify host startup, `pnpm exec nuxt typecheck`, production build, and the existing unit suite; document the scaffold's current capabilities in `README.md` without claiming Docker/integration readiness.
-- [ ] T002 Add the PostgreSQL service, readiness healthcheck, and project-scoped persistent volume in `compose.yaml`, following P064/P076: project `northbeam-docs-studio`, `postgres:18.6-bookworm`, private `db:5432`, no host database port, and `postgres_data` mounted at `/var/lib/postgresql`; document local defaults/optional overrides in `.env.example` and `README.md`. Verify the database starts and retains a disposable development probe across a normal restart without deleting existing data; the complete app startup contract is completed in T004.
+- [x] T001 Establish the runnable Nuxt/Vue/TypeScript shell and Tailwind Vite integration in `package.json`, `pnpm-lock.yaml`, `nuxt.config.ts`, `tsconfig.json`, `app/app.vue`, and `app/assets/css/main.css`, using the exact P069 pins and packageManager `pnpm@12.18.0`; configure `vitest.config.ts`, implement the first reusable title rule in `server/validation/articles.ts` with its meaningful boundary/Unicode tests in `tests/unit/articles-validation.test.ts`, and provide `pnpm dev`, `test:unit`, `test`, and build entry points. Verify host startup, `pnpm exec nuxt typecheck`, production build, and the existing unit suite; document the scaffold's current capabilities in `README.md` without claiming Docker/integration readiness.
+- [x] T002 Add the PostgreSQL service, readiness healthcheck, and project-scoped persistent volume in `compose.yaml`, following P064/P076: project `northbeam-docs-studio`, `postgres:18.6-bookworm`, private `db:5432`, no host database port, and `postgres_data` mounted at `/var/lib/postgresql`; document local defaults/optional overrides in `.env.example` and `README.md`. Verify the database starts and retains a disposable development probe across a normal restart without deleting existing data; the complete app startup contract is completed in T004.
+
+**Verification (2026-11-07, macOS arm64)**: Frozen dependency install, `pnpm test`
+(15 title-validation cases), `pnpm exec nuxt typecheck`, and `pnpm run build` passed.
+`pnpm dev` returned HTTP 200 with server-rendered shell content and compiled Tailwind CSS.
+`docker compose config --quiet` and database readiness passed. PostgreSQL 18.6 used the
+project-scoped parent-directory volume with no host port; a uniquely named probe survived
+restart, then was removed. Only the current scaffold/database are verified; no application
+migrations, lifecycle APIs, full app container, integration suite, or Windows/Linux host
+execution is claimed. The verification dev server was stopped; development PostgreSQL remains running.
 
 **Phase approval**: Pending human review. Demonstrate this phase, present verification results, and wait for explicit human approval before starting the next phase.
 
@@ -82,7 +92,7 @@ automates those checks against isolated test PostgreSQL. Host migration access t
 private Compose database is not required, and no host port or additional service is added.
 
 - [ ] T003 Implement the 19 approved columns, named constraints, and snapshot update-rejecting trigger in `server/db/schema.ts` and reviewed SQL/journal files under `drizzle/`; configure `drizzle.config.ts` for PostgreSQL, schema `server/db/schema.ts`, output `drizzle/`, and private DATABASE_URL, and add the reusable pool/client in `server/db/client.ts`. Preserve the model's exact rules: articles are "All columns are NOT NULL except the publication reference and publication date"; snapshots are "All columns are NOT NULL"; status is "`draft`; allowed values: draft, published, unpublished"; revision defaults to `0`, next_version_number to `1`, draft_body to "Empty string", draft_tags to "Empty array", publication fields to NULL, and all three audit defaults to `CURRENT_TIMESTAMP`. Use application UUIDv4 keys, UUID foreign keys, text content, text-array tags, integer counters, and timestamptz dates as mapped in `data-model.md`; snapshot content has no empty defaults. Enforce `UNIQUE(slug)`, `UNIQUE(article_id, version_number)`, supporting `UNIQUE(article_id, id)`, restrictive ownership/current-reference foreign keys, and "BEFORE UPDATE row trigger rejects every snapshot update, including audit fields". Generate and review SQL/migration metadata without connecting to PostgreSQL; schema/config loading for generation must not initialize the application pool or require a live DATABASE_URL connection. Complete this task with schema typechecking, migration-file review/generation, and the existing build/unit checks; do not claim database enforcement is verified yet. Keep the allowed-status database CHECK permitting only `draft`, `published`, and `unpublished` (P023); do not add cross-field publication-state CHECKs (P037), counter-range CHECKs (P042), or a UUID extension. First migration application and direct constraint/trigger checks occur in T004 after the app image exists; automate those assertions in T005.
-- [ ] T004 Complete production container startup in `Dockerfile`, `.dockerignore`, `compose.yaml`, and `.env.example`: use `node:24.22.2-bookworm-slim`, provision pinned pnpm with npm, install the frozen lockfile, build production output, and retain Drizzle Kit/config/schema/migrations in the runtime target. Make app startup wait for healthy PostgreSQL, run `pnpm exec drizzle-kit migrate`, and serve Nuxt only after success; expose `127.0.0.1:3000:3000`. This is the first database application/verification of T003's migrations: start a fresh development validation project with `docker compose up --build`; the app container runs the installed CLI against `db:5432` on the Compose network. Verify named uniqueness/ownership/reference constraints and the snapshot update trigger directly using PostgreSQL tools inside the db container (`docker compose exec db psql` with the configured database/user), then automate those assertions in T005. Record the fresh validation project and preserve any existing development data/volumes. Verify startup needs no mandatory .env step, migration failure prevents serving, and restart reapplies no completed migrations; keep secrets/generated output out of the build context. Update the actual run instructions in `README.md` and the implementation status in `quickstart.md`.
+- [ ] T004 Complete production container startup in `Dockerfile`, `.dockerignore`, `compose.yaml`, and `.env.example`: use `node:24.22.2-bookworm-slim`, provision pinned pnpm with npm, copy `pnpm-workspace.yaml` with the manifest/lockfile for the required esbuild script approval, install the frozen lockfile, build production output, and retain Drizzle Kit/config/schema/migrations in the runtime target. Make app startup wait for healthy PostgreSQL, run `pnpm exec drizzle-kit migrate`, and serve Nuxt only after success; expose `127.0.0.1:3000:3000`. This is the first database application/verification of T003's migrations: start a fresh development validation project with `docker compose up --build`; the app container runs the installed CLI against `db:5432` on the Compose network. Verify named uniqueness/ownership/reference constraints and the snapshot update trigger directly using PostgreSQL tools inside the db container (`docker compose exec db psql` with the configured database/user), then automate those assertions in T005. Record the fresh validation project and preserve any existing development data/volumes. Verify startup needs no mandatory .env step, migration failure prevents serving, and restart reapplies no completed migrations; keep secrets/generated output out of the build context. Update the actual run instructions in `README.md` and the implementation status in `quickstart.md`.
 - [ ] T005 Establish automatic integration verification in `scripts/test-integration.mjs`, `vitest.config.ts`, `tests/integration/helpers.ts`, `tests/integration/database.test.ts`, `package.json`, `Dockerfile`, and `compose.yaml`. Use the test build target, profile services `test-db`/`test-runner`, fixed project `northbeam-docs-studio-test`, a fresh database/volume per run, and atomic overlap rejection before resource mutation. Set test DATABASE_URL before migration/server initialization, migrate with the installed CLI, start the built HTTP server and await readiness, and run files/cases sequentially. Reset `articles` and `article_versions` together without CASCADE, preserving the schema/journal; automate T003's uniqueness/ownership/reference/immutability assertions and an HTTP readiness smoke check. Verify independent test/app resources, a second run starts empty, overlap rejection leaves the active run untouched, and owned cleanup handles success/failure/interruption while preserving failure status. Add the real `test:integration` entry point and make `pnpm test` run both suites. Provide only the HTTP/SQL/process helpers used by these checks; document prerequisites and cleanup behavior in `README.md`.
 
 **Phase approval**: Pending human review. Demonstrate this phase, present verification results, and wait for explicit human approval before starting the next phase.
@@ -270,7 +280,8 @@ private Compose database is not required, and no host port or additional service
 Execute the phases above in order, with explicit human approval at every boundary.
 Task IDs are stable references rather than a numeric execution sequence. UI tasks moved
 into their owning story retain their original ID; newly split UI tasks are T036–T039.
-No tasks are marked complete and no phase approval has been granted by this rewrite.
+T001/T002 are marked complete with evidence above; Phase 1 approval remains pending.
+No later task or phase approval is implied by the implementation request.
 
 ```text
 Setup T001–T002 → Foundation T003–T005 → UI design T035

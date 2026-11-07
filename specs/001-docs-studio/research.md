@@ -1,8 +1,10 @@
 # Research: Northbeam Docs Studio
 
 **Date**: 2026-11-07
-**Status**: Research consolidated; final design review pending. Application compatibility
-and platform execution are not verified before scaffolding.
+**Status**: Research consolidated. The active Phase 1 dependency subset now passes
+build/typecheck/unit checks on macOS arm64; development PostgreSQL readiness/restart
+persistence was verified. Remaining packages, features, and Windows/Linux host execution
+remain unverified. Phase 1 awaits human approval; see [tasks.md](tasks.md).
 
 The [plan](plan.md) records individual approvals P001–P077 and exact dependency pins.
 The [specification](spec.md) owns observable requirements; the [assumptions register](assumptions.md)
@@ -158,5 +160,6 @@ Evidence: [PostgreSQL image storage](https://github.com/docker-library/docs/blob
 
 The [quickstart](quickstart.md) defines expected procedures and evidence. There are no
 remaining architecture questions in this research. The user requested decomposition into
-[tasks.md](tasks.md); cross-artifact analysis, human task review, and the human git
-checkpoint remain before application implementation. Runtime verification is still unavailable.
+[tasks.md](tasks.md); cross-artifact analysis and the human git
+checkpoint were verified before the user-authorized Phase 1 code. Phase 1 runtime evidence is recorded in
+[quickstart.md](quickstart.md); later implementation waits for human phase approval.
