@@ -1,7 +1,8 @@
 # HTTP API Contract
 
 **Date**: 2026-11-07
-**Status**: Final design review; endpoints are not implemented or verified.
+**Status**: Phase 4 writer POST/list/detail endpoints are implemented and verified.
+Remaining endpoint definitions are targets for later feature phases.
 
 Authority: [specification](../spec.md) and [plan](../plan.md) P025–P033. The
 [data model](../data-model.md) owns storage; this contract owns wire representations.

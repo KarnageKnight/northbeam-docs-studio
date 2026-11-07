@@ -1,1 +1,87 @@
 @import "tailwindcss";
+
+@theme {
+  --color-accent: #86bc25;
+  --color-ink: #11150e;
+  --color-link: #046a38;
+  --color-paper: #f7f9f4;
+}
+
+@layer base {
+  body { @apply bg-paper font-sans text-ink antialiased; }
+  button, input { font: inherit; }
+  button, a { @apply touch-manipulation; }
+  a { @apply text-link; }
+  a:hover { @apply underline; }
+  :focus-visible { @apply outline-2 outline-offset-4 outline-link; }
+  h1 { @apply text-3xl font-semibold tracking-tight sm:text-4xl; }
+  h2 { @apply text-lg font-semibold tracking-tight; }
+  button:disabled { @apply cursor-not-allowed; }
+}
+
+@layer components {
+  .site-header { @apply border-b border-[#30382a] bg-black text-white; }
+  .header-content { @apply mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-5 px-5 py-5 sm:px-8; }
+  .brand { @apply flex items-center gap-2.5 text-base font-semibold tracking-tight text-white; }
+  .brand:hover { @apply no-underline; }
+  .brand-mark { @apply flex size-8 items-center justify-center rounded-md bg-accent text-lg font-bold text-black; }
+  .portal-switch { @apply inline-flex gap-1 rounded-lg border border-[#3b4631] bg-[#1b2116] p-1; }
+  .portal-switch a { @apply flex min-h-11 min-w-20 items-center justify-center rounded-md px-4 py-2 text-sm font-semibold text-[#d7dfcf] no-underline; }
+  .portal-switch a.selected { @apply bg-accent text-black; }
+  .page-content { @apply mx-auto max-w-6xl px-5 py-8 sm:px-8 sm:py-10; }
+  .page-heading { @apply mb-7 flex flex-wrap items-center justify-between gap-5; }
+  .page-heading h1 { @apply mb-2; }
+  .eyebrow { @apply mb-2 text-xs font-bold tracking-widest text-link uppercase; }
+  .muted { @apply text-sm text-[#61695e]; }
+  .hint { @apply text-xs leading-relaxed text-[#61695e]; }
+  .button { @apply inline-flex min-h-11 items-center justify-center rounded-md border border-[#cdd3c8] bg-white px-4 py-2.5 text-center text-sm font-semibold text-[#30372e] no-underline; }
+  .button:hover { @apply bg-[#f1f4ee] no-underline; }
+  .button.primary { @apply border-accent bg-accent text-black; }
+  .button.primary:hover { @apply border-[#77a820] bg-[#77a820]; }
+  .button:disabled { @apply border-[#e4e8de] bg-[#e4e8de] text-[#64705a]; }
+  .button.quiet { @apply border-transparent bg-transparent; }
+  .surface { @apply rounded-xl border border-[#dfe4da] bg-white shadow-xs; }
+  .empty-state { @apply flex min-h-64 flex-col items-center justify-center gap-4 p-7 text-center; }
+  .list-heading, .article-row { @apply grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-5 py-5 sm:grid-cols-[minmax(0,1fr)_10rem_5rem] sm:px-6; }
+  .list-heading { @apply hidden border-b border-[#dfe4da] py-3 text-xs tracking-wider text-[#61695e] uppercase sm:grid; }
+  .article-row + .article-row { @apply border-t border-[#edf0e8]; }
+  .article-title { @apply col-span-2 font-semibold text-ink sm:col-span-1; overflow-wrap: anywhere; }
+  .open-link { @apply text-right text-sm; }
+  .list-note { @apply mt-4; }
+  .badge { @apply inline-flex w-fit items-center rounded-full bg-[#f1f4ed] px-2.5 py-1 text-xs font-semibold text-[#48583d] capitalize; }
+  .badge.published { @apply bg-[#eaf5d9] text-[#355811]; }
+  .badge.unpublished { @apply text-[#61695e]; }
+  .back-link { @apply mb-6 inline-block text-sm text-[#61695e]; }
+  .form-page { @apply mx-auto max-w-2xl; }
+  .form-description { @apply mt-3 mb-6; }
+  .form-box { @apply p-5 sm:p-7; }
+  .field { @apply mb-5 grid content-start gap-2; }
+  .field label { @apply text-sm font-semibold text-[#30372e]; }
+  .field input { @apply min-w-0 rounded-md border border-[#cdd3c8] bg-white px-3 py-3 text-sm; }
+  .field input[aria-invalid=true] { @apply border-red-600; }
+  .field-error { @apply text-xs text-red-700; }
+  .field-error:empty { @apply hidden; }
+  .form-actions { @apply mt-6 flex flex-wrap items-center gap-3 border-t border-[#dfe4da] pt-5; }
+  .notice { @apply mb-6 rounded-lg border p-4 text-sm; }
+  .notice.error { @apply border-red-200 bg-red-50 text-red-800; }
+  .notice .button { @apply mt-3; }
+  .editor-heading { @apply mb-6 rounded-xl border-l-4 border-accent bg-[#10130d] px-5 py-6 text-white sm:px-8; }
+  .editor-title { @apply flex flex-wrap items-center gap-3; }
+  .editor-title h1 { @apply text-3xl; overflow-wrap: anywhere; }
+  .metadata { @apply mt-3 text-xs text-[#b6c1ac]; overflow-wrap: anywhere; }
+  .editor-heading .badge { @apply bg-[#253719] text-[#c6eb94]; }
+  .draft-details { @apply p-5 sm:p-7; }
+  .draft-details dt { @apply mt-6 mb-2 text-sm font-semibold; }
+  .draft-details dd { @apply text-sm; overflow-wrap: anywhere; white-space: pre-wrap; }
+  .tag { @apply mr-1.5 inline-block rounded border border-[#e0e9d2] bg-[#f0f5e8] px-2 py-1 text-xs text-[#3e5230]; }
+  .saved-body { @apply max-h-[32rem] overflow-auto rounded-md border border-[#dfe4da] bg-paper p-4 text-sm whitespace-pre-wrap; overflow-wrap: anywhere; }
+  .welcome { @apply py-10; }
+  .welcome h1 { @apply mb-7; }
+  .portal-dialog { @apply m-auto w-[min(520px,calc(100vw-32px))] rounded-xl border border-t-4 border-[#dfe4da] border-t-accent bg-white p-6 text-ink shadow-2xl sm:p-8; }
+  .portal-dialog::backdrop { @apply bg-black/60 backdrop-blur-sm; }
+  .portal-dialog h2 { @apply mb-3 text-2xl font-semibold tracking-tight; }
+  .portal-choices { @apply mt-6 grid gap-3; }
+  .portal-choice { @apply grid min-h-11 w-full gap-1 rounded-lg border border-[#cdd3c8] bg-paper p-4 text-left; }
+  .portal-choice:hover { @apply border-link bg-[#f0f7e4]; }
+  .portal-choice span { @apply text-sm text-[#61695e]; }
+}

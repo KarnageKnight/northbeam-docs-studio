@@ -2,7 +2,7 @@
 
 **Feature**: `001-docs-studio` · **Created**: 2026-11-07
 **Status**: Phases 1–3 approved. T035 is complete with the Write/Preview tabbed design selected by the user.
-Phase 4 is ready; Phase 4 and later implementation have not started.
+Phase 4 T006/T007/T022 is implemented and verified, pending human approval. Later phases have not started.
 **Input**: [specification](spec.md), [plan](plan.md), [research](research.md),
 [data model](data-model.md), [HTTP contract](contracts/http-api.md),
 [UI/service contract](contracts/ui-and-services.md), [quickstart](quickstart.md),
@@ -172,7 +172,7 @@ feature-screen implementation was started.
 
 **Phase approval**: Final rendered Deloitte-inspired black/white/green design with
 Write/Preview tabs explicitly approved by the user on 2026-11-07 after reviewing the
-previews and verification results. T035 is complete; Phase 4 is next and has not started.
+previews and verification results. T035 is complete; the user authorized Phase 4 implementation on 2026-11-07.
 
 ## Phase 4: US1 — Create and open a draft (P1)
 
@@ -180,9 +180,61 @@ previews and verification results. T035 is complete; Phase 4 is next and has not
 **Dependencies**: UI design phase approved; foundations ready.
 **Independent test**: Create title/slug with empty defaults, see validation/collision feedback, reopen the read-only draft, and retain it across app restart; SQL proves no snapshots/publication fields. Public-route exclusion is additionally checked when public reading exists.
 
-- [ ] T006 [US1] Extend `tests/unit/articles-validation.test.ts` and start `tests/integration/articles.test.ts` before implementing create input validation in `server/validation/articles.ts`, `server/services/articles/createArticle.ts`, `server/services/articles/toWriterArticle.ts`, `server/utils/api-errors.ts`, and `server/api/writer/articles/index.post.ts`. Quote and enforce the model rules: title "Nonblank; at most 200 Unicode code points"; slug "Trim/lowercase; 1–100 characters; lowercase ASCII alphanumeric groups separated by single hyphens"; body "At most 100,000 Unicode code points; empty allowed for draft creation/save"; tags "Array of strings; trim/lowercase, drop empty values, deduplicate in first-occurrence order" and "At most 10; each at most 30 code points; same character/hyphen format as slugs". Preserve title/body text; omitted/null creation body/tags normalize to empty values; reject wrong types/unknown fields/malformed JSON with 400 VALIDATION_ERROR. Return the exact 201 WriterArticle with UUIDv4, revision 0, draft status, null publication fields, counter 1, and no snapshot. Map the named normalized-slug violation to 409 SLUG_CONFLICT without a precheck race or automatic suffix; keep unexpected errors native/generic.
-- [ ] T007 [US1] Extend `tests/integration/articles.test.ts` and its existing process helpers for writer list/load, missing/malformed IDs, unchanged read audit/revision, and draft reopening after a built-server restart using the same test DB; implement the needed projections in `server/services/articles/queries.ts`, `shared/types/articles.ts`, `server/api/writer/articles/index.get.ts`, and `server/api/writer/articles/[articleId]/index.get.ts`. Writer list returns draft title/status and empty `[]`; detail returns only the approved WriterArticle fields. Enforce "Valid UUID syntax; not restricted to UUIDv4 input", distinguishing 400 malformed from 404 valid missing IDs. Use native helpers consistently from `nuxt/server`; do not expose audit fields or allocation counters.
-- [ ] T022 [US1] Implement `app/pages/writer/articles/index.vue` `app/pages/writer/articles/new.vue`, and a minimal read-only `app/pages/writer/articles/[articleId].vue` using native Nuxt fetching and existing HTTP types. Show draft-title/status summaries, empty/loading/error feedback, navigation, and a focused title/slug creation form; surface field/slug errors and navigate to `/writer/articles/:articleId` after successful creation using approved empty body/tags defaults. Let the destination load and display the newly created saved draft, with missing/error states; editing/preview controls arrive in the next feature. Manually verify create → list → open → reload against the real API and keep automated request behavior in `tests/integration/articles.test.ts` rather than adding a browser framework.
+- [x] T006 [US1] Extend `tests/unit/articles-validation.test.ts` and start `tests/integration/articles.test.ts` before implementing create input validation in `server/validation/articles.ts`, `server/services/articles/createArticle.ts`, `server/services/articles/toWriterArticle.ts`, `server/utils/api-errors.ts`, and `server/api/writer/articles/index.post.ts`. Quote and enforce the model rules: title "Nonblank; at most 200 Unicode code points"; slug "Trim/lowercase; 1–100 characters; lowercase ASCII alphanumeric groups separated by single hyphens"; body "At most 100,000 Unicode code points; empty allowed for draft creation/save"; tags "Array of strings; trim/lowercase, drop empty values, deduplicate in first-occurrence order" and "At most 10; each at most 30 code points; same character/hyphen format as slugs". Preserve title/body text; omitted/null creation body/tags normalize to empty values; reject wrong types/unknown fields/malformed JSON with 400 VALIDATION_ERROR. Return the exact 201 WriterArticle with UUIDv4, revision 0, draft status, null publication fields, counter 1, and no snapshot. Map the named normalized-slug violation to 409 SLUG_CONFLICT without a precheck race or automatic suffix; keep unexpected errors native/generic.
+- [x] T007 [US1] Extend `tests/integration/articles.test.ts` and its existing process helpers for writer list/load, missing/malformed IDs, unchanged read audit/revision, and draft reopening after a built-server restart using the same test DB; implement the needed projections in `server/services/articles/queries.ts`, `shared/types/articles.ts`, `server/api/writer/articles/index.get.ts`, and `server/api/writer/articles/[articleId]/index.get.ts`. Writer list returns draft title/status and empty `[]`; detail returns only the approved WriterArticle fields. Enforce "Valid UUID syntax; not restricted to UUIDv4 input", distinguishing 400 malformed from 404 valid missing IDs. Use native helpers consistently from `nuxt/server`; do not expose audit fields or allocation counters.
+- [x] T022 [US1] Implement `app/pages/writer/articles/index.vue` `app/pages/writer/articles/new.vue`, and a minimal read-only `app/pages/writer/articles/[articleId].vue` using native Nuxt fetching and existing HTTP types. Show draft-title/status summaries, empty/loading/error feedback, navigation, and a focused title/slug creation form; surface field/slug errors and navigate to `/writer/articles/:articleId` after successful creation using approved empty body/tags defaults. Let the destination load and display the newly created saved draft, with missing/error states; editing/preview controls arrive in the next feature. Manually verify create → list → open → reload against the real API and keep automated request behavior in `tests/integration/articles.test.ts` rather than adding a browser framework.
+
+**T006 evidence (2026-11-07)**: Extended the existing unit suite before implementation;
+missing creation validation failed as expected. Creation now validates/normalizes input,
+returns the exact WriterArticle projection, and maps named slug collisions through native
+Nuxt errors. Database assertions confirm default state, unchanged conflicting rows, and no
+snapshots. Typecheck/build/full suite pass (47 integration cases plus the expanded unit
+suite). The shared WriterArticle type was introduced here because the creation projection
+needs it; T007 reuses it. T007 is next; Phase 4 approval remains pending.
+
+**T007 evidence (2026-11-07)**: New read scenarios failed before implementation.
+List/detail now use explicit projections and native Nuxt errors; valid non-v4 UUIDs
+are accepted, malformed IDs return 400, and missing valid IDs return 404. Reads preserve
+stored audit/revision fields; built-server restart preserves the created draft and no
+snapshots are created. Existing readiness/cleanup moved from the runner into shared
+integration process helpers so the same controlled server can be restarted. Sequential
+test files each own/start/stop their server; Docker ownership/reset isolation is unchanged.
+Typecheck/build/full suite pass: 48 unit and 59 PostgreSQL/HTTP integration cases.
+T022 is next; later phases remain unstarted.
+
+**T022 / Phase 4 verification (2026-11-07)**: Approved black/white/green header, portal
+navigation, writer list, title/slug creation, and read-only draft detail are implemented.
+Initially app/pages/index.vue preserved the root shell when enabling NuxtPage routing;
+the later user-requested entry chooser replaces that landing action with an Articles placeholder. Editing/preview/publication/history controls are not exposed.
+Chrome against a fresh isolated Compose application at loopback 3300 passed empty-list,
+field-validation, create/list/open/reload, normalized-collision/input-retention, failed
+submission, missing-draft, and 320/390/1440px responsive checks, with no runtime exceptions
+or hydration warnings. Typecheck, explicit test-file typecheck, production build, and
+`pnpm test` pass: 48 unit + 60 PostgreSQL/HTTP integration cases. The suite includes
+production generic-500 verification and built-server restart persistence. Integration
+containers/network/volume are cleaned up; browser validation resources are also removed,
+preserving existing development PostgreSQL. Phase 5 remains unstarted.
+
+**Query-review follow-up**: After Phase 4 verification, the user requested less verbose
+column selection. Single-article reads now select the full row and reuse toWriterArticle
+as the explicit API allowlist, matching creation. The mapper accepts the inferred full
+row type instead of a repeated field-name Pick. The four-column summary query remains
+small to avoid fetching bodies for lists. Other select/returning sites were reviewed;
+no schema, column names, or response shape changed. The existing full suite passes again
+(48 unit + 60 integration), along with typecheck/build; no new tests were needed.
+The user confirmed “Keep current names; simplify queries” on 2026-11-07. Column naming
+is resolved with existing names retained; Phase 5 has not started.
+
+**Entry-chooser follow-up (2026-11-07)**: The user selected “Add chooser now; keep
+public list in Phase 7”. A native modal now precedes fresh root-page entry. Writer opens
+the implemented draft list; Public or Escape opens an Articles placeholder. Client
+navigation retains the choice and direct writer links bypass the chooser. Removed the
+Open writer workspace landing action. Public-list API/UI remains unimplemented (T011
+unchecked). Real Chrome checks at 320/390/1440px passed both choices, autofocus, modal
+focus containment, Escape, repeat/client-navigation behavior, deep links, and mobile fit
+without runtime exceptions or hydration warnings. Typecheck/build and all 108 tests
+(48 unit + 60 integration) pass. Temporary test/browser resources were removed; Phase 4
+remains pending human approval and Phase 5 has not started.
 
 **Phase approval**: Pending human review. Demonstrate this phase, present verification results, and wait for explicit human approval before starting the next phase.
 
@@ -347,8 +399,8 @@ previews and verification results. T035 is complete; Phase 4 is next and has not
 Execute the phases above in order, with explicit human approval at every boundary.
 Task IDs are stable references rather than a numeric execution sequence. UI tasks moved
 into their owning story retain their original ID; newly split UI tasks are T036–T039.
-T001–T005 and T035 are complete with evidence above; Phases 1–3 are approved.
-Phase 4 is ready to start; later phase approvals remain pending.
+T001–T007, T022, and T035 are complete with evidence above; Phases 1–3 are approved.
+Phase 4 approval is pending; later phase approvals and tasks remain pending.
 
 ```text
 Setup T001–T002 → Foundation T003–T005 → UI design T035

@@ -1,7 +1,9 @@
 # UI and Internal Service Contracts
 
 **Date**: 2026-11-07
-**Status**: Final design review; describes planned interfaces, not implemented modules.
+**Status**: Phase 4 writer creation/list/read-only detail, shared header, request errors,
+and creation/read services are implemented. Later editing/lifecycle/public interfaces
+below remain target contracts.
 
 Use the approved [HTTP contract](http-api.md), [data model](../data-model.md), and
 [plan](../plan.md). These interfaces derive from the selected thin-handler, function,
@@ -18,7 +20,8 @@ Before implementing these pages, complete T035 in Phase 3 of [tasks.md](../tasks
 propose wireframes and visual/interaction guidance in `specs/001-docs-studio/ui-design.md`,
 then obtain human approval. This precedes the first writer listing/creation/read-only
 editor screens in T022. The user approved [tabbed design](../ui-design.md); T035 and Phase 3 are complete.
-Feature screens have not been implemented.
+Phase 4 writer creation/list/read-only detail screens are implemented; later controls
+are added only with their owning features.
 
 Each feature phase adds only its required UI alongside its API and tests. The editor
 starts with load-only draft display, then editing/preview/save, Publish, Unpublish,
@@ -40,6 +43,12 @@ Writer to `/writer/articles`. Highlight Public for both public routes and Writer
 writer routes, including creation/editor pages. Use semantic links, a labeled navigation
 group, current-portal accessibility state, and mobile-visible controls. The preview uses
 sample-screen navigation; application pages retain their approved URLs.
+
+On a fresh root-page entry, show a native modal Public/Writer chooser. Keep its choice
+during client navigation; do not interrupt direct writer/detail links. Public dismisses
+to the Articles placeholder until T011; Writer opens `/writer/articles`. Escape chooses
+Public. The user explicitly kept public listing in Phase 7. No role/authentication or
+persisted preference is added, and the separate workspace landing action is removed.
 
 Use Nuxt native page routing and universal rendering. The public pages fetch only public
 API representations. Writer list titles come from saved drafts. Creation supplies title
@@ -115,7 +124,10 @@ deletion retain their different workflows. All callback queries use the supplied
 transaction, never the shared pool outside it. The operation owns its content/state/
 counter/revision/audit changes; the helper owns coordination and completion.
 
-Queries use explicit field projections. Public reads join article status/current reference
+At the user's request, a writer single-article lookup selects the complete row and
+uses toWriterArticle as the explicit response allowlist, matching creation's full-row
+returning/mapping pattern. Writer summary queries retain their small explicit projection
+to avoid loading draft bodies for the list. Do not spread database rows into API responses. Public reads join article status/current reference
 to its owned immutable snapshot within one SQL statement. Snapshots are selected by both
 owner and UUID; history sorts by version number. Helpers are introduced with the first
 task that uses them, not as unused scaffolding.

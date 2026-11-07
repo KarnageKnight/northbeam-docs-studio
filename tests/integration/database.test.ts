@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { db } from '../../server/db/client'
 import { articles, articleVersions } from '../../server/db/schema'
-import { appUrl, pool, resetDatabase } from './helpers'
+import { appUrl, pool, resetDatabase, startApp, stopApp } from './helpers'
 
 async function createArticle() {
   const [article] = await db.insert(articles).values({
@@ -23,6 +23,7 @@ async function createSnapshot(articleId: string, versionNumber = 1) {
 }
 
 beforeAll(async () => {
+  await startApp()
   const { rows } = await pool.query('SELECT current_database() AS name')
   expect(rows[0].name).toBe('northbeam_test')
   const counts = await pool.query('SELECT (SELECT count(*) FROM articles) + (SELECT count(*) FROM article_versions) AS count')
@@ -30,7 +31,7 @@ beforeAll(async () => {
 })
 
 beforeEach(resetDatabase)
-afterAll(() => pool.end())
+afterAll(async () => { await stopApp(); await resetDatabase(); await pool.end() })
 
 describe('migrated PostgreSQL foundation', () => {
   it('serves the production shell over HTTP', async () => {

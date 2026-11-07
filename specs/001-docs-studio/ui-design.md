@@ -6,7 +6,8 @@ Deloitte-inspired black/white/green styling with Write/Preview tabs, history bel
 and the documented responsive layouts and feedback states. Only this approved design
 is retained in the preview assets.
 **Scope**: Five screen wireframes, rendered visual mockups, and feedback states.
-Application screens are not implemented.
+Phase 4 writer list/creation/read-only detail follow this design. The full editor,
+history, and public-reading wireframes remain targets for later feature phases.
 
 Use the approved [specification](spec.md), [plan](plan.md),
 [HTTP contract](contracts/http-api.md), and [UI/service boundaries](contracts/ui-and-services.md).
@@ -16,6 +17,32 @@ working controls and data; later actions are omitted until their implementation 
 The public portal is an article-reading experience for any subject. Use “Articles”,
 “All articles”, and “published articles” in public copy and general-interest sample
 content. The assignment/product name remains Northbeam Docs Studio.
+
+## Entry popup requested during Phase 4 review
+
+The user requested a modal portal choice before displaying the homepage. Its two clear
+actions are Public (published article list) and Writer (writer article list), matching the
+existing routes `/` and `/writer/articles`. Remove the separate “Open writer workspace”
+landing-page action. Keep the existing top-header switch available after selection.
+The offline preview's “Preview entry popup” control demonstrates this flow with sample lists.
+
+![Portal entry popup](design-preview/studio-entry-popup.png)
+
+A native dialog provides a labeled heading, modal focus handling, keyboard-operable choices,
+and the existing black/white/green appearance. Selected behavior: show on a fresh root-page
+entry, keep the selection during client navigation, and do not interrupt deep links. Escape
+may dismiss to the public side. The popup is navigation, not authentication or a saved role.
+The user explicitly selected “Add chooser now; keep public list in Phase 7”. Writer opens
+the implemented `/writer/articles` list; Public dismisses the popup to an Articles
+placeholder at `/`. That placeholder makes no claim that a public list was loaded or
+that no articles are published. Remove the workspace landing action. T011 remains pending
+and will replace the placeholder with the real public list in Phase 7.
+Prototype checks passed Public/Writer selection, autofocus, Escape-to-Public, and
+320/390/1440px fit in headless Chrome with no runtime exceptions. The application now
+implements the same chooser with the agreed Articles placeholder: live-browser checks
+also passed both choices, modal focus containment, Escape, root reload behavior, client
+navigation, and deep links without hydration warnings. Typecheck, production build,
+and all 108 existing tests pass.
 
 ## Rendered design previews
 
@@ -317,7 +344,8 @@ After reviewing the rendered previews, the user explicitly approved the final
 black/white/green tabbed design on 2026-11-07. This approval covers the current styling,
 layouts, and documented interaction/feedback states.
 
-T035 is complete and Phase 3 is approved. Phase 4 is the next implementation phase.
+T035 is complete and Phase 3 is approved. Phase 4 writer create/list/open is implemented
+and verified, pending human phase approval.
 Later visual changes require human approval.
 Wireframes and rendered previews demonstrate design intent. Prototype checks are recorded
 above; actual application browser, responsive, and accessibility behavior must still be

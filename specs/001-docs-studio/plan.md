@@ -3,8 +3,8 @@
 **Feature**: `001-docs-studio` | **Date**: 2026-11-07 | **Spec**: [spec.md](spec.md)
 
 **Status**: Phases 1–3 approved. The user selected the Write/Preview tabbed UI design in
-[ui-design.md](ui-design.md); T035 is complete. Phase 4 is ready; subsequent implementation
-has not started. The spec-first checkpoint was verified before
+[ui-design.md](ui-design.md); T035 is complete. Phase 4 create/list/open drafts is
+implemented and verified, pending human approval; Phase 5 and later work have not started. The spec-first checkpoint was verified before
 code without git commands. The feature identifier is `001-docs-studio`; it does not establish
 a git branch name. Individual architecture decisions P001–P077 remain authoritative.
 
@@ -117,8 +117,8 @@ execution evidence follows implementation.
 | I. Specification before implementation | Complete and review spec, plan, and tasks before code; human records git checkpoint. | Spec, design, tasks, and analysis recorded; the spec-first checkpoint was verified before the authorized Phase 1 implementation. Phases 1–3 approved; Write/Preview tabs selected. |
 | II. Draft and snapshot isolation | Public reads use live snapshots; immutable history and referenced-snapshot protection. | Data model and contracts specify table separation, immutable-row trigger, owned reference, and retained-reference deletion protection. |
 | III. Atomic lifecycle and concurrency | Transactional publication and revision checks; no partial state or stale overwrites. | Contracts specify article-first locking, revision-before-eligibility ordering, transactional allocation, rollback, and SQL constraints. |
-| IV. Database-backed evidence | Real PostgreSQL lifecycle/failure/race tests; passing build and suite once scaffolded. | Quickstart maps invariants to real HTTP/SQL evidence, independent connections, rollback and restart checks. Build/typecheck, 15 unit cases, and 32 real PostgreSQL/HTTP foundation cases pass. Lifecycle/race evidence follows its feature tasks. |
-| V. Small reviewable changes | Small scoped tasks, verification, explanation, human review, and no AI commits. | Implement one small task at a time; keep subsequent tasks separate unless explicitly requested together. Leave changes for human review and approval. T001–T005 verified; T035 approved with Write/Preview tabs; Phases 1–3 approved. |
+| IV. Database-backed evidence | Real PostgreSQL lifecycle/failure/race tests; passing build and suite once scaffolded. | Quickstart maps invariants to real HTTP/SQL evidence, independent connections, rollback and restart checks. Build/typecheck, 48 unit cases, and 60 real PostgreSQL/HTTP cases pass, including draft create/read/restart. Lifecycle/race evidence follows its feature tasks. |
+| V. Small reviewable changes | Small scoped tasks, verification, explanation, human review, and no AI commits. | Implement one small task at a time; keep subsequent tasks separate unless explicitly requested together. Leave changes for human review and approval. T001–T007/T022 verified; T035 approved; Phases 1–3 approved and Phase 4 review pending. |
 | VI. Human architecture decisions | Present alternatives and record each human selection before dependent work. | P001–P077 record selections and rationale; consolidated artifacts await final human review. |
 | VII. Consistent patterns | Establish approved patterns and reuse them across implementation tasks. | UI/service contract fixes shared validation, handlers/errors, transaction helper, data access, renderer, and local-state patterns. |
 
@@ -152,8 +152,8 @@ Generated design artifacts:
 - [quickstart.md](quickstart.md): verified foundation commands and future feature acceptance procedures.
 
 [tasks.md](tasks.md) contains 39 dependency-ordered tasks across all 14 stories, with
-verification and human review gates. T001–T005 and T035 are verified and checked; Phases 1–3 are approved.
-Later tasks have not started.
+verification and human review gates. T001–T007, T022, and T035 are verified and checked; Phases 1–3 are approved.
+Phase 4 is pending approval; Phase 5 and later tasks have not started.
 
 ### UI design review before page implementation
 
@@ -162,8 +162,8 @@ The user approved adding a separate UI design task. T035 is approved in
 guidance, responsive behavior, and required interaction/feedback states. The user selected Write/Preview tabs on 2026-11-07
 in one full-width panel at all screen widths, with history below. Switching tabs preserves
 local edits, dirty state, saved revision, and feedback; it never saves or publishes.
-Shared visual guidance and lifecycle behavior remain selected. No application
-screens are implemented. Routes, component boundaries, and lifecycle rules remain those
+Shared visual guidance and lifecycle behavior remain selected. Phase 4 writer create/list/read-only detail screens are implemented; editing/preview
+and later lifecycle/public screens remain future work. Routes, component boundaries, and lifecycle rules remain those
 in the existing contracts. Target 30–60 minutes for design and review within the agreed overall budget.
 
 Execute T035 immediately after the foundation (Phase 3), and obtain explicit human
@@ -986,7 +986,8 @@ These complete the read representations alongside the writer article object in P
 reading, while keeping draft and live representations explicit and list responses simple.
 
 Custom error data and validation are approved in P031/P033. Physical column definitions
-are approved in P075. These are contract definitions, not implemented or verified endpoints.
+are approved in P075. These are the final contract definitions. Phase 4 implements writer create/list/detail;
+remaining endpoints are added with their owning feature phases.
 
 ### Application Error Codes and Validation Details (P031)
 
@@ -2145,8 +2146,53 @@ resources were preserved. The temporary validation project was removed after che
 
 Port 3000 was already occupied; the validation app used a temporary loopback-3300 override.
 The committed default is loopback 3000. Windows/Linux host execution, lifecycle operations,
-concurrency races, and feature UI remain unverified/unimplemented. Phases 1–3 are approved;
-Write/Preview tabs are the selected UI design and Phase 4 is next. See [README.md](../../README.md) for current commands.
+concurrency races, and later feature UI remain unverified/unimplemented. Phases 1–3 are approved;
+Write/Preview tabs are the selected UI design; Phase 4 is implemented and awaits review. See [README.md](../../README.md) for current commands.
+
+## Entry chooser requested during Phase 4 review
+
+The user selected a native Public/Writer modal before the homepage, while explicitly
+keeping T011 public listing in Phase 7. On a fresh root entry, hide the Articles placeholder
+until Public is selected or Escape dismisses the chooser; Writer navigates directly to the
+existing writer list. Retain selection only during client navigation and preserve deep links.
+The root no longer presents an Open writer workspace landing action. Public lists remain
+unimplemented; this navigation change adds no routes, dependencies, authentication, or APIs.
+
+## Writer query simplification requested during Phase 4 review
+
+The user requested less repetitive column selection after the feature was completed.
+Use select-all plus the existing toWriterArticle response mapper for the single-article
+writer lookup, matching creation's returning/mapping pattern. The mapper accepts the
+inferred article row type rather than repeating a nine-field Pick. Retain the summary
+query's four-column selection because it intentionally omits potentially large bodies.
+The user explicitly selected “Keep current names; simplify queries” on 2026-11-07.
+Retain draftTitle/draftBody/draftTags and their SQL names draft_title/draft_body/draft_tags;
+these distinguish editable content from published snapshots. No schema, migration, or
+HTTP field is renamed in this cleanup. Exact-response tests continue to prove
+that counter/audit columns are not returned.
+
+## Phase 4 implementation evidence
+
+Draft creation validates the approved fields and defaults, generates UUIDv4 keys, maps
+named slug conflicts, and returns the WriterArticle allowlist. Writer list/detail reads
+validate UUID syntax, use the declared response projections, preserve read audits/revisions,
+and reopen persisted drafts after a built-server restart. Native production 500 errors
+hide unexpected database details. Shared process helpers own/start/stop a production
+server for each sequential integration test file; restart tests use the same database.
+
+The writer UI follows the approved black/white/green styling with top-header Public/Writer
+navigation, list/creation/read-only detail, field/collision/errors, empty/loading feedback,
+and deliberate retry. Native page routing required moving the root shell to app/pages/index.vue.
+No editing/preview/publishing/history/public list/detail implementation is included.
+The user-requested entry chooser is implemented as the Phase 4 follow-up described above;
+the root Articles placeholder replaces the former workspace landing action.
+
+`pnpm test` passes 48 unit + 60 integration tests; Nuxt typecheck, explicit changed-test
+TypeScript checks, and production build pass. Real Chrome checks at loopback 3300 cover
+create/list/open/reload, invalid fields, collisions, missing drafts, failed submissions,
+and mobile widths with no runtime exceptions/hydration warnings. macOS arm64 with Linux
+containers is verified; Windows/Linux host execution remains unverified. Phase 4 approval
+is pending and Phase 5 has not started.
 
 ## Complexity Tracking
 

@@ -98,12 +98,23 @@
     .portal-link:hover { color: #fff; background: #303b25; text-decoration: none; }
     .portal-link[aria-current] { color: #000; background: var(--accent); }
     .portal-link[aria-current]:hover { background: var(--accent-hover); }
+    .portal-dialog { margin: auto; width: min(520px, calc(100vw - 32px)); padding: 30px; border: 1px solid #dfe4da; border-top: 4px solid var(--accent); border-radius: 12px; color: var(--ink); background: #fff; box-shadow: 0 24px 80px #0004; }
+    .portal-dialog::backdrop { background: #0009; backdrop-filter: blur(4px); }
+    .portal-dialog h2 { margin: 0 0 10px; font-size: 28px; letter-spacing: -.8px; }
+    .portal-dialog p { color: #61695e; font-size: 14px; }
+    .portal-choices { display: grid; gap: 12px; margin-top: 24px; }
+    .portal-choice { display: grid; gap: 5px; width: 100%; padding: 18px; border: 1px solid #cdd3c8; border-radius: 8px; text-align: left; color: var(--ink); background: #f7f9f4; }
+    .portal-choice:hover { border-color: var(--link); background: #f0f7e4; }
+    .portal-choice strong { font-size: 16px; }
+    .portal-choice span { font-size: 13px; color: #61695e; }
+    .entry-preview { min-height: 42px; border: 1px solid #7d8c6f; border-radius: 6px; padding: 9px 14px; background: transparent; color: #fff; font-size: 13px; }
   </style>
 </head>
 <body>
   <header class="review">
     <div class="review-title"><div><h1>Northbeam · UI design review</h1><p>Approved article UI preview</p></div><div class="review-note">Sample content only. These screens do not connect to the application or save data.</div></div>
     <div class="controls">
+      <button type="button" class="entry-preview" id="show-portal-dialog">Preview entry popup</button>
       <div class="control"><span>Canvas</span><div class="segments" id="widths"><button data-width="desktop">Desktop</button><button data-width="mobile">Mobile</button></div></div>
       <label class="control"><span>Feedback state</span><select id="state"><option value="normal">Normal</option><option value="loading">Loading</option><option value="empty">Empty</option><option value="validation">Validation error</option><option value="success">Success</option><option value="conflict">Stale revision</option><option value="protected">Protected version</option><option value="error">Request failure</option><option value="missing">Not found</option></select></label>
     </div>
@@ -111,6 +122,15 @@
   </header>
   <div class="stage" id="stage"><div class="artboard" id="artboard"><header class="app-header" id="app-header"></header><main class="content" id="screen"></main></div><div class="preview-footer" id="caption"></div></div>
   <div id="message" class="review-message" role="status" hidden></div>
+  <dialog id="portal-dialog" class="portal-dialog" aria-labelledby="portal-dialog-title" aria-describedby="portal-dialog-description">
+    <p class="eyebrow">Northbeam Docs Studio</p>
+    <h2 id="portal-dialog-title">Where would you like to go?</h2>
+    <p id="portal-dialog-description">Choose a side to get started. You can switch at any time using the header.</p>
+    <div class="portal-choices">
+      <button type="button" class="portal-choice" data-choose-portal="public" autofocus><strong>Public · Read articles →</strong><span>Browse articles published by our writers.</span></button>
+      <button type="button" class="portal-choice" data-choose-portal="writer"><strong>Writer · Manage articles →</strong><span>Create drafts and open your article workspace.</span></button>
+    </div>
+  </dialog>
   <script>
     const params = new URLSearchParams(location.search)
     const options = { tab: params.get('tab') === 'preview' ? 'preview' : 'write', width: params.get('width') === 'mobile' ? 'mobile' : 'desktop', screen: ['writer','create','editor','public','article'].includes(params.get('screen')) ? params.get('screen') : 'editor', state: 'normal' }
@@ -210,6 +230,8 @@
     function message(text) { $('message').textContent=text;$('message').hidden=false;clearTimeout(messageTimer);messageTimer=setTimeout(()=>$('message').hidden=true,5000) }
     document.addEventListener('click',event=>{
       const target=event.target.closest('button,a');if(!target)return
+      if(target.id==='show-portal-dialog'){$('portal-dialog').showModal();return}
+      if(target.dataset.choosePortal){$('portal-dialog').close();options.screen=target.dataset.choosePortal;options.state='normal';render();return}
       if(target.dataset.editorTab){setEditorTab(target.dataset.editorTab,true);return}
       if(target.dataset.width){options.width=target.dataset.width;render()}
       const screen=target.dataset.screen||target.dataset.go
@@ -235,6 +257,7 @@
     })
     document.addEventListener('submit',event=>{event.preventDefault();if(event.target.id==='create-form'){options.screen='editor';options.state='success';render()}})
     document.addEventListener('input',event=>{if(['source','draft-title','draft-tags'].includes(event.target.id))message('Preview only: field edits stay in this mockup; the rendered sample is fixed.')})
+    $('portal-dialog').addEventListener('cancel',()=>{options.screen='public';options.state='normal';render()})
     $('state').addEventListener('change',event=>setState(event.target.value))
     render()
   </script>
