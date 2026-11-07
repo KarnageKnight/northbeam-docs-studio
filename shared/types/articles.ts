@@ -23,3 +23,7 @@ export interface PublicSummary {
   tags: string[]
   publishedAt: string
 }
+
+export interface PublicDetail extends PublicSummary {
+  body: string
+}

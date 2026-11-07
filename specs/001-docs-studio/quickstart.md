@@ -1,15 +1,15 @@
 # Quickstart and Verification Guide
 
 **Date**: 2026-11-07
-**Status**: Phases 1–6 approved. Phase 7 public listing is implemented and verified, pending human approval.
-Unpublish/history and public detail features have not started.
+**Status**: Phases 1–7 approved. Phase 8 public article detail is implemented and verified,
+pending human approval. Unpublish/history features have not started.
 
 ## Current commands and evidence
 
 With Node 24.22.2 and pnpm 12.18.0: `pnpm install --frozen-lockfile`, `pnpm dev`,
 `pnpm run test:unit`, `pnpm run test:integration`, `pnpm test`, `pnpm exec nuxt typecheck`,
 and `pnpm run build` are available. Full verification passes 98 database-free unit cases
-and 96 real PostgreSQL/HTTP integration cases, plus typecheck and production build.
+and 99 real PostgreSQL/HTTP integration cases, plus typecheck and production build.
 Docker startup builds the application, applies migrations, and serves the writer feature.
 See [README.md](../../README.md) for prerequisites, configuration, and cleanup procedures.
 
@@ -34,7 +34,7 @@ docker compose up --build
 
 Open `http://localhost:3000`, choose Writer in the entry popup, or visit `/writer/articles` to
 create/list/edit/save/publish articles. Choose Public for the published article list;
-article detail pages arrive in Phase 8. No authentication setup or mandatory
+open any published article to read its live Markdown. No authentication setup or mandatory
 `.env` copy is required.
 
 Expected startup: build the runtime image, start PostgreSQL, wait for its TCP readiness,
@@ -269,7 +269,7 @@ Choose Public from a fresh entry popup or the header. With no published articles
 its live title/tags/original date and `/articles/:slug` links. Saving a different draft
 title/tags must leave the list unchanged; republish updates the list while retaining the
 date. Draft-only and SQL-fixture unpublished articles are excluded. Real Unpublish remains
-in its own phase. Detail destinations are not implemented until Phase 8.
+in its own phase. Detail destinations are now implemented by Phase 8.
 
 Existing integration tests now cover the exact anonymous four-field projection, empty
 API/UI, server-rendered title/tags/date/links, literal HTML-looking title text, exclusion
@@ -284,7 +284,47 @@ date. A blocked public fetch showed error/Retry; paused retry showed loading and
 recovered the list. At 320/390/1440px maximum-length title/tag fixtures fit without page
 overflow, links met 44px targets, and no runtime exceptions/hydration warnings occurred.
 The full suite passes 98 unit + 96 integration cases. Disposable validation resources were
-removed; normal app/development resources were preserved. Detail links remain Phase 8 work.
+removed; normal app/development resources were preserved. Phase 8 now implements detail destinations.
+
+
+## Public detail walkthrough
+
+Open a Read article/title link from Public. Confirm live title/tags, original date, and
+rendered Markdown, then return using All articles. Raw HTML should remain visible as text;
+unsafe links must not be clickable. The same body must render identically in writer Preview.
+Save changed draft title/body/tags and reload the public page: the saved changes remain
+private. Explicit republish updates public list/detail while preserving the first date.
+
+Visit missing, draft-only, and SQL-fixture unpublished slugs directly. API and page return
+404; the reader shows Article not found and All articles without private content. Real
+Unpublish remains scheduled for its feature phase. Unexpected fetch failures provide Retry.
+Existing public-read integration cases now also verify exact detail fields, safe server
+rendering, matching unavailable-state HTTP 404, unchanged read audits, and restart persistence.
+
+
+**Phase 8 browser evidence**: A fresh production Docker app on temporary loopback 3300
+passed list/detail/All articles navigation without reopening the chooser; live title/tags/
+date/body and exact anonymous projection; identical writer-preview rendering; safe raw HTML
+and link policy in browser/server HTML; draft privacy until republish with retained first
+date; matching missing/draft-only/unpublished-fixture page/API 404; error/Retry/loading;
+and 320/390/1440px reading layouts with maximum title and long code. The return link was
+adjusted to a 44px target after browser review; all checks passed again. Code overflow stays
+inside its block, empty tags are omitted, and no writer controls/runtime/hydration errors
+were observed. The full suite passes 98 unit + 99 integration cases. Nuxt/changed-test
+typechecks and production build pass; disposable resources were removed without touching
+normal resources. Real Unpublish remains Phase 9 work.
+
+**Phase 8 review follow-up**: Reader missing-state detection uses Nuxt’s canonical
+`error.status` property instead of its deprecated `statusCode` alias. Existing unavailable-
+article API/page tests cover this behavior. The same canonical property is used in the
+writer editor load/reload state and missing screen. Existing writer missing-ID cases now
+also verify server-rendered not-found feedback; no additional test cases were needed.
+The broader pinned-type deprecation audit also replaced the deprecated one-argument
+`setResponseStatus(404)` overload with `setResponseStatus(requestEvent, 404)`, guarded by
+the server request event. Existing HTTP 404 tests verify the behavior.
+The installed TypeScript suggestion-diagnostic audit covers 37 source/configuration files,
+including eight Vue script blocks, and reports no remaining deprecations after this fix.
+Template legacy-syntax checks, Nuxt typecheck, production build, and all 197 tests pass.
 
 ## Acceptance coverage
 
@@ -326,14 +366,14 @@ Implementation follows [tasks.md](tasks.md): build each feature's API and UI tog
 run its existing/new meaningful checks and browser walkthrough, then present the results
 for human phase approval. Do not wait until all APIs exist to exercise writer screens.
 The later integrated walkthrough repeats the combined experience; it does not defer
-feature-level feedback, conflict preservation, or verification. Phases 1–6 are approved.
-T001–T011, T013, T022–T024, and T035 are verified and checked (16 tasks).
-Phase 7 awaits human approval; later tasks remain unchecked.
+feature-level feedback, conflict preservation, or verification. Phases 1–7 are approved.
+T001–T013, T022–T024, T035, and T039 are verified and checked (18 tasks).
+Phase 8 awaits human approval; later tasks remain unchecked.
 
 ## Design handoff
 
 Review [plan.md](plan.md), [data-model.md](data-model.md), and [contracts](contracts/http-api.md).
 Analysis and the spec-first checkpoint were verified before the authorized Phase 1
 implementation. The [tabbed design](ui-design.md) and Phase 4 create/list/open are approved;
-review Phase 7 public listing before starting Phase 8 article detail. AI creates no commits. Full application behavior and
+review Phase 8 public article detail before starting Phase 9 Unpublish. AI creates no commits. Full application behavior and
 Windows/Linux host support remain unverified.

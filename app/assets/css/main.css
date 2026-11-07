@@ -55,6 +55,10 @@
   .public-article-title { @apply text-ink; }
   .public-article-tags { @apply flex flex-wrap gap-2; }
   .public-article-tags li { @apply rounded bg-paper px-2 py-1 text-xs text-[#48583d]; }
+  .public-reader { @apply mx-auto max-w-3xl; }
+  .public-reader > .back-link { @apply inline-flex min-h-11 items-center; }
+  .public-detail { @apply min-w-0 p-5 sm:p-8; }
+  .public-detail-heading { @apply mb-7 space-y-4 border-b border-[#dfe4da] pb-6; overflow-wrap: anywhere; }
   .badge { @apply inline-flex w-fit items-center rounded-full bg-[#f1f4ed] px-2.5 py-1 text-xs font-semibold text-[#48583d] capitalize; }
   .badge.published { @apply bg-[#eaf5d9] text-[#355811]; }
   .badge.unpublished { @apply text-[#61695e]; }

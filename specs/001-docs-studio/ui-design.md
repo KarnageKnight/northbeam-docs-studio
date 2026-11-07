@@ -7,8 +7,8 @@ and the documented responsive layouts and feedback states. Only this approved de
 is retained in the preview assets.
 **Scope**: Five screen wireframes, rendered visual mockups, and feedback states.
 Writer list/creation, editable Write/Preview/save, and Phase 6 Publish follow this design.
-The Phase 7 public list is implemented. Unpublish, history, and public-detail wireframes
-remain targets for later feature phases.
+Public list and Phase 8 article detail follow the approved design. Unpublish and history
+wireframes remain targets for later feature phases.
 
 Use the approved [specification](spec.md), [plan](plan.md),
 [HTTP contract](contracts/http-api.md), and [UI/service boundaries](contracts/ui-and-services.md).
@@ -266,7 +266,7 @@ Failed/uncertain requests do not silently become successes or trigger another wr
 **Phase 7 implementation**: T011 replaces the earlier root placeholder with the real public
 list while retaining the chooser and portal navigation. Rows use live summary fields,
 wrap on mobile, omit empty tag groups, and provide loading/empty/error/retry feedback.
-Article-detail links retain their approved URLs; destination pages arrive in Phase 8.
+Article-detail links retain their approved URLs; Phase 8 now implements their destination pages.
 
 ## 4. Public article list — `/`
 
@@ -313,6 +313,13 @@ Missing, draft-only, and unpublished articles show the same 404 page: “Article
 and a link back to all articles. Never fall back to draft or retained snapshot data.
 Republishing keeps the displayed first publication date.
 
+
+**Phase 8 implementation**: The reader uses the approved single column, shared Markdown,
+live metadata, and All articles navigation. Missing states share friendly HTTP 404, and
+failed reads offer Retry/loading recovery. Browser checks verified matching preview,
+draft isolation/republish, and 320/390/1440px long-title/code layouts without hydration or
+runtime errors. Return-link targets meet 44px; code scrolling stays within the content block.
+
 ## Feedback states across screens
 
 | State | Approved presentation and recovery |
@@ -351,8 +358,8 @@ After reviewing the rendered previews, the user explicitly approved the final
 black/white/green tabbed design on 2026-11-07. This approval covers the current styling,
 layouts, and documented interaction/feedback states.
 
-T035 is complete. Phases 1–6 are approved. Phase 7 public listing is implemented and verified,
-pending human approval. Unpublish/history and public detail arrive later.
+T035 is complete. Phases 1–7 are approved. Phase 8 public detail is implemented and verified,
+pending human approval. Unpublish/history arrive later.
 Later visual changes require human approval.
 Wireframes and rendered previews demonstrate design intent. Prototype checks are recorded
 above; actual application browser, responsive, and accessibility behavior must still be

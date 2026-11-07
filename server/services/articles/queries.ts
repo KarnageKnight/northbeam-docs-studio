@@ -1,5 +1,5 @@
 import { and, eq } from 'drizzle-orm'
-import type { PublicSummary, WriterSummary } from '../../../shared/types/articles'
+import type { PublicDetail, PublicSummary, WriterSummary } from '../../../shared/types/articles'
 import { db } from '../../db/client'
 import { articles, articleVersions } from '../../db/schema'
 import { toWriterArticle } from './toWriterArticle'
@@ -23,4 +23,14 @@ export async function listPublicArticles(): Promise<PublicSummary[]> {
     eq(articles.id, articleVersions.articleId), eq(articles.currentPublishedVersionId, articleVersions.id),
   )).where(eq(articles.status, 'published'))
   return rows.map((row) => ({ ...row, publishedAt: row.publishedAt!.toISOString() }))
+}
+
+export async function getPublicArticle(slug: string): Promise<PublicDetail | null> {
+  const [article] = await db.select({
+    slug: articles.slug, title: articleVersions.title, body: articleVersions.body,
+    tags: articleVersions.tags, publishedAt: articles.publishedAt,
+  }).from(articles).innerJoin(articleVersions, and(
+    eq(articles.id, articleVersions.articleId), eq(articles.currentPublishedVersionId, articleVersions.id),
+  )).where(and(eq(articles.status, 'published'), eq(articles.slug, slug)))
+  return article ? { ...article, publishedAt: article.publishedAt!.toISOString() } : null
 }
