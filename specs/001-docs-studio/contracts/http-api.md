@@ -6,8 +6,9 @@ verified, including complete payload validation, stale revision conflicts, and r
 Publish copies saved content into a numbered immutable snapshot and atomically updates
 publication fields/counters/revision; republish preserves the first date. Phase 7 GET
 `/api/public/articles` is implemented and verified with its exact live-only PublicSummary
-projection and anonymous access. Remaining endpoint
-definitions are targets for later feature phases.
+projection and anonymous access. Phase 8 GET `/api/public/articles/:slug` is implemented
+and verified with its exact live-only PublicDetail projection and identical 404 for
+missing/draft-only/unpublished articles. Remaining endpoints are targets for later phases.
 
 Authority: [specification](../spec.md) and [plan](../plan.md) P025–P033. The
 [data model](../data-model.md) owns storage; this contract owns wire representations.

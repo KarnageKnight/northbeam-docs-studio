@@ -2,7 +2,7 @@
 definePageMeta({ key: route => String(route.params.articleId) })
 const route = useRoute()
 const { article, draft, tagsText, dirty, pending, conflict, publishDisabledReason, loadError, fieldErrors, errorMessage, successMessage, save, publish, reload } = await useArticleEditor(String(route.params.articleId))
-const missing = computed(() => loadError.value?.statusCode === 404)
+const missing = computed(() => loadError.value?.status === 404)
 const confirmReload = ref(false)
 
 function requestReload() {

@@ -10,8 +10,10 @@ snapshot and advances reference/status/counter/revision, preserving the original
 date and prior snapshots. Forced post-insert failure and app-crash rollback/recovery are
 verified against real PostgreSQL; writer Publish controls are implemented;
 Phase 7 public listing uses one statement joining published articles to their owned current
-snapshot, projecting only slug/live title/live tags/original date. Remaining lifecycle
-and public-detail rules are targets for later phases.
+snapshot, projecting only slug/live title/live tags/original date. Phase 8 detail uses
+the same one-statement ownership/publication filter plus slug, adding only live Markdown
+body. API isolation, unchanged read audits, and unavailable-state 404 are verified.
+Remaining lifecycle rules are targets for later phases.
 
 Authority: [spec.md](spec.md), [plan.md](plan.md) P006–P075, and approved
 [assumptions](assumptions.md). API projections are defined in [the HTTP contract](contracts/http-api.md).

@@ -1,13 +1,13 @@
 # Research: Northbeam Docs Studio
 
 **Date**: 2026-11-07
-**Status**: Research consolidated. The Phase 7 application passes build/typecheck,
-98 unit tests, and 96 PostgreSQL/HTTP cases on macOS arm64 with Linux containers.
+**Status**: Research consolidated. The Phase 8 application passes build/typecheck,
+98 unit tests, and 99 PostgreSQL/HTTP cases on macOS arm64 with Linux containers.
 Production Docker migrations/startup, restart idempotence, failure/interrupt cleanup, and
-overlap rejection were verified. Phases 1–6 are approved; [tabbed UI design](ui-design.md) is selected.
+overlap rejection were verified. Phases 1–7 are approved; [tabbed UI design](ui-design.md) is selected.
 Writer create/list/open, draft saving/restart persistence, safe Markdown preview, and
 two-tab save conflict/reload behavior are verified. Publish API atomicity and rollback/crash
-recovery and the writer Publish UI are verified. Phase 7 public API/SSR/browser checks pass; human phase approval is pending. Later lifecycle/UI
+recovery and the writer Publish UI are verified. Phase 7 is approved. Phase 8 detail API/SSR/browser checks pass; human phase approval is pending. Later lifecycle/UI
 features and Windows/Linux host execution remain future verification.
 
 Public content is writer-published articles on any topic. Generic article wording is a
@@ -220,5 +220,20 @@ summary-query pattern and prevents body/draft/internal fields from entering the 
 Existing tests now prove empty/live-only responses, private-content exclusion, save/live
 isolation, republish/date retention, safe server-rendered text/links, unchanged audits,
 and restart persistence. Browser checks verify the approved list and fetch feedback at
-mobile/desktop widths. Detail destinations remain in Phase 8; no additional architectural
+mobile/desktop widths. Phase 8 now implements detail destinations; no additional architectural
 choice or dependency was needed.
+
+
+## Phase 8 public detail evidence
+
+The detail read follows the public list's one-statement owned-current-snapshot join,
+adding a bound slug predicate and live body to the narrow response. All unavailable
+states return the same 404. The page imports the existing MarkdownContent component;
+no second renderer, sanitizer, or policy was introduced. Native Nuxt setResponseStatus
+was checked in the installed pinned implementation/types and used for friendly SSR 404.
+
+Existing integration cases now cover exact detail fields, safe server Markdown, unchanged
+read state, private draft isolation, republish/date retention, restart, and matching API/
+page 404. Real-browser checks also verify matching preview output, navigation, fetch
+retry/loading, responsive code containment, and 44px back navigation. No new architecture
+choice or dependency was needed; Unpublish remains its own subsequent feature.

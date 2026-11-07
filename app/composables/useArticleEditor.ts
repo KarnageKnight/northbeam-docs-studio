@@ -4,7 +4,7 @@ export async function useArticleEditor(articleId: string) {
   const url = `/api/writer/articles/${encodeURIComponent(articleId)}`
   const { data, error } = await useFetch<WriterArticle>(url)
   const article = ref<WriterArticle | null>(data.value ?? null)
-  const loadError = ref<{ statusCode?: number } | null>(error.value ?? null)
+  const loadError = ref<{ status?: number } | null>(error.value ?? null)
   const draft = reactive({ title: article.value?.draft.title ?? '', body: article.value?.draft.body ?? '' })
   const tagsText = ref(article.value?.draft.tags.join(', ') ?? '')
   const pending = ref(false)
@@ -103,7 +103,7 @@ export async function useArticleEditor(articleId: string) {
       successMessage.value = dirty.value ? 'Saved draft loaded. Newer local edits were kept.' : 'Saved draft loaded.'
     }
     catch (error) {
-      if (!article.value) loadError.value = error as { statusCode?: number }
+      if (!article.value) loadError.value = error as { status?: number }
       errorMessage.value = 'We could not reload the saved draft. Your local text is still here.'
     }
     finally { pending.value = false }

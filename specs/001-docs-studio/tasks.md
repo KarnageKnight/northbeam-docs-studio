@@ -1,8 +1,8 @@
 # Tasks: Northbeam Docs Studio
 
 **Feature**: `001-docs-studio` · **Created**: 2026-11-07
-**Status**: Phases 1–6 approved. Phase 7 public article list is implemented and verified, pending human approval.
-T035 retains the user-approved Write/Preview tabbed design. Phase 8 and later work have not started.
+**Status**: Phases 1–7 approved. Phase 8 public article detail is implemented and verified, pending human approval.
+T035 retains the user-approved Write/Preview tabbed design. Phase 9 and later work have not started.
 **Input**: [specification](spec.md), [plan](plan.md), [research](research.md),
 [data model](data-model.md), [HTTP contract](contracts/http-api.md),
 [UI/service contract](contracts/ui-and-services.md), [quickstart](quickstart.md),
@@ -354,7 +354,8 @@ normal app/development resources were preserved. No schema/dependency change was
 Detail links use the approved /articles/:slug destination; those pages remain unimplemented
 until Phase 8. No detail endpoint/page or later lifecycle control was added.
 
-**Phase approval**: Pending human review. Demonstrate this phase, present verification results, and wait for explicit human approval before starting the next phase.
+**Phase approval**: Approved by the user by requesting the next phase.
+Phase 8 public detail is authorized; later phases retain their review gates.
 
 ## Phase 8: US10 — Public article detail (P1)
 
@@ -362,8 +363,33 @@ until Phase 8. No detail endpoint/page or later lifecycle control was added.
 **Dependencies**: Public list and editor renderer approved; publications available.
 **Independent test**: Navigate from public list, inspect live title/tags/date/Markdown, verify draft-only/missing/unpublished-fixture 404, unchanged public content after draft saves, and updated live content after republish. Real unpublish is verified in its own phase.
 
-- [ ] T012 [US10] Extend `tests/integration/articles.test.ts` for public detail before implementing the one-statement owned-snapshot query in `server/services/articles/queries.ts`, response types in `shared/types/articles.ts`, and `server/api/public/articles/[slug].get.ts`. Return slug/title/body/tags/publishedAt with Markdown source and no internal/draft metadata. Missing, draft-only, and unpublished articles return 404 ARTICLE_NOT_FOUND; draft edits leave public list/detail unchanged and republish changes both while preserving publishedAt.
-- [ ] T039 [US10] Implement `app/pages/articles/[slug].vue` against the public detail API, reusing `app/components/MarkdownContent.vue` and `shared/utils/markdown.ts` from the editor. Display live title/tags/original publication date/body with universal rendering, missing/unpublished 404, and appropriate loading/error states. Extend `tests/integration/articles.test.ts` for rendered published body and HTTP 404 where clear; manually prove draft edits leave public content unchanged, republishing changes the live view, and raw HTML/unsafe links follow the already-tested shared policy. Add no second renderer or new UI dependency.
+- [x] T012 [US10] Extend `tests/integration/articles.test.ts` for public detail before implementing the one-statement owned-snapshot query in `server/services/articles/queries.ts`, response types in `shared/types/articles.ts`, and `server/api/public/articles/[slug].get.ts`. Return slug/title/body/tags/publishedAt with Markdown source and no internal/draft metadata. Missing, draft-only, and unpublished articles return 404 ARTICLE_NOT_FOUND; draft edits leave public list/detail unchanged and republish changes both while preserving publishedAt.
+- [x] T039 [US10] Implement `app/pages/articles/[slug].vue` against the public detail API, reusing `app/components/MarkdownContent.vue` and `shared/utils/markdown.ts` from the editor. Display live title/tags/original publication date/body with universal rendering, missing/unpublished 404, and appropriate loading/error states. Extend `tests/integration/articles.test.ts` for rendered published body and HTTP 404 where clear; manually prove draft edits leave public content unchanged, republishing changes the live view, and raw HTML/unsafe links follow the already-tested shared policy. Add no second renderer or new UI dependency.
+
+**T012 evidence**: Extended existing public-read cases for exact detail fields,
+save/republish isolation, preserved publication date, read audit stability, and restart
+persistence. Three parameterized unavailable states verify identical 404 ARTICLE_NOT_FOUND
+responses without content leakage or mutation. Missing endpoint assertions failed first.
+The native endpoint now reads a published article joined to its owned current snapshot in
+one statement and returns only slug/title/body/tags/publishedAt. Typecheck/build/full suite
+pass: 98 unit + 99 PostgreSQL/HTTP cases. T039 reader page/browser verification is next.
+
+**T039 / Phase 8 evidence**: Extended the existing public-read cases for server-rendered
+live Markdown/title/tags/date, escaped raw HTML, safe/unsafe links, private draft exclusion,
+and friendly HTTP 404 pages; the page assertions failed before implementation. The new
+reader page reuses MarkdownContent unchanged and Nuxt native fetching/status helpers.
+It provides All articles navigation, a readable single-column layout, loading/error/Retry,
+and the same missing-state message for absent/draft-only/unpublished articles.
+Real Chrome checks passed list → detail → list without reopening the chooser, exact
+anonymous detail fields, safe browser/server Markdown, identical writer-preview output,
+save/republish isolation with original date, unavailable-state page/API 404, retry/loading,
+and 320/390/1440px long-title/code layouts. An observed undersized return-link target was
+fixed locally to meet 44px; the full checks and browser walkthrough passed again. No runtime
+exceptions or hydration warnings were observed. Code scrolls inside its block; empty tag
+groups and writer actions are absent. Nuxt/changed-test typechecks, production build, and
+full suite pass: 98 unit + 99 PostgreSQL/HTTP cases (197 total). Disposable resources were
+removed; normal application/development resources were preserved. No schema, migration,
+dependency, or Markdown-policy change was needed. Phase 9 Unpublish remains unstarted.
 
 **Phase approval**: Pending human review. Demonstrate this phase, present verification results, and wait for explicit human approval before starting the next phase.
 
@@ -483,8 +509,8 @@ until Phase 8. No detail endpoint/page or later lifecycle control was added.
 Execute the phases above in order, with explicit human approval at every boundary.
 Task IDs are stable references rather than a numeric execution sequence. UI tasks moved
 into their owning story retain their original ID; newly split UI tasks are T036–T039.
-T001–T011, T013, T022–T024, and T035 are complete with evidence above (16 tasks).
-Phases 1–6 are approved; Phase 7 awaits human approval.
+T001–T013, T022–T024, T035, and T039 are complete with evidence above (18 tasks).
+Phases 1–7 are approved; Phase 8 awaits human approval.
 Later phase approvals and tasks remain pending.
 
 ```text
