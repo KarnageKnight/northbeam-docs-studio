@@ -2,12 +2,11 @@
 
 **Feature**: `001-docs-studio` | **Date**: 2026-11-07 | **Spec**: [spec.md](spec.md)
 
-**Status**: Phase 1 scaffold and development PostgreSQL implemented and verified;
-human phase approval pending. The user authorized Phase 1 only. The required spec/plan/task
-checkpoint was verified before code through read-only repository-object inspection, without
-git commands. Analysis findings were resolved and rechecked. Phase 2 onward is unstarted.
-The feature identifier is `001-docs-studio`; it does not establish a git branch name.
-Individual architecture decisions P001–P077 remain authoritative.
+**Status**: Phase 1 approved. Phase 2 schema/migrations, production Docker startup,
+and isolated integration verification are implemented and verified, pending human approval.
+Phase 3 and later phases remain unstarted. The spec-first checkpoint was verified before
+code without git commands. The feature identifier is `001-docs-studio`; it does not establish
+a git branch name. Individual architecture decisions P001–P077 remain authoritative.
 
 ## Summary
 
@@ -111,11 +110,11 @@ execution evidence follows implementation.
 
 | Principle | Planning obligation | Current status |
 | --- | --- | --- |
-| I. Specification before implementation | Complete and review spec, plan, and tasks before code; human records git checkpoint. | Spec, design, tasks, and analysis recorded; the spec-first checkpoint was verified before the authorized Phase 1 implementation. Phase 1 review is pending. |
+| I. Specification before implementation | Complete and review spec, plan, and tasks before code; human records git checkpoint. | Spec, design, tasks, and analysis recorded; the spec-first checkpoint was verified before the authorized Phase 1 implementation. Phase 1 approved; Phase 2 review pending. |
 | II. Draft and snapshot isolation | Public reads use live snapshots; immutable history and referenced-snapshot protection. | Data model and contracts specify table separation, immutable-row trigger, owned reference, and retained-reference deletion protection. |
 | III. Atomic lifecycle and concurrency | Transactional publication and revision checks; no partial state or stale overwrites. | Contracts specify article-first locking, revision-before-eligibility ordering, transactional allocation, rollback, and SQL constraints. |
-| IV. Database-backed evidence | Real PostgreSQL lifecycle/failure/race tests; passing build and suite once scaffolded. | Quickstart maps invariants to real HTTP/SQL evidence, independent connections, rollback and restart checks. Phase 1 build/typecheck and 15 unit cases pass; the real PostgreSQL integration suite is not implemented until T005. |
-| V. Small reviewable changes | Small scoped tasks, verification, explanation, human review, and no AI commits. | Implement one small task at a time; keep subsequent tasks separate unless explicitly requested together. Leave changes for human review and approval. T001/T002 verified; Phase 1 human approval pending. |
+| IV. Database-backed evidence | Real PostgreSQL lifecycle/failure/race tests; passing build and suite once scaffolded. | Quickstart maps invariants to real HTTP/SQL evidence, independent connections, rollback and restart checks. Build/typecheck, 15 unit cases, and 32 real PostgreSQL/HTTP foundation cases pass. Lifecycle/race evidence follows its feature tasks. |
+| V. Small reviewable changes | Small scoped tasks, verification, explanation, human review, and no AI commits. | Implement one small task at a time; keep subsequent tasks separate unless explicitly requested together. Leave changes for human review and approval. T001–T005 verified; Phase 2 human approval pending. |
 | VI. Human architecture decisions | Present alternatives and record each human selection before dependent work. | P001–P077 record selections and rationale; consolidated artifacts await final human review. |
 | VII. Consistent patterns | Establish approved patterns and reuse them across implementation tasks. | UI/service contract fixes shared validation, handlers/errors, transaction helper, data access, renderer, and local-state patterns. |
 
@@ -146,11 +145,11 @@ Generated design artifacts:
 - [data-model.md](data-model.md): fields, constraints, validation, and transitions.
 - [contracts/http-api.md](contracts/http-api.md): requests, responses, errors, and concurrency.
 - [contracts/ui-and-services.md](contracts/ui-and-services.md): UI and internal module responsibilities.
-- [quickstart.md](quickstart.md): verified Phase 1 commands and planned full-app procedures.
+- [quickstart.md](quickstart.md): verified foundation commands and future feature acceptance procedures.
 
 [tasks.md](tasks.md) contains 39 dependency-ordered tasks across all 14 stories, with
-verification and human review gates. T001/T002 are verified and checked; Phase 1 approval
-is pending and later tasks remain unchecked.
+verification and human review gates. T001–T005 are verified and checked; Phase 1 is approved, Phase 2 approval
+is pending, and later tasks remain unchecked.
 
 ### UI design review before page implementation
 
@@ -204,8 +203,8 @@ The full dependency and acceptance map lives in [tasks.md](tasks.md).
 
 ### Source Code (repository root)
 
-Target layout, derived from the approved boundaries. The Phase 1 scaffold subset now
-exists; remaining modules are planned and are added only with their owning task.
+Target layout, derived from the approved boundaries. The Phase 2 scaffold/persistence/test subset now
+exists; remaining feature modules are planned and are added only with their owning task.
 The contracts describe responsibilities, and helpers are added only when first used.
 
 ```text
@@ -625,9 +624,10 @@ database-free tests, real database verification, and future GitHub runner compat
 | `test:integration` | Lifecycle, API/database integration, constraints, rollback, and concurrency tests using application migrations. | Automatically provision an isolated PostgreSQL container after documented prerequisites are available. |
 | `test` | Run both suites and return a failing exit status if either suite fails. | Includes the integration suite's PostgreSQL requirement. |
 
-These are planned script names, not currently runnable commands. The pnpm entry points
-are approved in P021; script/Compose procedures are consolidated in P076 and quickstart. The full-suite
-entry point will provide FR-014's one documented test command; separate suite commands
+These script names are implemented through Phase 2. Their full lifecycle scope is added
+in subsequent feature phases. The pnpm entry points are approved in P021; script/Compose
+procedures are consolidated in P076 and quickstart. The full-suite entry point provides
+FR-014's one documented test command; separate suite commands
 provide focused development feedback.
 
 **Rationale**: Keep unit-test feedback database-free while preserving real evidence of
@@ -2048,7 +2048,7 @@ Use `drizzle.config.ts` with PostgreSQL dialect, `server/db/schema.ts`, SQL outp
 `drizzle/`, and the process's `DATABASE_URL`. Keep the Drizzle migration journal separate
 from application-table resets. Build the production output and a test target through
 the same multi-stage Dockerfile; the test target retains required dev dependencies.
-The Node integration runner is planned at `scripts/test-integration.mjs`; package entry
+The Node integration runner is implemented at `scripts/test-integration.mjs`; package entry
 points remain those in P018/P021. Use one Vitest configuration with unit/integration
 projects, sequential integration cases, and P055's explicit two-table reset.
 
@@ -2097,21 +2097,30 @@ The prior Docker deployment and isolated integration-test workflows remain appro
 Host development is an additional execution path, with actual platform/startup verification
 required during implementation. No package script or application code is created here.
 
-## Phase 1 implementation evidence
+## Implementation evidence through Phase 2
 
-On 2026-11-07, macOS arm64: the active Nuxt/Vue/Zod/Tailwind/Vitest/TypeScript subset
-was installed at its approved pins with Node 24.22.2 and pnpm 12.18.0. Only needed direct
-packages are installed; Drizzle/pg/markdown-it and their supporting types arrive with their
-first callers. `pnpm-workspace.yaml` permits the required esbuild installation script;
-future container installs must copy that configuration along with the manifest/lockfile.
+On 2026-11-07, macOS arm64 with Linux containers: Node 24.22.2/pnpm 12.18.0, the active
+Nuxt/Vue/Zod/Tailwind/Vitest/TypeScript packages, and the approved stable Drizzle/pg packages
+pass build/typecheck and frozen installation. markdown-it remains deferred until T013.
+`pnpm-workspace.yaml` permits esbuild scripts and is copied for container installs.
 
-Frozen install, 15 unit tests, Nuxt typecheck, production build, development HTTP rendering,
-and compiled Tailwind CSS passed. Docker PostgreSQL 18.6 was healthy with private networking
-and the approved volume path. A disposable probe survived a restart and was removed.
-The host used temporary pinned Node/pnpm binaries; global Node/pnpm were not changed.
-The dev server was stopped after verification; the development database remains running.
-Windows/Linux host execution, lifecycle behavior, migrations, and the full test suite are
-still future verification. See [README.md](../../README.md) for current runnable commands.
+The 19-column schema, named constraints, and immutable-row trigger have versioned SQL and
+Drizzle journal/snapshots. The CLI generates without a live connection; app startup applies
+the installed migrations before serving. The multi-stage Dockerfile provides runtime and
+test targets; runtime excludes Vitest while retaining migration tooling. A migration failure
+prevents serving, and app restart leaves the migration journal at two entries.
+
+The complete command passes 15 unit and 32 real PostgreSQL/HTTP foundation tests. Test
+runs use fixed project `northbeam-docs-studio-test`, dedicated credentials/database/network,
+a fresh disposable volume, sequential cases, and explicit two-table reset. Actual failure,
+SIGTERM, and overlapping-run probes verified status/cleanup and active-resource protection
+using a disposable copy; original repository tests were unchanged. Normal application
+resources were preserved. The temporary validation project was removed after checks.
+
+Port 3000 was already occupied; the validation app used a temporary loopback-3300 override.
+The committed default is loopback 3000. Windows/Linux host execution, lifecycle operations,
+concurrency races, and feature UI remain unverified/unimplemented. Phase 1 is approved;
+Phase 2 awaits approval before Phase 3. See [README.md](../../README.md) for current commands.
 
 ## Complexity Tracking
 

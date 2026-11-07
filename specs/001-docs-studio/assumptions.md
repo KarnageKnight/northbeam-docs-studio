@@ -145,12 +145,14 @@ and [quickstart](quickstart.md) have been decomposed into [tasks.md](tasks.md) a
 request. No further architectural defaults are open in this planning pass.
 
 Cross-artifact analysis and the recorded spec/plan/task checkpoint were verified before
-the user-authorized Phase 1 implementation. Node 24.22.2/pnpm 12.18.0 frozen install,
-production build, typecheck, 15 unit cases, development HTTP/Tailwind output, and Docker
-PostgreSQL 18.6 readiness/restart persistence passed on macOS arm64. Phase 1 awaits human
-approval. The full app container, migrations, lifecycle behavior, integration suite, and
-Windows/Linux host execution remain future work; PostgreSQL integration evidence is still
-required and mocks alone cannot replace it. See [quickstart.md](quickstart.md).
+code. Phase 1 was approved and Phase 2 implemented at the user's request. Build/typecheck,
+15 unit cases, 32 PostgreSQL/HTTP integration cases, migration startup/idempotence, and
+runner failure/interrupt/overlap handling passed on macOS arm64 with Linux containers.
+Phase 2 awaits human approval. The validation app used a temporary port-3300 mapping
+because port 3000 was occupied; the committed default remains loopback 3000. Temporary
+validation/test resources were removed, preserving the existing development database.
+Lifecycle APIs/UI, coordinated lifecycle races, and Windows/Linux host execution remain
+future work; mocks alone cannot replace the required PostgreSQL evidence. See [quickstart](quickstart.md).
 
 The user selected feature-by-feature delivery: each feature phase combines its API, UI,
 feedback states, and checks, then waits for human approval. UI design precedes the first
