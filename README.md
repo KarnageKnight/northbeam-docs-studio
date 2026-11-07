@@ -3,9 +3,9 @@
 An article-publishing application for writing on any topic. Public readers see articles
 explicitly published by writers.
 
-Phase 5 adds draft editing, safe Markdown preview, explicit saves, and stale-write feedback
-to the writer creation/list/open flow. Phases 1–4 are approved; Phase 5 awaits human review.
-Publishing/history actions and public article lists/details remain in later phases of
+Phase 6 adds explicit publication of saved articles and immutable numbered snapshots to
+the writer editor. Phases 1–5 are approved; Phase 6 is implemented and awaits human review.
+Unpublish, history actions, and public article lists/details remain in later phases of
 [tasks.md](specs/001-docs-studio/tasks.md).
 
 ## Run with Docker
@@ -74,7 +74,7 @@ The server runs at http://localhost:3000 on loopback. Compose's private `db` hos
 not reachable from the host. The writer pages now use the configured PostgreSQL database
 for draft creation, reads, and revision-checked saves.
 
-## Create, edit, and save a draft
+## Create, edit, save, and publish an article
 
 1. Open `/writer/articles` directly, or choose **Writer** in the entry popup or header.
 2. Choose **New article**, enter title and slug, then choose **Create draft**.
@@ -83,6 +83,9 @@ for draft creation, reads, and revision-checked saves.
 5. For conflict review, open the same article in two tabs. Save in one, then try saving
    the older revision in the other. Its local text stays intact; use **Reload saved article**
    and confirm before replacing local edits, or cancel to keep them.
+6. Save a nonblank title and body, then choose **Publish**. The header shows published
+   status, the first publication date, and the current snapshot reference. Choose **Publish**
+   again to create another snapshot, even without content changes.
 
 Title is required (up to 200 Unicode code points). Slugs trim/lowercase and must contain
 letters/numbers separated by single hyphens (up to 100 characters); collisions are rejected
@@ -91,16 +94,20 @@ body/tags on creation. Failed submissions keep entered values. Preview uses unsa
 text without saving; raw HTML stays literal and unsafe links are not clickable. Saves
 normalize tags, advance revision even for unchanged content, and retain newer edits typed
 while a response is pending. Reload is explicit; stale saves are never automatically retried.
-The detail header shows saved title, status, and fixed slug. Publication actions arrive later.
+Publish remains unavailable while dirty or while saved title/body is blank, with an
+adjacent explanation. It never saves implicitly. Saving later draft changes preserves the
+live snapshot until the next explicit Publish. Unpublish and history controls arrive later.
 The **Public** choice opens an Articles placeholder; the real public list remains in
 Phase 7. The chooser appears on fresh root-page visits, keeps the choice during client
 navigation, and leaves direct writer links uninterrupted. Escape dismisses to Public.
 There is no separate “Open writer workspace” landing page or persistent role selection.
 
 Current API: `POST /api/writer/articles`, `GET /api/writer/articles`, and
-`GET /api/writer/articles/:articleId`, and `PUT /api/writer/articles/:articleId/draft`.
+`GET /api/writer/articles/:articleId`, `PUT /api/writer/articles/:articleId/draft`, and
+`POST /api/writer/articles/:articleId/publish`.
 A save requires complete `title`, `body`, `tags`, and `expectedRevision`; it returns the
-updated WriterArticle. See the [HTTP contract](specs/001-docs-studio/contracts/http-api.md).
+updated WriterArticle. Publish accepts only `expectedRevision` and also returns WriterArticle.
+See the [HTTP contract](specs/001-docs-studio/contracts/http-api.md).
 
 ## Verify
 
@@ -136,12 +143,20 @@ Reviewers are not required to execute tests.
 
 Verified on macOS arm64 on 2026-11-07:
 
-- 97 unit tests for title/create/save validation and safe Markdown; 75 real PostgreSQL/HTTP integration tests.
+- 98 unit tests for title/create/save/publish validation and safe Markdown; 93 real PostgreSQL/HTTP integration tests.
 - Save normalization, stale/no-op revisions, publication/snapshot preservation, transaction
   rollback/recovery, and draft persistence after restart.
 - Real Chrome editor checks: unsaved preview, keyboard tabs, validation, two-tab stale saves,
   reload/cancel/resubmit, network failure, and preservation of text typed during a delayed
   save response. Responsive checks passed at 320/390/1440px without runtime/hydration errors.
+- Publication copies only saved content, creates sequential per-article snapshots, preserves
+  the first publication date and earlier history, and rejects blank/stale requests.
+- Forced post-insert failures roll back first publish and republish. SIGKILL at an observed
+  PostgreSQL lock barrier rolls back an uncommitted publication; restart recovers cleanly
+  and the next publication uses the expected version number.
+- Real Chrome publishing checks: dirty/blank guards, first publication, unchanged republish,
+  retained date/reference, two-tab stale publish, explicit reload/resubmit, in-flight text
+  retention, network failure, and responsive controls. SQL confirms live snapshot isolation.
 - Creation normalization/defaults, malformed input, slug collisions, exact read projections,
   valid/malformed/missing UUIDs, unchanged read audits, and draft persistence after app restart.
 - Unexpected database failures return generic production 500 responses.
@@ -166,8 +181,9 @@ stores immutable published snapshots. Named uniqueness constraints protect slugs
 per-article version numbers; a composite foreign key enforces ownership of the current
 snapshot and restricts its deletion. A database trigger rejects all snapshot updates.
 Save locks the article in a Read Committed transaction and compares the expected revision
-before mutation. Publication-state consistency and remaining lifecycle operations follow
-in their owning feature phases.
+before mutation. Publish uses the same transaction helper, inserts the snapshot, and updates
+status/reference/date/counters atomically. The first publication date is preserved on
+republish. Remaining lifecycle operations follow in their owning feature phases.
 
 Generate SQL from the TypeScript schema without connecting to PostgreSQL:
 
@@ -196,8 +212,8 @@ The approved Phase 3 [UI design](specs/001-docs-studio/ui-design.md) contains fi
 wireframes and a Deloitte-inspired black/white/green visual theme. The editor uses
 Write/Preview tabs in one panel at every width,
 with history planned below. A top-header Public / Writer switch links the two portals.
-Switching tabs preserves local edits without saving or publishing. Phases 1–4 are approved;
-Phase 5 editing/preview/save is implemented and awaits review.
+Switching tabs preserves local edits without saving or publishing. Phases 1–5 are approved;
+Phase 6 publication is verified and awaits human review.
 
 For visual review, open [the offline design preview](specs/001-docs-studio/design-preview/index.html)
 in a browser. It shows only the approved tabbed editor across all five screens, mobile sizing, and feedback

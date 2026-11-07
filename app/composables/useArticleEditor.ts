@@ -18,6 +18,22 @@ export async function useArticleEditor(articleId: string) {
   const dirty = computed(() => !!article.value && !sameContent(localContent(), {
     title: article.value.draft.title, body: article.value.draft.body, tags: article.value.draft.tags.join(', '),
   }))
+  const publishDisabledReason = computed(() => dirty.value
+    ? 'Save your draft before publishing.'
+    : !article.value?.draft.title.trim() || !article.value.draft.body.trim()
+        ? 'Save a nonblank title and body before publishing.' : '')
+
+  function reportWriteError(error: unknown, action: 'save' | 'publish') {
+    const failure = error as { data?: { data?: { code?: string; fieldErrors?: Record<string, string[]> } } }
+    const details = failure.data?.data
+    fieldErrors.value = details?.fieldErrors ?? {}
+    if (details?.code === 'STALE_REVISION') {
+      conflict.value = true
+      errorMessage.value = 'This article changed in another tab or session. Your local text is still here.'
+    }
+    else if (details?.code === 'VALIDATION_ERROR') errorMessage.value = 'Check the highlighted fields and try again.'
+    else errorMessage.value = `We could not ${action} your draft. Your local text is still here. Please try again.`
+  }
 
   function acceptSaved(saved: WriterArticle, submitted: ReturnType<typeof localContent>) {
     const unchanged = sameContent(localContent(), submitted)
@@ -46,15 +62,28 @@ export async function useArticleEditor(articleId: string) {
       successMessage.value = dirty.value ? 'Draft saved. Newer local edits are still unsaved.' : 'Draft saved.'
     }
     catch (error) {
-      const failure = error as { data?: { data?: { code?: string; fieldErrors?: Record<string, string[]> } } }
-      const details = failure.data?.data
-      fieldErrors.value = details?.fieldErrors ?? {}
-      if (details?.code === 'STALE_REVISION') {
-        conflict.value = true
-        errorMessage.value = 'This article changed in another tab or session. Your local text is still here.'
-      }
-      else if (details?.code === 'VALIDATION_ERROR') errorMessage.value = 'Check the highlighted fields and try again.'
-      else errorMessage.value = 'We could not save your draft. Your local text is still here. Please try again.'
+      reportWriteError(error, 'save')
+    }
+    finally { pending.value = false }
+  }
+
+  async function publish() {
+    if (pending.value || conflict.value || publishDisabledReason.value || !article.value) return
+    const submitted = localContent()
+    const expectedRevision = article.value.revision
+    pending.value = true
+    errorMessage.value = ''
+    successMessage.value = ''
+    fieldErrors.value = {}
+    try {
+      const published = await $fetch<WriterArticle>(`${url}/publish`, {
+        method: 'POST', retry: 0, body: { expectedRevision },
+      })
+      acceptSaved(published, submitted)
+      successMessage.value = 'Article published. A new version was created.'
+    }
+    catch (error) {
+      reportWriteError(error, 'publish')
     }
     finally { pending.value = false }
   }
@@ -80,5 +109,5 @@ export async function useArticleEditor(articleId: string) {
     finally { pending.value = false }
   }
 
-  return { article, draft, tagsText, dirty, pending, conflict, loadError, fieldErrors, errorMessage, successMessage, save, reload }
+  return { article, draft, tagsText, dirty, pending, conflict, publishDisabledReason, loadError, fieldErrors, errorMessage, successMessage, save, publish, reload }
 }

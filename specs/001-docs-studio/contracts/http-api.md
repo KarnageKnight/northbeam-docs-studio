@@ -1,9 +1,11 @@
 # HTTP API Contract
 
 **Date**: 2026-11-07
-**Status**: Writer POST/list/detail and Phase 5 PUT draft endpoints are implemented and
+**Status**: Writer POST/list/detail, PUT draft, and Phase 6 POST publish endpoints are implemented and
 verified, including complete payload validation, stale revision conflicts, and rollback.
-Remaining endpoint definitions are targets for later feature phases.
+Publish copies saved content into a numbered immutable snapshot and atomically updates
+publication fields/counters/revision; republish preserves the first date. Remaining endpoint
+definitions are targets for later feature phases.
 
 Authority: [specification](../spec.md) and [plan](../plan.md) P025–P033. The
 [data model](../data-model.md) owns storage; this contract owns wire representations.

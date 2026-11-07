@@ -35,10 +35,10 @@ export async function startApp() {
   throw new Error('Application did not become ready within 30 seconds.')
 }
 
-export async function stopApp() {
+export async function stopApp(signal: NodeJS.Signals = 'SIGTERM') {
   if (!server || server.exitCode !== null || server.signalCode !== null) return
   const exited = once(server, 'exit')
-  server.kill('SIGTERM')
+  server.kill(signal)
   const timeout = setTimeout(() => server?.kill('SIGKILL'), 5000)
   try { await exited }
   finally { clearTimeout(timeout) }
@@ -47,4 +47,14 @@ export async function stopApp() {
 export async function restartApp() {
   await stopApp()
   await startApp()
+}
+
+export async function waitForBlockedQuery(blockerPid: number) {
+  const deadline = Date.now() + 5000
+  while (Date.now() < deadline) {
+    const { rows } = await pool.query('SELECT pid FROM pg_stat_activity WHERE $1 = ANY(pg_blocking_pids(pid))', [blockerPid])
+    if (rows[0]) return rows[0].pid as number
+    await delay(20)
+  }
+  throw new Error('No database operation reached the lock barrier.')
 }

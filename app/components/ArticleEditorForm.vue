@@ -5,6 +5,7 @@ const props = defineProps<{
   dirty: boolean
   pending: boolean
   conflict: boolean
+  publishDisabledReason: string
   fieldErrors: Record<string, string[]>
 }>()
 const emit = defineEmits<{
@@ -12,6 +13,7 @@ const emit = defineEmits<{
   'update:body': [value: string]
   'update:tagsText': [value: string]
   save: []
+  publish: []
 }>()
 const activeTab = ref<'write' | 'preview'>('write')
 const writeTab = ref<HTMLButtonElement | null>(null)
@@ -58,7 +60,11 @@ function onTabKey(event: KeyboardEvent) {
     <p id="draft-body-error" class="field-error">{{ fieldErrors.body?.join(' ') }}</p>
     <div class="editor-actions">
       <span class="hint" role="status">{{ dirty ? 'Unsaved changes' : 'All changes saved' }}</span>
-      <button type="submit" class="button primary" :disabled="props.pending || conflict">{{ pending ? 'Please wait…' : 'Save draft' }}</button>
+      <div class="editor-action-buttons">
+        <button type="submit" class="button" :disabled="props.pending || conflict">{{ pending ? 'Please wait…' : 'Save draft' }}</button>
+        <button type="button" class="button primary" :disabled="pending || conflict || !!publishDisabledReason" aria-describedby="publish-hint" @click="emit('publish')">{{ pending ? 'Please wait…' : 'Publish' }}</button>
+      </div>
     </div>
+    <p id="publish-hint" class="hint" role="status">{{ publishDisabledReason }}</p>
   </form>
 </template>

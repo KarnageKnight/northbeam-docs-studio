@@ -80,6 +80,7 @@
   .markdown-source { @apply block min-h-80 w-full resize-y bg-[#fdfefb] p-4 font-mono text-sm leading-7 sm:min-h-96 sm:p-6; }
   .draft-preview { @apply min-h-80 p-4 sm:min-h-96 sm:p-6; }
   .editor-actions { @apply mt-5 flex flex-wrap items-center justify-between gap-4; }
+  .editor-action-buttons { @apply flex flex-wrap gap-3; }
   .notice.warning { @apply border-amber-200 bg-amber-50 text-amber-900; }
   .notice.success { @apply border-green-200 bg-green-50 text-green-800; }
   .confirmation-actions { @apply mt-3 flex flex-wrap gap-3; }
