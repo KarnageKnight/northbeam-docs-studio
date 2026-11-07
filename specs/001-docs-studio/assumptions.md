@@ -32,11 +32,22 @@ reconcile the constitution and affected documents before implementation.
 
 | ID | Assumption or interpretation | Source | Status |
 | --- | --- | --- | --- |
-| A002 | Article slugs are unique. | Action plan's proposed default; the brief's suggested data shape. | Approved as FR-011 criterion 2, including drafts and unpublished articles. |
+| A002 | Article slugs are unique. | Action plan's proposed default; the brief's suggested data shape. | Approved as FR-011 criterion 2, including drafts and unpublished articles; uniqueness is checked after A008 normalization. |
 | A003 | An article's slug is fixed after creation. | Action plan's proposed default. | Approved as FR-011 criterion 4. |
 | A004 | A slug collision is rejected with a clear conflict instead of automatically suffixing the slug. | Action plan's proposed default. | Clear rejection and no suffixing approved as FR-011 criterion 3; exact response belongs in the technical plan. |
 | A005 | The editor requires an explicit successful save before publishing local edits, rather than saving automatically as part of Publish. | Action plan's proposed editor behavior. | Approved as FR-012 criterion 3; Save, Publish, and Unpublish are separate actions. |
 | A006 | Each successful publish creates a new snapshot even when the draft content is unchanged. | Action plan's proposed default; FR-003 criterion 1. | Confirmed by approved FR-003; no longer an open assumption. |
+| A007 | Drafts require a nonblank title and slug, but may have an empty body and no tags. Publishing also requires a nonblank body. Nonblank means more than whitespace. | Clarification session 2026-11-06, question 1; FR-001–FR-003. | Approved: the user selected option A and explicitly requested this register entry. |
+| A008 | Trim outer whitespace and lowercase supplied slugs before validation, storage, and uniqueness checks. The normalized value must be 1–100 characters using `a–z` and `0–9`, with single hyphens between groups. Reject other invalid formats; do not replace internal spaces or otherwise rewrite the slug. | Clarification session 2026-11-06, question 2; FR-011. | Approved: the user selected option B and explicitly requested this register entry. |
+| A009 | Reject unpublish requests for both already-unpublished and never-published articles with a clear error and no changes. Stale requests still receive conflicts under FR-008. | Clarification session 2026-11-06, question 3; FR-004. | Approved: the user selected option B. |
+| A010 | Use standard Markdown and display raw HTML as literal text in both the writer preview and public pages. Only HTTP, HTTPS, email (`mailto:`), relative-path, and `#heading` links become clickable; other URL schemes do not. | Clarification session 2026-11-06, question 4; FR-010 and FR-012. | Approved: the user selected option A and the shared link policy. |
+| A011 | Optionally render raw `<b>`, `<strong>`, `<i>`, `<em>`, `<br>`, and `<code>` tags without attributes. Other raw HTML remains literal text, and A010's link rules still apply. | Clarification session 2026-11-06, question 4; Deferred Stretch Goals. | Approved as a deferred stretch candidate at the user's request, not as required functionality or authorization to implement it now. |
+| A012 | Any retained snapshot belonging to an article may be restored into its draft, including the current/last-published snapshot. Restore preserves the public view, publication state, and history. An already-identical draft has no content difference. | Clarification session 2026-11-06, question 5; FR-006. | Approved: the user selected option A after discussing restoration of the current snapshot. |
+| A013 | Reject restore and delete requests targeting a missing snapshot or a snapshot belonging to another article with a clear error and no changes. | Clarification session 2026-11-06, question 5; FR-006 and FR-007. | Approved as the shared invalid-target policy accompanying option A. |
+| A014 | Titles may contain at most 200 characters and Markdown bodies at most 100,000, measured in Unicode code points including spaces and Markdown syntax. Reject over-limit values; existing nonblank-field rules still apply. | Clarification session 2026-11-06 (Pass 2), question 1; FR-001–FR-003. | Approved: the user selected option A. |
+| A015 | Trim outer whitespace and lowercase supplied tags, discard empty results, and remove duplicates after normalization. Preserve the order of first occurrences; `API` and `api` become one `api` tag. | Clarification session 2026-11-06 (Pass 2), question 2; FR-001 and FR-002. | Approved: the user selected option A. |
+| A016 | Allow up to 10 tags, each at most 30 Unicode code points, measured after normalization. Reject inputs exceeding either limit with a clear validation error; do not truncate tags or silently drop extra tags. | Clarification session 2026-11-06 (Pass 2), question 3; FR-001 and FR-002. | Approved: the user selected option A. |
+| A017 | After normalization, tags may use only lowercase ASCII letters `a–z` and digits `0–9`, with single hyphens between groups, like slugs. Reject invalid tags with a clear validation error rather than rewriting internal spaces or other invalid characters. Existing normalization and count/length limits still apply. | Clarification session 2026-11-06 (Pass 2), question 4; FR-001 and FR-002. | Approved: the user selected option B. |
 
 ## Architecture Proposals and Decisions
 
@@ -60,12 +71,16 @@ remaining choices under Constitution Principle VI.
 
 ## Open Questions Without Adopted Defaults
 
-- Field-validation rules, including required/nonempty values, allowed formats, size limits,
-  and slug case handling. Slug uniqueness, collision rejection, and immutability are approved
+- The reviewed field-validation rules are resolved: required fields are approved as A007;
+  slug normalization, format, and length as A008;
+  title/body limits as A014; tag normalization as A015; tag count/length limits as A016;
+  allowed tag characters as A017; slug uniqueness, collision rejection, and immutability
   under FR-011.
 - The concurrency mechanism and conflict response format; FR-008's observable stale-request
   behavior is approved, while technical proposals P007 and P008 remain pending.
-- Remaining lifecycle edge cases to review during specification and clarification.
+- The reviewed lifecycle boundary cases are resolved: invalid unpublish states by A009,
+  current/last-published and identical-content restoration by A012, and missing or
+  wrong-article snapshot targets by A013. No alternative policy is adopted for these cases.
 
 ## Maintenance
 
