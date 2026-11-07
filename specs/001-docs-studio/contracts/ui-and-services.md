@@ -9,10 +9,16 @@ local-state, and component patterns; they add no framework or repository layer.
 
 ## Browser pages
 
+The public portal displays writer-published articles on any topic. Its page heading is
+“Articles”, back navigation says “All articles”, and empty-state copy refers to published
+articles. Sample content should be general-interest writing rather than product setup
+instructions. Keep the existing product name, routes, and response representations.
+
 Before implementing these pages, complete T035 in Phase 3 of [tasks.md](../tasks.md):
 propose wireframes and visual/interaction guidance in `specs/001-docs-studio/ui-design.md`,
 then obtain human approval. This precedes the first writer listing/creation/read-only
-editor screens in T022. The design document has not been created yet.
+editor screens in T022. The user approved [tabbed design](../ui-design.md); T035 and Phase 3 are complete.
+Feature screens have not been implemented.
 
 Each feature phase adds only its required UI alongside its API and tests. The editor
 starts with load-only draft display, then editing/preview/save, Publish, Unpublish,
@@ -28,6 +34,12 @@ API-and-page slices, reusing the renderer first introduced for editor preview.
 | `/writer/articles` | `app/pages/writer/articles/index.vue` | Writer summaries and creation navigation |
 | `/writer/articles/new` | `app/pages/writer/articles/new.vue` | Title/slug creation; navigate to editor after success |
 | `/writer/articles/:articleId` | `app/pages/writer/articles/[articleId].vue` | Compose editor form, preview, history, and feedback |
+
+Provide a shared top-header Public / Writer navigation switch: Public links to `/`,
+Writer to `/writer/articles`. Highlight Public for both public routes and Writer for all
+writer routes, including creation/editor pages. Use semantic links, a labeled navigation
+group, current-portal accessibility state, and mobile-visible controls. The preview uses
+sample-screen navigation; application pages retain their approved URLs.
 
 Use Nuxt native page routing and universal rendering. The public pages fetch only public
 API representations. Writer list titles come from saved drafts. Creation supplies title
@@ -48,6 +60,8 @@ Exact property/event spelling is implementation detail within these boundaries. 
 reactive editor state per composable invocation. Keep editable values separate from
 authoritative saved values; compute dirty state from the content difference.
 
+- Use Write/Preview tabs in one panel. Switching tabs preserves the local editor state
+  and renders unsaved content through the shared renderer without saving or publishing.
 - Publish is unavailable while local content is dirty and never auto-saves.
 - Send the saved revision as `expectedRevision` for Save, Publish, Unpublish, and Restore;
   refresh it from successful WriterArticle responses. Snapshot deletion sends no caller

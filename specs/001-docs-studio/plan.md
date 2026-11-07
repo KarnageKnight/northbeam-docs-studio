@@ -2,13 +2,17 @@
 
 **Feature**: `001-docs-studio` | **Date**: 2026-11-07 | **Spec**: [spec.md](spec.md)
 
-**Status**: Phase 1 approved. Phase 2 schema/migrations, production Docker startup,
-and isolated integration verification are implemented and verified, pending human approval.
-Phase 3 and later phases remain unstarted. The spec-first checkpoint was verified before
+**Status**: Phases 1–3 approved. The user selected the Write/Preview tabbed UI design in
+[ui-design.md](ui-design.md); T035 is complete. Phase 4 is ready; subsequent implementation
+has not started. The spec-first checkpoint was verified before
 code without git commands. The feature identifier is `001-docs-studio`; it does not establish
 a git branch name. Individual architecture decisions P001–P077 remain authoritative.
 
 ## Summary
+
+The public portal presents articles published by writers on any topic. Public UI copy
+and sample content use generic article language; the product name and architecture remain
+Northbeam Docs Studio and the previously approved design.
 
 Build the approved API and minimal writer/public UI as one Nuxt application (a monolith),
 using Vue, TypeScript, and PostgreSQL. This application boundary is approved to reduce complexity.
@@ -110,11 +114,11 @@ execution evidence follows implementation.
 
 | Principle | Planning obligation | Current status |
 | --- | --- | --- |
-| I. Specification before implementation | Complete and review spec, plan, and tasks before code; human records git checkpoint. | Spec, design, tasks, and analysis recorded; the spec-first checkpoint was verified before the authorized Phase 1 implementation. Phase 1 approved; Phase 2 review pending. |
+| I. Specification before implementation | Complete and review spec, plan, and tasks before code; human records git checkpoint. | Spec, design, tasks, and analysis recorded; the spec-first checkpoint was verified before the authorized Phase 1 implementation. Phases 1–3 approved; Write/Preview tabs selected. |
 | II. Draft and snapshot isolation | Public reads use live snapshots; immutable history and referenced-snapshot protection. | Data model and contracts specify table separation, immutable-row trigger, owned reference, and retained-reference deletion protection. |
 | III. Atomic lifecycle and concurrency | Transactional publication and revision checks; no partial state or stale overwrites. | Contracts specify article-first locking, revision-before-eligibility ordering, transactional allocation, rollback, and SQL constraints. |
 | IV. Database-backed evidence | Real PostgreSQL lifecycle/failure/race tests; passing build and suite once scaffolded. | Quickstart maps invariants to real HTTP/SQL evidence, independent connections, rollback and restart checks. Build/typecheck, 15 unit cases, and 32 real PostgreSQL/HTTP foundation cases pass. Lifecycle/race evidence follows its feature tasks. |
-| V. Small reviewable changes | Small scoped tasks, verification, explanation, human review, and no AI commits. | Implement one small task at a time; keep subsequent tasks separate unless explicitly requested together. Leave changes for human review and approval. T001–T005 verified; Phase 2 human approval pending. |
+| V. Small reviewable changes | Small scoped tasks, verification, explanation, human review, and no AI commits. | Implement one small task at a time; keep subsequent tasks separate unless explicitly requested together. Leave changes for human review and approval. T001–T005 verified; T035 approved with Write/Preview tabs; Phases 1–3 approved. |
 | VI. Human architecture decisions | Present alternatives and record each human selection before dependent work. | P001–P077 record selections and rationale; consolidated artifacts await final human review. |
 | VII. Consistent patterns | Establish approved patterns and reuse them across implementation tasks. | UI/service contract fixes shared validation, handlers/errors, transaction helper, data access, renderer, and local-state patterns. |
 
@@ -148,21 +152,43 @@ Generated design artifacts:
 - [quickstart.md](quickstart.md): verified foundation commands and future feature acceptance procedures.
 
 [tasks.md](tasks.md) contains 39 dependency-ordered tasks across all 14 stories, with
-verification and human review gates. T001–T005 are verified and checked; Phase 1 is approved, Phase 2 approval
-is pending, and later tasks remain unchecked.
+verification and human review gates. T001–T005 and T035 are verified and checked; Phases 1–3 are approved.
+Later tasks have not started.
 
 ### UI design review before page implementation
 
-The user approved adding a separate UI design task. T035 will produce `ui-design.md`
-with simple wireframes for all five screens, basic Tailwind visual guidance, responsive
-behavior, and the required interaction/feedback states. Routes, component boundaries,
-and lifecycle rules remain those in the existing contracts; visual choices await human
-selection. Target 30–60 minutes for design and review within the agreed overall budget.
+The user approved adding a separate UI design task. T035 is approved in
+[ui-design.md](ui-design.md) with wireframes for all five screens, basic Tailwind visual
+guidance, responsive behavior, and required interaction/feedback states. The user replaced the earlier option A selection on 2026-11-07 with Write/Preview tabs
+in one full-width panel at all screen widths, with history below. Switching tabs preserves
+local edits, dirty state, saved revision, and feedback; it never saves or publishes.
+Shared visual guidance and lifecycle behavior remain selected. A/B are reference alternatives. No application
+screens are implemented. Routes, component boundaries, and lifecycle rules remain those
+in the existing contracts. Target 30–60 minutes for design and review within the agreed overall budget.
 
 Execute T035 immediately after the foundation (Phase 3), and obtain explicit human
 design approval before the first writer screens in T022. Existing IDs remain stable;
-phase order in the task list defines execution, not numeric ID order. No wireframes or
-UI code are created by this planning change. Later visual changes require approval.
+phase order in the task list defines execution, not numeric ID order. The wireframes
+are approved; no application UI code is created in this design phase. Later visual changes
+require approval.
+
+The user explicitly approved the final rendered Deloitte-inspired black/white/green
+theme with Write/Preview tabs on 2026-11-07 after reviewing the mockups.
+Use `#86BC25` accents with black button text, darker green links/focus, near-black navigation
+and heading surfaces, and white cards. Retain the Northbeam identity and selected tabs;
+this is a visual change without new routes, libraries, or lifecycle behavior. Detailed
+palette guidance and its source are recorded in [ui-design.md](ui-design.md).
+
+The user requested an explicit Public / Writer switch in the shared top header.
+Use segmented navigation links to the existing `/` and `/writer/articles` routes, highlight
+the current portal on every screen, and retain the switch on mobile. This adds no routes,
+authentication behavior, or dependencies.
+
+The user also requested rendered visual designs. The isolated
+[offline preview](design-preview/index.html) and linked screenshots show the selected design and earlier alternatives
+across the five screens, responsive widths, and feedback states. This extends T035
+without changing application architecture, routes, dependencies, or APIs. The Write/Preview tabbed editor is
+the selected design. Prototype browser verification is recorded in [ui-design.md](ui-design.md).
 
 ### Initial migration verification order
 
@@ -173,7 +199,7 @@ database enforcement is not yet claimed. T004 supplies the app image and first a
 those migrations using the installed CLI through the existing app startup entry point,
 connecting to private `db:5432` on the Compose network. Direct constraint/trigger checks use
 PostgreSQL tools inside the db container. T005 automates the same assertions against the
-isolated test database. Phase 2 approval still requires all three tasks' evidence.
+isolated test database. All three tasks' evidence is recorded and Phase 2 is approved.
 
 This sequencing needs no host database port, locally installed PostgreSQL, or extra service.
 The separate P077 host-development workflow still uses a host-accessible database when chosen.
@@ -2119,8 +2145,8 @@ resources were preserved. The temporary validation project was removed after che
 
 Port 3000 was already occupied; the validation app used a temporary loopback-3300 override.
 The committed default is loopback 3000. Windows/Linux host execution, lifecycle operations,
-concurrency races, and feature UI remain unverified/unimplemented. Phase 1 is approved;
-Phase 2 awaits approval before Phase 3. See [README.md](../../README.md) for current commands.
+concurrency races, and feature UI remain unverified/unimplemented. Phases 1–3 are approved;
+Write/Preview tabs are the selected UI design and Phase 4 is next. See [README.md](../../README.md) for current commands.
 
 ## Complexity Tracking
 

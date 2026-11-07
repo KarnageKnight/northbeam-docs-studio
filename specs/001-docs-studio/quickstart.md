@@ -1,8 +1,9 @@
 # Quickstart and Verification Guide
 
 **Date**: 2026-11-07
-**Status**: Phase 1 approved. Phase 2 persistence, Docker startup, and isolated integration
-verification are implemented and verified, pending human phase approval. Feature APIs and
+**Status**: Phases 1–3 approved. Persistence, Docker startup, and isolated integration
+verification are implemented and verified. Phase 3 [tabbed UI design](ui-design.md) is approved
+and T035 is complete. Feature APIs and
 writer/public screens remain future work.
 
 ## Current commands and evidence
@@ -251,13 +252,13 @@ Implementation follows [tasks.md](tasks.md): build each feature's API and UI tog
 run its existing/new meaningful checks and browser walkthrough, then present the results
 for human phase approval. Do not wait until all APIs exist to exercise writer screens.
 The later integrated walkthrough repeats the combined experience; it does not defer
-feature-level feedback, conflict preservation, or verification. Phase 1 is approved; Phase 2
-is verified and awaits human approval. T001–T005 are checked; later tasks remain unchecked.
+feature-level feedback, conflict preservation, or verification. Phases 1–3 are approved.
+T001–T005 and T035 are checked; all later tasks remain unchecked.
 
 ## Design handoff
 
 Review [plan.md](plan.md), [data-model.md](data-model.md), and [contracts](contracts/http-api.md).
 Analysis and the spec-first checkpoint were verified before the authorized Phase 1
-implementation. Review Phase 2 evidence in [tasks.md](tasks.md) and approve the phase
-before Phase 3 UI design. AI creates no commits. Full application behavior and
+implementation. Phase 3 [tabbed design](ui-design.md) is approved; Phase 4 create/open draft
+implementation is next. AI creates no commits. Full application behavior and
 Windows/Linux host support remain unverified.

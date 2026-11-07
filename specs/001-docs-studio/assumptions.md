@@ -10,6 +10,11 @@ items through human review before treating them as approved requirements or arch
 
 ## Product Assumptions
 
+**Confirmed product clarification (2026-11-07)**: Public readers open articles published
+by writers, covering any topic. UI wording and sample content must be generic rather
+than documentation-specific. This is an explicit human instruction, not an open assumption;
+the Northbeam Docs Studio product name and existing lifecycle remain unchanged.
+
 ### A001 — Protect the Last-Published Snapshot After Unpublishing
 
 **Assumption**: After unpublishing, the retained last-published snapshot remains protected
@@ -148,7 +153,10 @@ Cross-artifact analysis and the recorded spec/plan/task checkpoint were verified
 code. Phase 1 was approved and Phase 2 implemented at the user's request. Build/typecheck,
 15 unit cases, 32 PostgreSQL/HTTP integration cases, migration startup/idempotence, and
 runner failure/interrupt/overlap handling passed on macOS arm64 with Linux containers.
-Phase 2 awaits human approval. The validation app used a temporary port-3300 mapping
+Phases 1–3 are approved. The user replaced the original A selection with the [Write/Preview tabbed design](ui-design.md)
+on 2026-11-07, retaining history below and lifecycle feedback, then explicitly approved the final rendered
+Deloitte-inspired black/white/green visual theme with tabs on 2026-11-07. A/B are
+reference alternatives; the design adds no routes, dependencies, or architecture changes. The validation app used a temporary port-3300 mapping
 because port 3000 was occupied; the committed default remains loopback 3000. Temporary
 validation/test resources were removed, preserving the existing development database.
 Lifecycle APIs/UI, coordinated lifecycle races, and Windows/Linux host execution remain
