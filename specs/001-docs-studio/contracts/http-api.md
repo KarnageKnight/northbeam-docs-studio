@@ -16,7 +16,9 @@ implemented and verified, including exact fields, newest-number ordering, UUID v
 article-before-snapshot absence, wrong-owner protection, and unchanged state on reads.
 Phase 11 Restore is implemented and verified: expectedRevision is checked before snapshot
 eligibility; success copies only owned snapshot content into draft/revision/update time,
-without publication/history changes. Delete remains a later endpoint.
+without publication/history changes. Phase 12 DELETE snapshot is implemented and verified:
+no caller revision, article-first lock, owned-target check, current/retained reference
+protection, empty 204, and unchanged article/audits/counter/public state.
 
 Authority: [specification](../spec.md) and [plan](../plan.md) P025–P033. The
 [data model](../data-model.md) owns storage; this contract owns wire representations.
@@ -42,6 +44,7 @@ Writer base: `/api/writer/articles`.
 | GET | `/` | None | 200, WriterSummary array |
 | POST | `/` | Required title/slug; optional body/tags | 201, WriterArticle |
 | GET | `/:articleId` | None | 200, WriterArticle |
+| GET | `/by-slug/:slug` | None | 200, WriterArticle |
 | PUT | `/:articleId/draft` | title, body, tags, expectedRevision | 200, WriterArticle |
 | POST | `/:articleId/publish` | expectedRevision | 200, WriterArticle |
 | POST | `/:articleId/unpublish` | expectedRevision | 200, WriterArticle |
@@ -54,6 +57,11 @@ Writer base: `/api/writer/articles`.
 | --- | --- | --- |
 | GET | `/api/public/articles` | 200, PublicSummary array |
 | GET | `/api/public/articles/:slug` | 200, PublicDetail |
+
+The writer slug lookup uses the exact immutable stored slug and returns the same WriterArticle
+for draft, published, and unpublished articles. Unknown slugs return 404 ARTICLE_NOT_FOUND.
+The editor uses the returned UUID for subsequent lifecycle/history requests. Public lookup
+retains its published-only visibility rules.
 
 Creation body/tags omitted or null normalize to `""`/`[]`. Title and slug remain required.
 Save replaces the complete draft: title/body must be strings and tags an array of strings;

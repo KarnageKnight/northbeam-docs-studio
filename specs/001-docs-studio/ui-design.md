@@ -8,7 +8,7 @@ is retained in the preview assets.
 **Scope**: Five screen wireframes, rendered visual mockups, and feedback states.
 Writer list/creation, editable Write/Preview/save, and Phase 6 Publish follow this design.
 Public list/detail, Unpublish, and Phase 10 read-only history follow the approved design.
-Restore is implemented in Phase 11; Delete remains a target for its later phase.
+Restore and Phase 12 eligible Delete follow the approved interaction and protection rules.
 
 Use the approved [specification](spec.md), [plan](plan.md),
 [HTTP contract](contracts/http-api.md), and [UI/service boundaries](contracts/ui-and-services.md).
@@ -137,7 +137,7 @@ A quieter weekend                         Unpublished     [Open]
 ```
 
 Titles come from saved drafts, even when published content has a different title.
-Title/Open links target `/writer/articles/:articleId`; New article targets
+Title/Open links target `/writer/articles/:slug/edit`; New article targets
 `/writer/articles/new`. The summary response supplies ID, slug, draft title, and status;
 this list needs only title/status. Do not invent dates or version counts.
 
@@ -173,7 +173,7 @@ Choose another.” Keep both inputs on failure. Disable repeat submission while 
 label the action “Creating…”. Success navigates to the new article's editor, displaying
 its saved draft. Cancel returns to the writer list. The form stays one column at all widths.
 
-## 3. Article editor, preview, and history — `/writer/articles/:articleId`
+## 3. Article editor, preview, and history — `/writer/articles/:slug/edit`
 
 ```text
 Northbeam Docs Studio                           [ Public | Writer ]
@@ -346,6 +346,15 @@ last-published/identical targets, explicit reload/resubmit and subsequent Save/P
 public/history isolation, and 320/390/1440px confirmation controls with 44px targets and no
 runtime/hydration errors. Delete remains in its owning later phase.
 
+
+**Phase 12 implementation**: Eligible inspected versions offer a separate semantic-red
+Delete version action and version-named Confirm delete/Cancel delete prompt. Current and
+retained references show protection reasons instead. Success clears inspection and refreshes
+history without replacing local inputs or advancing article revision. Actual API errors
+provide explicit missing/protected/network recovery. Browser checks verified both publication
+states, dirty/in-flight text retention, public/counter preservation and 320/390/1440px controls
+with 44px targets and no runtime/hydration errors.
+
 ## Feedback states across screens
 
 | State | Approved presentation and recovery |
@@ -364,7 +373,7 @@ runtime/hydration errors. Delete remains in its owning later phase.
 
 | Screen/region | Approved source or owner | First implementation |
 | --- | --- | --- |
-| Writer list/create/read-only editor | `app/pages/writer/articles/index.vue`, `new.vue`, `[articleId].vue` | T022 / Phase 4 |
+| Writer list/create/read-only editor | `app/pages/writer/articles/index.vue`, `new.vue`, `[slug]/edit.vue` | T022 / Phase 4 |
 | Editable form/state | `ArticleEditorForm.vue`, `useArticleEditor.ts` | T023 / Phase 5 |
 | Local preview/shared rendering | `MarkdownContent.vue`, `shared/utils/markdown.ts` | T013/T023 / Phase 5 |
 | Publish | Existing editor/form/composable | T024 / Phase 6 |
@@ -384,8 +393,8 @@ After reviewing the rendered previews, the user explicitly approved the final
 black/white/green tabbed design on 2026-11-07. This approval covers the current styling,
 layouts, and documented interaction/feedback states.
 
-T035 is complete. Phases 1–10 are approved. Phase 11 Restore is implemented and verified,
-pending human approval. Delete arrives later.
+T035 is complete. Phases 1–11 are approved. Phase 12 Delete is implemented and verified,
+pending human approval. Remaining phases audit concurrency and final acceptance.
 Later visual changes require human approval.
 Wireframes and rendered previews demonstrate design intent. Prototype checks are recorded
 above; actual application browser, responsive, and accessibility behavior must still be

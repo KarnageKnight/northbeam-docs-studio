@@ -10,7 +10,9 @@ uses the existing transaction/editor/action patterns while always retaining the 
 buffer. Phase 10 adds newest-first history and read-only snapshot inspection through the
 existing composable/component/query boundaries. Phase 11 Restore uses the locked revision
 transaction and inspected-history action, with named dirty-buffer confirmation and no
-implicit publication. Delete remains a target contract.
+implicit publication. Phase 12 Delete uses an article-first transaction without revision
+mutation, plus inspected-target confirmation and visible current/retained protection.
+The API independently rechecks eligibility and history refresh preserves local text.
 
 Use the approved [HTTP contract](http-api.md), [data model](../data-model.md), and
 [plan](../plan.md). These interfaces derive from the selected thin-handler, function,
@@ -43,7 +45,7 @@ API-and-page slices, reusing the renderer first introduced for editor preview.
 | `/articles/:slug` | `app/pages/articles/[slug].vue` | Published article; unavailable content shows 404 |
 | `/writer/articles` | `app/pages/writer/articles/index.vue` | Writer summaries and creation navigation |
 | `/writer/articles/new` | `app/pages/writer/articles/new.vue` | Title/slug creation; navigate to editor after success |
-| `/writer/articles/:articleId` | `app/pages/writer/articles/[articleId].vue` | Compose editor form, preview, history, and feedback |
+| `/writer/articles/:slug/edit` | `app/pages/writer/articles/[slug]/edit.vue` | Compose editor form, preview, history, and feedback |
 
 Provide a shared top-header Public / Writer navigation switch: Public links to `/`,
 Writer to `/writer/articles`. Highlight Public for both public routes and Writer for all
@@ -59,13 +61,16 @@ persisted preference is added, and the separate workspace landing action is remo
 
 Use Nuxt native page routing and universal rendering. The public pages fetch only public
 API representations. Writer list titles come from saved drafts. Creation supplies title
-and slug and relies on approved empty body/tags defaults.
+and slug and relies on approved empty body/tags defaults. Creation and list links open
+`/writer/articles/:slug/edit`, including `/writer/articles/new/edit` for slug `new`.
+The editor lookup returns drafts and unpublished articles as well as published ones;
+subsequent lifecycle/history requests retain UUIDs. An unknown slug shows Article not found.
 
 ## Editor composition
 
 | Module | Interface responsibility |
 | --- | --- |
-| `app/composables/useArticleEditor.ts` | Accept article identity; expose local draft, saved article/revision, history/inspection, dirty/pending/error state, and load/save/publish/unpublish/restore/delete actions |
+| `app/composables/useArticleEditor.ts` | Accept the immutable article slug; resolve WriterArticle through the writer slug lookup, then use its UUID for lifecycle/history requests; expose local draft, saved article/revision, history/inspection, dirty/pending/error state, and load/save/publish/unpublish/restore/delete actions |
 | `app/components/ArticleEditorForm.vue` | Receive draft, immutable slug/publication state, action availability, pending state, and field feedback; emit field edits and save/publication intent |
 | `app/components/ArticleHistory.vue` | Receive snapshots, inspected content, protected reference, pending/feedback state; emit inspect/restore/delete intent |
 | `app/components/MarkdownContent.vue` | Receive Markdown source and render through the one shared renderer |

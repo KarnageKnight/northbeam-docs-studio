@@ -23,9 +23,9 @@ useHead({ title: 'Writer articles · Northbeam Docs Studio' })
     <section v-else class="surface article-list" aria-label="Writer articles">
       <div class="list-heading" aria-hidden="true"><span>Draft title</span><span>Status</span><span /></div>
       <div v-for="article in articles" :key="article.id" class="article-row">
-        <NuxtLink :to="`/writer/articles/${article.id}`" class="article-title">{{ article.title }}</NuxtLink>
+        <NuxtLink :to="`/writer/articles/${encodeURIComponent(article.slug)}/edit`" class="article-title">{{ article.title }}</NuxtLink>
         <span class="badge" :class="article.status">{{ article.status }}</span>
-        <NuxtLink :to="`/writer/articles/${article.id}`" class="open-link" :aria-label="`Open ${article.title}`">Open →</NuxtLink>
+        <NuxtLink :to="`/writer/articles/${encodeURIComponent(article.slug)}/edit`" class="open-link" :aria-label="`Open ${article.title}`">Open →</NuxtLink>
       </div>
     </section>
     <p v-if="articles?.length && !error" class="hint list-note">Titles reflect your saved drafts.</p>

@@ -16,7 +16,7 @@ async function createDraft() {
     const article = await $fetch<WriterArticle>('/api/writer/articles', {
       method: 'POST', body: { title: draft.title, slug: draft.slug }, retry: 0,
     })
-    await navigateTo(`/writer/articles/${article.id}`)
+    await navigateTo(`/writer/articles/${encodeURIComponent(article.slug)}/edit`)
   }
   catch (error) {
     const failure = error as { data?: { data?: { code?: string; fieldErrors?: Record<string, string[]> } } }

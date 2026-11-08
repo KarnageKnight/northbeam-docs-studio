@@ -1,15 +1,15 @@
 # Quickstart and Verification Guide
 
 **Date**: 2026-11-07
-**Status**: Phases 1–10 approved. Phase 11 Restore is implemented and verified,
-pending human approval. Delete has not started.
+**Status**: Phases 1–11 approved. Phase 12 snapshot deletion is implemented and verified,
+pending human approval. Phase 13 concurrency evidence has not started.
 
 ## Current commands and evidence
 
 With Node 24.22.2 and pnpm 12.18.0: `pnpm install --frozen-lockfile`, `pnpm dev`,
 `pnpm run test:unit`, `pnpm run test:integration`, `pnpm test`, `pnpm exec nuxt typecheck`,
 and `pnpm run build` are available. Full verification passes 98 database-free unit cases
-and 112 real PostgreSQL/HTTP integration cases, plus typecheck and production build.
+and 118 real PostgreSQL/HTTP integration cases, plus typecheck and production build.
 Docker startup builds the application, applies migrations, and serves the writer feature.
 See [README.md](../../README.md) for prerequisites, configuration, and cleanup procedures.
 
@@ -219,7 +219,7 @@ unsaved Markdown, save, return to the list, reopen, and reload. Try blank title/
 collision; entered values remain available after errors. Body/tags start empty in the form.
 The API also accepts validated body/tags at creation. Public dismisses the entry popup to the implemented published article list. Fresh root visits show the chooser; direct writer links and client
 portal switching do not reopen it. Editing/preview/save, Publish, Unpublish, and read-only history inspection are available;
-Restore is available from inspected history; Delete arrives in its owning phase. Preview escapes raw HTML and rejects unsafe links.
+Restore and eligible Delete are available from inspected history. Preview escapes raw HTML and rejects unsafe links.
 
 For conflict review, open the same article in two tabs, save one, then save the older tab.
 Its text remains available. Reload saved article offers confirmation/cancel for dirty text;
@@ -372,7 +372,7 @@ Existing real HTTP/SQL cases verify empty history, valid non-v4 IDs, exact proje
 version-number ordering against conflicting UUID/time order, published/unpublished content,
 missing/wrong-owner errors, unchanged article/history/public state, and restart persistence.
 Inspection creates or mutates no snapshot. Phase 11 adds the separate Restore action;
-Delete remains in a later phase.
+Phase 12 now adds eligible Delete.
 
 
 **Phase 10 browser evidence**: Real Chrome/SQL against a fresh production Docker app at
@@ -422,6 +422,39 @@ were observed. Typechecks/build and all 210 tests pass (98 unit + 112 integratio
 pinned-type audit found no deprecations in 44 files/nine Vue scripts. Disposable resources
 were removed while normal resources were preserved. Delete remains Phase 12 work.
 
+
+## Delete walkthrough
+
+Inspect an eligible old snapshot and choose Delete version. The inline prompt names the
+version; Cancel delete must make no request or change. Confirm delete returns empty 204,
+removes the row/inspection, and refreshes history while preserving unsaved local inputs
+and the article's saved revision. Inspection/Restore of the deleted snapshot returns 404.
+
+Inspect the current snapshot: show Protected — current published version and no Delete.
+After Unpublish, show Protected — last published version and continue rejecting direct API
+deletion. Eligible history remains deletable in either state. Recheck unchanged draft,
+audit fields, publication reference/date/counter, and public content/availability. Next
+publication must allocate a new number rather than reuse any deleted number. Missing,
+wrong-owner, and protected targets return explicit errors without mutations or lost text.
+Existing HTTP/SQL tests verify these rules, rollback/retry, and restart persistence.
+
+
+**Phase 12 browser evidence**: Real Chrome/SQL against a fresh production Docker app at
+loopback 3300 passed current/retained protection labels and independent API rejection,
+eligible Delete with named cancel/confirm, empty 204 and refreshed history, unchanged
+article/audits/public/reference/date/counter, local inputs before/during a delayed response,
+next Save using the unchanged revision, and deleted-target inspection/Restore rejection.
+Eligible deletion after unpublish preserved visibility/date/reference; later publication
+did not reuse removed numbers. Network failure and deliberate retry retained text/state.
+A controlled isolated SQL reference fixture verified authoritative protected error,
+explicit reload/cancel and stored counter preservation after highest eligible deletion;
+external API deletion verified missing-target feedback/refresh without losing local text.
+At 320/390/1440px Delete/Restore/confirmation controls fit with 44px targets. No runtime
+exceptions/hydration warnings occurred. Typechecks/build and all 216 tests pass (98 unit +
+118 integration); pinned-type audit found no deprecations in 46 files/nine Vue scripts.
+Disposable resources were removed while normal resources were preserved. Phase 13 coordinated
+concurrency evidence remains pending; this phase does not claim its race audit is complete.
+
 ## Acceptance coverage
 
 These are final acceptance targets; the feature walkthroughs and lifecycle checks remain pending.
@@ -462,14 +495,37 @@ Implementation follows [tasks.md](tasks.md): build each feature's API and UI tog
 run its existing/new meaningful checks and browser walkthrough, then present the results
 for human phase approval. Do not wait until all APIs exist to exercise writer screens.
 The later integrated walkthrough repeats the combined experience; it does not defer
-feature-level feedback, conflict preservation, or verification. Phases 1–10 are approved.
-T001–T016, T022–T025, T035–T037, and T039 are verified and checked (24 tasks).
-Phase 11 awaits human approval; later tasks remain unchecked.
+feature-level feedback, conflict preservation, or verification. Phases 1–11 are approved.
+T001–T017, T022–T025, and T035–T039 are verified and checked (26 tasks).
+Phase 12 awaits human approval; later tasks remain unchecked.
 
 ## Design handoff
 
 Review [plan.md](plan.md), [data-model.md](data-model.md), and [contracts](contracts/http-api.md).
 Analysis and the spec-first checkpoint were verified before the authorized Phase 1
 implementation. The [tabbed design](ui-design.md) and Phase 4 create/list/open are approved;
-review Phase 11 Restore before starting Phase 12 snapshot deletion. AI creates no commits. Full application behavior and
+review Phase 12 deletion before starting Phase 13 coordinated concurrency evidence. AI creates no commits. Full application behavior and
 Windows/Linux host support remain unverified.
+
+## Writer slug URLs — Phase 12 review change
+
+Open an article from the writer list, or create one through `/writer/articles/new`.
+The editor URL is now `/writer/articles/:slug/edit`, for example
+`/writer/articles/finding-inspiration/edit`. An article with slug `new` uses
+`/writer/articles/new/edit`, so the creation form remains reachable. Direct links
+and reloads resolve all publication states through the writer-only slug lookup.
+Unknown slugs show Article not found. Old UUID browser URLs are replaced by slug URLs;
+lifecycle/history APIs continue using UUIDs returned by the lookup. There is no schema migration.
+
+Verification passed: Nuxt typecheck, production build, explicit integration-test typecheck,
+and `pnpm test` (98 unit + 119 real PostgreSQL/HTTP cases, 217 total). Existing cases
+now cover exact writer projections by slug in all publication states, read-only lookup,
+SSR editor/list links, missing slugs, creation-route separation for slug `new`, and
+reopening after a server restart. A production Chrome walkthrough confirmed creation
+redirects, direct reloads, client navigation between articles, Save/Publish/Unpublish/
+history/Restore/Delete using resolved UUIDs, stale-save local text preservation and
+explicit reload, and failed initial lookup Retry with subsequent history/publication.
+No runtime exceptions, malformed history requests, or hydration warnings occurred.
+The pinned-type deprecation audit checked 47 source files/nine Vue scripts with no findings.
+The prior phase counts above remain historical. Disposable verification resources were
+removed; the normal application and database were preserved. Phase 13 remains unstarted.

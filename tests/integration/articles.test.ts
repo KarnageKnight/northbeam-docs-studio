@@ -112,8 +112,8 @@ describe('list and open saved drafts', () => {
     expect(await response.json()).toEqual([])
   })
 
-  it('projects saved draft summaries and detail without changing rows or audit fields', async () => {
-    const article = await (await createDraft()).json()
+  it.each(['finding-inspiration', 'new'])('projects saved summaries and detail by UUID and slug %s without changing rows or audit fields', async (slug) => {
+    const article = await (await createDraft({ ...input, slug })).json()
     const before = (await pool.query('SELECT * FROM articles')).rows
     const list = await fetch(writerUrl)
     expect(list.status).toBe(200)
@@ -121,6 +121,21 @@ describe('list and open saved drafts', () => {
     const detail = await fetch(`${writerUrl}/${article.id}`)
     expect(detail.status).toBe(200)
     expect(await detail.json()).toEqual(article)
+    const bySlug = await fetch(`${writerUrl}/by-slug/${article.slug}`)
+    expect(bySlug.status).toBe(200)
+    expect(await bySlug.json()).toEqual(article)
+    const listPage = await (await fetch(`${appUrl}/writer/articles`)).text()
+    expect(listPage).toContain(`/writer/articles/${slug}/edit`)
+    expect(listPage).not.toContain(`/writer/articles/${article.id}`)
+    const page = await fetch(`${appUrl}/writer/articles/${slug}/edit`)
+    expect(page.status).toBe(200)
+    const html = await page.text()
+    expect(html).toContain('id="draft-body"')
+    expect(html).not.toContain('Article not found')
+    expect(html).not.toContain('Unable to load article')
+    const creationPage = await (await fetch(`${appUrl}/writer/articles/new`)).text()
+    expect(creationPage).toContain('Create draft')
+    expect(creationPage).not.toContain('id="draft-body"')
     expect((await pool.query('SELECT * FROM articles')).rows).toEqual(before)
   })
 
@@ -133,6 +148,13 @@ describe('list and open saved drafts', () => {
     expect(rows).toEqual([{ id: article.id, slug: article.slug, title: input.title, status }])
     const detail = await (await fetch(`${writerUrl}/${article.id}`)).json()
     expect(detail).toEqual({ ...article, status, currentPublishedVersionId: versionId, publishedAt: '2026-11-07T12:00:00.000Z' })
+    const before = (await pool.query('SELECT * FROM articles')).rows
+    const snapshots = (await pool.query('SELECT * FROM article_versions')).rows
+    const bySlug = await fetch(`${writerUrl}/by-slug/${article.slug}`)
+    expect(bySlug.status).toBe(200)
+    expect(await bySlug.json()).toEqual(detail)
+    expect((await pool.query('SELECT * FROM articles')).rows).toEqual(before)
+    expect((await pool.query('SELECT * FROM article_versions')).rows).toEqual(snapshots)
   })
 
   it.each(['not-a-uuid', '1', '11111111-1111-1111-1111-11111111111z'])('rejects malformed article ID %s', async (id) => {
@@ -145,7 +167,10 @@ describe('list and open saved drafts', () => {
     const response = await fetch(`${writerUrl}/${id}`)
     expect(response.status).toBe(404)
     expect((await response.json()).data.code).toBe('ARTICLE_NOT_FOUND')
-    const page = await fetch(`${appUrl}/writer/articles/${id}`)
+    const bySlug = await fetch(`${writerUrl}/by-slug/${id}`)
+    expect(bySlug.status).toBe(404)
+    expect((await bySlug.json()).data.code).toBe('ARTICLE_NOT_FOUND')
+    const page = await fetch(`${appUrl}/writer/articles/${id}/edit`)
     const html = await page.text()
     expect(html).toContain('Article not found')
     expect(html).not.toContain('Unable to load article')
@@ -161,6 +186,10 @@ describe('list and open saved drafts', () => {
     const reopened = await fetch(`${writerUrl}/${article.id}`)
     expect(reopened.status).toBe(200)
     expect(await reopened.json()).toEqual(article)
+    expect(await (await fetch(`${writerUrl}/by-slug/${article.slug}`)).json()).toEqual(article)
+    const page = await (await fetch(`${appUrl}/writer/articles/${article.slug}/edit`)).text()
+    expect(page).toContain('Persisted words')
+    expect(page).toContain('id="draft-body"')
     expect((await pool.query('SELECT * FROM articles ORDER BY id')).rows).toEqual(before)
     expect((await pool.query('SELECT * FROM article_versions')).rows).toEqual([])
   })
@@ -798,5 +827,117 @@ describe('restore snapshot into draft', () => {
     const recovered = await restore(article.id, { expectedRevision: 2 }, published.currentPublishedVersionId)
     expect(recovered.status).toBe(200)
     expect(await recovered.json()).toEqual({ ...published, revision: 3 })
+  })
+})
+
+
+describe('delete eligible snapshot history', () => {
+  const deleteVersion = (articleId: string, versionId: string) => fetch(`${writerUrl}/${articleId}/versions/${versionId}`, { method: 'DELETE' })
+
+  it.each(['published', 'unpublished'])('deletes eligible history without changing %s article/public state or reusing version numbers', async (state) => {
+    const article = await (await createDraft({ ...input, body: 'Published words', tags: ['saved'] })).json()
+    const publish = (revision: number) => fetch(`${writerUrl}/${article.id}/publish`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ expectedRevision: revision }) })
+    const published = []
+    for (let revision = 0; revision < 3; revision++) {
+      const response = await publish(revision)
+      expect(response.status).toBe(200)
+      published.push(await response.json())
+    }
+    let revision = 3
+    if (state === 'unpublished') {
+      expect((await unpublish(article.id, { expectedRevision: revision })).status).toBe(200)
+      revision++
+    }
+    const before = (await pool.query('SELECT * FROM articles')).rows
+    const snapshots = (await pool.query('SELECT * FROM article_versions ORDER BY version_number')).rows
+    const publicList = await (await fetch(`${appUrl}/api/public/articles`)).json()
+    const publicDetail = await fetch(`${appUrl}/api/public/articles/${article.slug}`)
+    const publicBody = await publicDetail.json()
+    const target = published[1].currentPublishedVersionId
+    const response = await deleteVersion(article.id, target)
+    expect(response.status).toBe(204)
+    expect(await response.text()).toBe('')
+    expect((await pool.query('SELECT * FROM articles')).rows).toEqual(before)
+    expect((await pool.query('SELECT * FROM article_versions ORDER BY version_number')).rows).toEqual([snapshots[0], snapshots[2]])
+    expect(await (await fetch(`${appUrl}/api/public/articles`)).json()).toEqual(publicList)
+    const stillPublic = await fetch(`${appUrl}/api/public/articles/${article.slug}`)
+    expect(stillPublic.status).toBe(publicDetail.status)
+    expect(await stillPublic.json()).toEqual(publicBody)
+    const inspected = await fetch(`${writerUrl}/${article.id}/versions/${target}`)
+    expect(inspected.status).toBe(404)
+    expect((await inspected.json()).data.code).toBe('SNAPSHOT_NOT_FOUND')
+    const restored = await restore(article.id, { expectedRevision: revision }, target)
+    expect(restored.status).toBe(404)
+    expect((await restored.json()).data.code).toBe('SNAPSHOT_NOT_FOUND')
+    const repeated = await deleteVersion(article.id, target)
+    expect(repeated.status).toBe(404)
+    expect((await repeated.json()).data.code).toBe('SNAPSHOT_NOT_FOUND')
+    expect((await pool.query('SELECT * FROM articles')).rows).toEqual(before)
+    await restartApp()
+    expect((await pool.query('SELECT version_number FROM article_versions ORDER BY version_number')).rows).toEqual([{ version_number: 1 }, { version_number: 3 }])
+    const republished = await publish(revision)
+    expect(republished.status).toBe(200)
+    expect((await republished.json()).publishedAt).toBe(published[0].publishedAt)
+    expect((await pool.query('SELECT version_number FROM article_versions ORDER BY version_number')).rows).toEqual([{ version_number: 1 }, { version_number: 3 }, { version_number: 4 }])
+  })
+
+  it.each(['published', 'unpublished'])('rejects deletion of the %s retained reference through the API without mutation', async (state) => {
+    const article = await (await createDraft({ ...input, body: 'Protected words' })).json()
+    const published = await (await fetch(`${writerUrl}/${article.id}/publish`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ expectedRevision: 0 }) })).json()
+    if (state === 'unpublished') expect((await unpublish(article.id, { expectedRevision: 1 })).status).toBe(200)
+    const before = (await pool.query('SELECT * FROM articles')).rows
+    const snapshots = (await pool.query('SELECT * FROM article_versions')).rows
+    const response = await deleteVersion(article.id, published.currentPublishedVersionId)
+    expect(response.status).toBe(409)
+    expect((await response.json()).data.code).toBe('SNAPSHOT_PROTECTED')
+    expect((await pool.query('SELECT * FROM articles')).rows).toEqual(before)
+    expect((await pool.query('SELECT * FROM article_versions')).rows).toEqual(snapshots)
+  })
+
+  it('validates both UUIDs before lookup and distinguishes missing articles from missing/wrong-owner snapshots', async () => {
+    const article = await (await createDraft()).json()
+    const other = await (await createDraft({ ...input, slug: 'delete-other', body: 'Private other content' })).json()
+    const published = await (await fetch(`${writerUrl}/${other.id}/publish`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ expectedRevision: 0 }) })).json()
+    const missing = randomUUID()
+    const before = (await pool.query('SELECT * FROM articles ORDER BY id')).rows
+    const snapshots = (await pool.query('SELECT * FROM article_versions')).rows
+    for (const [id, versionId, status, code] of [
+      ['invalid', missing, 400, 'VALIDATION_ERROR'], [missing, 'invalid', 400, 'VALIDATION_ERROR'],
+      [article.id, 'invalid', 400, 'VALIDATION_ERROR'], [missing, missing, 404, 'ARTICLE_NOT_FOUND'],
+      [article.id, missing, 404, 'SNAPSHOT_NOT_FOUND'],
+      [article.id, published.currentPublishedVersionId, 404, 'SNAPSHOT_NOT_FOUND'],
+    ] as const) {
+      const response = await deleteVersion(id, versionId)
+      expect(response.status).toBe(status)
+      const error = await response.json()
+      expect(error.data.code).toBe(code)
+      expect(JSON.stringify(error)).not.toContain('Private other content')
+    }
+    expect((await pool.query('SELECT * FROM articles ORDER BY id')).rows).toEqual(before)
+    expect((await pool.query('SELECT * FROM article_versions')).rows).toEqual(snapshots)
+  })
+
+  it('rolls back a failed deletion and permits an explicit retry without changing the article', async () => {
+    const article = await (await createDraft({ ...input, body: 'Words' })).json()
+    const versions = []
+    for (let revision = 0; revision < 2; revision++) {
+      versions.push(await (await fetch(`${writerUrl}/${article.id}/publish`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ expectedRevision: revision }) })).json())
+    }
+    const before = (await pool.query('SELECT * FROM articles')).rows
+    const snapshots = (await pool.query('SELECT * FROM article_versions ORDER BY version_number')).rows
+    await pool.query(`CREATE FUNCTION fail_test_delete() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'private deletion detail'; END; $$;
+      CREATE TRIGGER fail_test_delete BEFORE DELETE ON article_versions FOR EACH ROW EXECUTE FUNCTION fail_test_delete()`)
+    try {
+      const failed = await deleteVersion(article.id, versions[0].currentPublishedVersionId)
+      expect(failed.status).toBe(500)
+      expect(await failed.text()).not.toContain('private deletion detail')
+      expect((await pool.query('SELECT * FROM articles')).rows).toEqual(before)
+      expect((await pool.query('SELECT * FROM article_versions ORDER BY version_number')).rows).toEqual(snapshots)
+    }
+    finally { await pool.query('DROP TRIGGER fail_test_delete ON article_versions; DROP FUNCTION fail_test_delete()') }
+    const recovered = await deleteVersion(article.id, versions[0].currentPublishedVersionId)
+    expect(recovered.status).toBe(204)
+    expect(await recovered.text()).toBe('')
+    expect((await pool.query('SELECT * FROM articles')).rows).toEqual(before)
   })
 })
