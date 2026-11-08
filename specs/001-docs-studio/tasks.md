@@ -1,8 +1,8 @@
 # Tasks: Northbeam Docs Studio
 
 **Feature**: `001-docs-studio` · **Created**: 2026-11-07
-**Status**: Phases 1–10 approved. Phase 11 Restore is implemented and verified, pending human approval.
-T035 retains the user-approved Write/Preview tabbed design. Phase 12 and later work have not started.
+**Status**: Phases 1–11 approved. Phase 12 snapshot deletion is implemented and verified, pending human approval.
+T035 retains the user-approved Write/Preview tabbed design. Phase 13 and later work have not started.
 **Input**: [specification](spec.md), [plan](plan.md), [research](research.md),
 [data model](data-model.md), [HTTP contract](contracts/http-api.md),
 [UI/service contract](contracts/ui-and-services.md), [quickstart](quickstart.md),
@@ -182,7 +182,7 @@ previews and verification results. T035 is complete; the user authorized Phase 4
 
 - [x] T006 [US1] Extend `tests/unit/articles-validation.test.ts` and start `tests/integration/articles.test.ts` before implementing create input validation in `server/validation/articles.ts`, `server/services/articles/createArticle.ts`, `server/services/articles/toWriterArticle.ts`, `server/utils/api-errors.ts`, and `server/api/writer/articles/index.post.ts`. Quote and enforce the model rules: title "Nonblank; at most 200 Unicode code points"; slug "Trim/lowercase; 1–100 characters; lowercase ASCII alphanumeric groups separated by single hyphens"; body "At most 100,000 Unicode code points; empty allowed for draft creation/save"; tags "Array of strings; trim/lowercase, drop empty values, deduplicate in first-occurrence order" and "At most 10; each at most 30 code points; same character/hyphen format as slugs". Preserve title/body text; omitted/null creation body/tags normalize to empty values; reject wrong types/unknown fields/malformed JSON with 400 VALIDATION_ERROR. Return the exact 201 WriterArticle with UUIDv4, revision 0, draft status, null publication fields, counter 1, and no snapshot. Map the named normalized-slug violation to 409 SLUG_CONFLICT without a precheck race or automatic suffix; keep unexpected errors native/generic.
 - [x] T007 [US1] Extend `tests/integration/articles.test.ts` and its existing process helpers for writer list/load, missing/malformed IDs, unchanged read audit/revision, and draft reopening after a built-server restart using the same test DB; implement the needed projections in `server/services/articles/queries.ts`, `shared/types/articles.ts`, `server/api/writer/articles/index.get.ts`, and `server/api/writer/articles/[articleId]/index.get.ts`. Writer list returns draft title/status and empty `[]`; detail returns only the approved WriterArticle fields. Enforce "Valid UUID syntax; not restricted to UUIDv4 input", distinguishing 400 malformed from 404 valid missing IDs. Use native helpers consistently from `nuxt/server`; do not expose audit fields or allocation counters.
-- [x] T022 [US1] Implement `app/pages/writer/articles/index.vue` `app/pages/writer/articles/new.vue`, and a minimal read-only `app/pages/writer/articles/[articleId].vue` using native Nuxt fetching and existing HTTP types. Show draft-title/status summaries, empty/loading/error feedback, navigation, and a focused title/slug creation form; surface field/slug errors and navigate to `/writer/articles/:articleId` after successful creation using approved empty body/tags defaults. Let the destination load and display the newly created saved draft, with missing/error states; editing/preview controls arrive in the next feature. Manually verify create → list → open → reload against the real API and keep automated request behavior in `tests/integration/articles.test.ts` rather than adding a browser framework.
+- [x] T022 [US1] Implement `app/pages/writer/articles/index.vue` `app/pages/writer/articles/new.vue`, and a minimal read-only `app/pages/writer/articles/[slug]/edit.vue` using native Nuxt fetching and existing HTTP types. Show draft-title/status summaries, empty/loading/error feedback, navigation, and a focused title/slug creation form; surface field/slug errors and navigate to `/writer/articles/:slug/edit` after successful creation using approved empty body/tags defaults. Let the destination load and display the newly created saved draft, with missing/error states; editing/preview controls arrive in the next feature. Manually verify create → list → open → reload against the real API and keep automated request behavior in `tests/integration/articles.test.ts` rather than adding a browser framework.
 
 **T006 evidence (2026-11-07)**: Extended the existing unit suite before implementation;
 missing creation validation failed as expected. Creation now validates/normalizes input,
@@ -247,7 +247,7 @@ Phase 5 editing/preview implementation is authorized; later phases retain their 
 
 - [x] T008 [US2] First extend the existing validation and HTTP/SQL cases in `tests/unit/articles-validation.test.ts` and `tests/integration/articles.test.ts`, then add the complete-save schema in `server/validation/articles.ts`, `server/services/articles/withArticleTransaction.ts`, `server/services/articles/saveDraft.ts`, and `server/api/writer/articles/[articleId]/draft.put.ts`. Require title/body/tags and expectedRevision with no coercion/null defaults or slug updates; the token rule is "Nonnegative safe integer JSON number; no coercion". Begin Read Committed transaction, lock article FOR UPDATE, return 404 if missing, compare revision before mutation, then replace only draft fields and increment revision once/update updated_at with CURRENT_TIMESTAMP. Return WriterArticle after success; unchanged saves also advance revision. Verify 409 STALE_REVISION makes no changes, creation timestamp/slug/counter/publication/history survive saves, and transaction queries use the callback transaction rather than the shared pool.
 - [x] T013 [US2] Add `shared/utils/markdown.ts` and `app/components/MarkdownContent.vue` for the editor preview, first creating meaningful cases in `tests/unit/markdown.test.ts`. Render standard Markdown, show raw HTML literally, and allow only HTTP/HTTPS/mailto/relative-path/#heading links; unsafe schemes never become clickable, including encoded/case variations. Preserve universal rendering and use this same renderer/component for the later public detail page in T039. Verify rendering through the preview in T023; do not build a public page or add a new library here.
-- [x] T023 [US2] Extend the read-only editor into an editable feature with per-invocation state/actions in `app/composables/useArticleEditor.ts`, present the form in `app/components/ArticleEditorForm.vue`, and compose them in `app/pages/writer/articles/[articleId].vue`. Implement load/save for title/Markdown/tags, immutable displayed slug, and Write/Preview tabs in one panel, rendering the current local Markdown through `app/components/MarkdownContent.vue` without saving; keep editable content separate from the saved baseline/revision. Implement visible save-conflict feedback and explicit reload/resubmit now; preserve local text on 409 and edits made while a response is in flight, with no silent retry/rebase. Manually verify title/body/tags, shared preview, dirty/loading/pending states, validation feedback, unchanged saves, restart/reopen, and a two-tab stale-save conflict. Reuse existing unit/HTTP cases if a discovered server defect needs a regression; add no Pinia or module-global editor singleton.
+- [x] T023 [US2] Extend the read-only editor into an editable feature with per-invocation state/actions in `app/composables/useArticleEditor.ts`, present the form in `app/components/ArticleEditorForm.vue`, and compose them in `app/pages/writer/articles/[slug]/edit.vue`. Implement load/save for title/Markdown/tags, immutable displayed slug, and Write/Preview tabs in one panel, rendering the current local Markdown through `app/components/MarkdownContent.vue` without saving; keep editable content separate from the saved baseline/revision. Implement visible save-conflict feedback and explicit reload/resubmit now; preserve local text on 409 and edits made while a response is in flight, with no silent retry/rebase. Manually verify title/body/tags, shared preview, dirty/loading/pending states, validation feedback, unchanged saves, restart/reopen, and a two-tab stale-save conflict. Reuse existing unit/HTTP cases if a discovered server defect needs a regression; add no Pinia or module-global editor singleton.
 
 **T008 evidence (2026-11-07)**: Extended existing unit/HTTP cases before implementation;
 missing save validation failed as expected. Save requires all draft fields and a safe
@@ -286,7 +286,7 @@ Phase 6 publishing is authorized; later phases retain their review gates.
 
 - [x] T009 [US3] Extend `tests/integration/articles.test.ts` before implementing `server/services/articles/publishArticle.ts`, its request schema in `server/validation/articles.ts`, and `server/api/writer/articles/[articleId]/publish.post.ts`. Enforce "Saved title and body must be nonblank" after article lock/revision comparison; blank saved content gives 400 VALIDATION_ERROR with no mutation. Generate snapshot UUIDv4, allocate its positive per-article number from the locked counter, insert saved title/body/tags, and atomically advance counter/revision, set published status/new owned reference, set published_at only on first publication using CURRENT_TIMESTAMP, and update updated_at. Return WriterArticle; verify repeated/unchanged publication creates new immutable rows and preserves first date, draft, slug, and earlier snapshot content.
 - [x] T010 [US3] Extend the publish scenarios in `tests/integration/articles.test.ts` using existing SQL/process helpers in `tests/integration/helpers.ts` to inject a temporary isolated-DB failure after snapshot insertion but before publication completes; remove fixture DDL reliably. Reuse a database lock barrier to terminate the built app during an uncommitted publish, restart against the same DB, and inspect persisted state; no production test hooks. For failure and crash, prove snapshot insertion, counter allocation, reference/status/date/revision, and audit changes roll back, and the next successful publish uses the uncommitted allocation correctly. Retain the existing direct snapshot-update rejection assertions without duplication. Fix only demonstrated lifecycle/transaction defects in `server/services/articles/publishArticle.ts` or `server/services/articles/withArticleTransaction.ts` if needed.
-- [x] T024 [US3] Extend `app/composables/useArticleEditor.ts`, `app/components/ArticleEditorForm.vue`, and `app/pages/writer/articles/[articleId].vue` with a separate Publish action, current status/reference/date, success/error feedback, and explicit reload after conflict. Require a successful explicit save of dirty content before publish; never auto-save, silently rebase, or auto-retry with a newer revision. Refresh saved revision from successful responses, serialize conflicting actions while pending, and preserve unsaved text on 409 or responses arriving after newer edits. Walk through first publication, unchanged republish, blank-body rejection, and stale publish with explicit reload/resubmit using real API/SQL evidence. Unpublish is added with its own feature in T036; no unimplemented action controls.
+- [x] T024 [US3] Extend `app/composables/useArticleEditor.ts`, `app/components/ArticleEditorForm.vue`, and `app/pages/writer/articles/[slug]/edit.vue` with a separate Publish action, current status/reference/date, success/error feedback, and explicit reload after conflict. Require a successful explicit save of dirty content before publish; never auto-save, silently rebase, or auto-retry with a newer revision. Refresh saved revision from successful responses, serialize conflicting actions while pending, and preserve unsaved text on 409 or responses arriving after newer edits. Walk through first publication, unchanged republish, blank-body rejection, and stale publish with explicit reload/resubmit using real API/SQL evidence. Unpublish is added with its own feature in T036; no unimplemented action controls.
 
 **T009 evidence**: Extended existing validation/HTTP suites first; the missing publish
 schema failed before implementation. The native publish handler reuses the locked
@@ -401,7 +401,7 @@ Phase 9 Unpublish is authorized; later phases retain their review gates.
 **Independent test**: Unpublish in browser, verify actual list exclusion/detail 404, retained draft/snapshots/reference/date, invalid/stale rejection, and republish preserving the original date.
 
 - [x] T014 [US4] After T011/T012, extend `tests/integration/articles.test.ts` and implement `server/services/articles/unpublishArticle.ts`, its action schema in `server/validation/articles.ts`, and `server/api/writer/articles/[articleId]/unpublish.post.ts` using the shared transaction helper. Compare revision before state eligibility; reject never-published/already-unpublished state with 409 INVALID_PUBLICATION_STATE. On success change status/revision/updated_at only; preserve draft, counter, snapshots, reference, created_at, and first published_at. Prove public exclusion/404, stale requests make no changes, and later republish preserves the date.
-- [x] T036 [US4] Extend `app/composables/useArticleEditor.ts`, `app/components/ArticleEditorForm.vue`, and `app/pages/writer/articles/[articleId].vue` with Unpublish and its pending/success/error states. Use the saved revision, preserve unsaved local text on conflicts, retain the reference/date after success, and show invalid-state feedback consistently with the API. Walk through publish → unpublish → public list exclusion/detail 404 → republish with the original date, plus stale-unpublish rejection; extend existing HTTP cases only for uncovered behavior. Follow the approved wireframes and retain separate Save/Publish/Unpublish actions.
+- [x] T036 [US4] Extend `app/composables/useArticleEditor.ts`, `app/components/ArticleEditorForm.vue`, and `app/pages/writer/articles/[slug]/edit.vue` with Unpublish and its pending/success/error states. Use the saved revision, preserve unsaved local text on conflicts, retain the reference/date after success, and show invalid-state feedback consistently with the API. Walk through publish → unpublish → public list exclusion/detail 404 → republish with the original date, plus stale-unpublish rejection; extend existing HTTP cases only for uncovered behavior. Follow the approved wireframes and retain separate Save/Publish/Unpublish actions.
 
 **T014 evidence**: Extended existing strict publication-action validation/revision cases
 and added focused unpublish state/preservation/rollback scenarios. Missing schema tests
@@ -440,7 +440,7 @@ Phase 10 history inspection is authorized; later phases retain their review gate
 **Independent test**: Inspect newest-first saved versions and full content, empty history, and history after unpublish; reject wrong-owner/missing snapshots and prove read-only state.
 
 - [x] T015 [US5] Extend `tests/integration/articles.test.ts` and add history/owned-detail queries in `server/services/articles/queries.ts`, types in `shared/types/articles.ts`, `server/api/writer/articles/[articleId]/versions/index.get.ts`, and `server/api/writer/articles/[articleId]/versions/[versionId]/index.get.ts`. Return VersionSummary array newest first by versionNumber and exact VersionDetail on inspection; never order by UUID/audit timestamp. Validate both UUIDs, distinguish missing article from snapshot, use 404 SNAPSHOT_NOT_FOUND for missing/wrong-owner snapshots, and preserve all revisions/audit/publication/history values on reads, including after unpublish.
-- [x] T025 [US5] Add `app/components/ArticleHistory.vue` and connect listing/inspection through `app/composables/useArticleEditor.ts` and `app/pages/writer/articles/[articleId].vue`. Show newest-first numbers and inspected title/body/tags, label the current/retained reference, and provide empty/loading/error feedback. Verify read-only history in published/unpublished states and that inspection changes no draft/publication/history data. Restore and delete controls are introduced only with their own feature phases T037/T038; use existing real API coverage and no browser automation dependency.
+- [x] T025 [US5] Add `app/components/ArticleHistory.vue` and connect listing/inspection through `app/composables/useArticleEditor.ts` and `app/pages/writer/articles/[slug]/edit.vue`. Show newest-first numbers and inspected title/body/tags, label the current/retained reference, and provide empty/loading/error feedback. Verify read-only history in published/unpublished states and that inspection changes no draft/publication/history data. Restore and delete controls are introduced only with their own feature phases T037/T038; use existing real API coverage and no browser automation dependency.
 
 **T015 evidence**: Five new cases in the existing integration suite failed before the
 history endpoints existed; the prior 103 integration cases passed. The native list/detail
@@ -480,7 +480,7 @@ Phase 11 Restore is authorized; later phases retain their review gates.
 **Independent test**: Restore old/current/last-published/identical snapshots from UI; check returned draft/revision and feedback, unchanged live state/history, stale-preserved local text, and rejected invalid targets.
 
 - [x] T016 [US6] Extend `tests/integration/articles.test.ts` before adding `server/services/articles/restoreDraft.ts`, its request schema in `server/validation/articles.ts`, and `server/api/writer/articles/[articleId]/versions/[versionId]/restore.post.ts`. Lock article and compare revision before resolving snapshot eligibility; then copy owned title/body/tags into draft and increment revision/update updated_at even for identical content. Preserve slug, status, reference, counter, first date, created_at, every snapshot, and public output/availability. Accept current/last-published snapshots; missing/wrong-owner snapshots give 404 SNAPSHOT_NOT_FOUND, while an otherwise valid stale request gives 409 STALE_REVISION first, with no changes.
-- [x] T037 [US6] Add Restore to `app/components/ArticleHistory.vue` and route it through `app/composables/useArticleEditor.ts` and `app/pages/writer/articles/[articleId].vue`. A successful explicit restore loads returned draft/revision without publishing; use the saved revision and preserve local text on rejection. Show pending/success/error feedback and verify old/current/last-published/identical restores, missing/wrong-owner targets, stale restores, unchanged public state/history, and explicit save/publish rules afterward. Reuse existing integration coverage and record the browser walkthrough in `quickstart.md`.
+- [x] T037 [US6] Add Restore to `app/components/ArticleHistory.vue` and route it through `app/composables/useArticleEditor.ts` and `app/pages/writer/articles/[slug]/edit.vue`. A successful explicit restore loads returned draft/revision without publishing; use the saved revision and preserve local text on rejection. Show pending/success/error feedback and verify old/current/last-published/identical restores, missing/wrong-owner targets, stale restores, unchanged public state/history, and explicit save/publish rules afterward. Reuse existing integration coverage and record the browser walkthrough in `quickstart.md`.
 
 **T016 evidence**: Extended existing strict-action revision/body cases to Restore and
 added focused old/current/identical published/unpublished restoration, rejected target/
@@ -511,7 +511,8 @@ browser resources were removed; normal resources were preserved. No schema, migr
 dependency, architecture, or Markdown-policy change was needed. Phase 12 Delete remains
 unstarted.
 
-**Phase approval**: Pending human review. Demonstrate this phase, present verification results, and wait for explicit human approval before starting the next phase.
+**Phase approval**: Approved by the user by requesting the next task.
+Phase 12 snapshot deletion is authorized; later phases retain their review gates.
 
 ## Phase 12: US7 — Delete eligible history (P1)
 
@@ -519,10 +520,50 @@ unstarted.
 **Dependencies**: History/restore approved; publishing available to prove non-reuse.
 **Independent test**: Delete eligible history in browser, reject current/retained reference in published/unpublished states, keep article revision/audit/local edits unchanged, and publish without reusing a deleted number.
 
-- [ ] T017 [US7] Extend `tests/integration/articles.test.ts` before implementing `server/services/articles/deleteSnapshot.ts` and `server/api/writer/articles/[articleId]/versions/[versionId]/index.delete.ts`. Use a transaction and article-first lock without a caller revision, verify owner/existence, and reject the current/retained reference with 409 SNAPSHOT_PROTECTED; retain the restrictive FK as database protection. Return empty 204 on eligible deletion; malformed IDs give 400, missing article 404 ARTICLE_NOT_FOUND, missing/wrong-owner snapshot 404 SNAPSHOT_NOT_FOUND. Prove article fields/revision/audit/counter and public output remain unchanged, the highest eligible historical number is never reused on later publication, and deleted snapshots cannot be inspected/restored.
-- [ ] T038 [US7] Add Delete to `app/components/ArticleHistory.vue` and connect it through `app/composables/useArticleEditor.ts` and `app/pages/writer/articles/[articleId].vue`. Visibly protect the current/retained reference in published/unpublished states; the API remains authoritative. Eligible deletion refreshes history without changing article revision or unsaved text; surface stale/missing/protected-target feedback from the actual API. Walk through eligible deletion, retained-reference rejection after unpublish, and subsequent publication without number reuse. Reuse existing HTTP/SQL evidence and record the browser results in `quickstart.md`.
+- [x] T017 [US7] Extend `tests/integration/articles.test.ts` before implementing `server/services/articles/deleteSnapshot.ts` and `server/api/writer/articles/[articleId]/versions/[versionId]/index.delete.ts`. Use a transaction and article-first lock without a caller revision, verify owner/existence, and reject the current/retained reference with 409 SNAPSHOT_PROTECTED; retain the restrictive FK as database protection. Return empty 204 on eligible deletion; malformed IDs give 400, missing article 404 ARTICLE_NOT_FOUND, missing/wrong-owner snapshot 404 SNAPSHOT_NOT_FOUND. Prove article fields/revision/audit/counter and public output remain unchanged, the highest eligible historical number is never reused on later publication, and deleted snapshots cannot be inspected/restored.
+- [x] T038 [US7] Add Delete to `app/components/ArticleHistory.vue` and connect it through `app/composables/useArticleEditor.ts` and `app/pages/writer/articles/[slug]/edit.vue`. Visibly protect the current/retained reference in published/unpublished states; the API remains authoritative. Eligible deletion refreshes history without changing article revision or unsaved text; surface stale/missing/protected-target feedback from the actual API. Walk through eligible deletion, retained-reference rejection after unpublish, and subsequent publication without number reuse. Reuse existing HTTP/SQL evidence and record the browser results in `quickstart.md`.
+
+**T017 evidence**: Six new cases in the existing integration suite failed before the
+DELETE endpoint existed; the prior 112 cases passed. The native handler validates both
+UUIDs and returns empty 204 after an article-first Read Committed transaction validates
+ownership/reference eligibility. No caller revision is required. Existing restrictive
+FK protection remains intact. Tests prove eligible deletion in published/unpublished states,
+protected retained references, malformed/missing/wrong-owner targets, unchanged article/
+audit/counter/public output, failed-delete rollback/retry, restart, missing inspection/
+restore after deletion, and publication without deleted-number reuse. Typechecks/build/
+full suite pass: 98 unit + 118 PostgreSQL/HTTP cases. T038 UI/browser work is next.
+
+**T038 / Phase 12 evidence**: Inspected eligible snapshots now offer Delete version with
+a named Confirm delete/Cancel delete prompt. Referenced snapshots instead show Protected —
+current published version or Protected — last published version after unpublish. The API
+independently rechecks the locked reference. Success clears inspection and refreshes history
+without changing saved article/revision or local fields; missing/protected/network failures
+preserve text and provide explicit refresh/reload/retry feedback, without automatic retry.
+Production Chrome/SQL checks passed current/retained API rejection, eligible deletion in
+both states, cancel/no write, empty 204, dirty and in-flight local input retention,
+unchanged article/audit/public/reference/date/counter state, next Save using the unchanged
+revision, and deleted-target inspection/restore rejection. Network failure/retry, controlled
+stale-reference protected error with reload/cancel, external API missing-target recovery,
+publication without number reuse, and 320/390/1440px controls with 44px targets passed.
+No runtime exceptions or hydration warnings occurred.
+Typechecks, build, and full suite pass: 98 unit + 118 real PostgreSQL/HTTP cases (216 total).
+Pinned-type audit: 46 files/nine Vue scripts, no findings. Disposable resources were removed;
+normal resources were preserved. No schema, migration, dependency, architecture, or Markdown
+policy change was needed. Phase 13 coordinated concurrency evidence remains unstarted.
 
 **Phase approval**: Pending human review. Demonstrate this phase, present verification results, and wait for explicit human approval before starting the next phase.
+
+**Phase 12 review follow-up — writer slug URLs**: The user selected
+`/writer/articles/:slug/edit`, keeping creation at `/writer/articles/new` and allowing
+slug `new`. T022/T023 page references now reflect that route. The writer slug lookup
+returns the existing WriterArticle; internal UUID lifecycle/history APIs and schema
+remain unchanged. Direct links, creation/list navigation, missing slugs, slug `new`,
+and reopening after restart pass in the extended existing integration cases. Browser
+checks passed all existing editor actions, article-to-article navigation, stale-save
+preservation/reload, and initial lookup failure/Retry, without runtime or hydration
+errors. Typechecks/build/full suite pass: 98 unit + 119 PostgreSQL/HTTP cases (217 total);
+the pinned-type audit found no deprecations in 47 files/nine Vue scripts. See quickstart
+for details. Phase 12 remains pending human review; Phase 13 has not started.
 
 ## Phase 13: US8 — Cross-feature concurrency evidence (P1)
 
@@ -596,8 +637,8 @@ unstarted.
 Execute the phases above in order, with explicit human approval at every boundary.
 Task IDs are stable references rather than a numeric execution sequence. UI tasks moved
 into their owning story retain their original ID; newly split UI tasks are T036–T039.
-T001–T016, T022–T025, T035–T037, and T039 are complete with evidence above (24 tasks).
-Phases 1–10 are approved; Phase 11 awaits human approval.
+T001–T017, T022–T025, and T035–T039 are complete with evidence above (26 tasks).
+Phases 1–11 are approved; Phase 12 awaits human approval.
 Later phase approvals and tasks remain pending.
 
 ```text

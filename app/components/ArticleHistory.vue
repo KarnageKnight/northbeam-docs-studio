@@ -14,8 +14,10 @@ defineProps<{
   writePending: boolean
   conflict: boolean
   restoreConfirmation: VersionSummary | null
+  deleteConfirmation: VersionSummary | null
 }>()
-const emit = defineEmits<{ refresh: []; inspect: [versionId: string]; restore: [versionId: string]; confirmRestore: []; cancelRestore: [] }>()
+const emit = defineEmits<{ refresh: []; inspect: [versionId: string]; restore: [versionId: string]; confirmRestore: []; cancelRestore: [];
+  delete: [versionId: string]; confirmDelete: []; cancelDelete: [] }>()
 </script>
 
 <template>
@@ -49,7 +51,11 @@ const emit = defineEmits<{ refresh: []; inspect: [versionId: string]; restore: [
         <li v-for="tag in inspectedVersion.tags" :key="tag">{{ tag }}</li>
       </ul>
       <MarkdownContent :source="inspectedVersion.body" />
-      <button type="button" class="button" :disabled="writePending || conflict || inspectionPending" @click="emit('restore', inspectedVersion.id)">{{ writePending ? 'Please wait…' : 'Restore into draft' }}</button>
+      <div class="confirmation-actions">
+        <button type="button" class="button" :disabled="writePending || conflict || inspectionPending" @click="emit('restore', inspectedVersion.id)">{{ writePending ? 'Please wait…' : 'Restore into draft' }}</button>
+        <button v-if="inspectedVersion.id !== publishedVersionId" type="button" class="button danger" :disabled="writePending || conflict || inspectionPending" @click="emit('delete', inspectedVersion.id)">{{ writePending ? 'Please wait…' : 'Delete version' }}</button>
+      </div>
+      <p v-if="inspectedVersion.id === publishedVersionId" class="hint snapshot-protection">{{ publicationStatus === 'unpublished' ? 'Protected — last published version' : 'Protected — current published version' }}</p>
       <p class="hint">Restoring changes the draft only; it does not publish.</p>
     </section>
     <div v-if="restoreConfirmation" class="notice warning restore-confirmation" role="alert">
@@ -57,6 +63,13 @@ const emit = defineEmits<{ refresh: []; inspect: [versionId: string]; restore: [
       <div class="confirmation-actions">
         <button type="button" class="button" :disabled="writePending || conflict" @click="emit('confirmRestore')">Confirm restore</button>
         <button type="button" class="button" @click="emit('cancelRestore')">Cancel restore</button>
+      </div>
+    </div>
+    <div v-if="deleteConfirmation" class="notice warning delete-confirmation" role="alert">
+      <p>Delete Version {{ deleteConfirmation.versionNumber }} permanently? Your draft and published content will stay unchanged.</p>
+      <div class="confirmation-actions">
+        <button type="button" class="button danger" :disabled="writePending || conflict" @click="emit('confirmDelete')">Confirm delete</button>
+        <button type="button" class="button" @click="emit('cancelDelete')">Cancel delete</button>
       </div>
     </div>
   </section>

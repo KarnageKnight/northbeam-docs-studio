@@ -38,6 +38,8 @@
   .button:hover { @apply bg-[#f1f4ee] no-underline; }
   .button.primary { @apply border-accent bg-accent text-black; }
   .button.primary:hover { @apply border-[#77a820] bg-[#77a820]; }
+  .button.danger { @apply border-red-200 text-red-800; }
+  .button.danger:hover { @apply bg-red-50; }
   .button:disabled { @apply border-[#e4e8de] bg-[#e4e8de] text-[#64705a]; }
   .button.quiet { @apply border-transparent bg-transparent; }
   .surface { @apply rounded-xl border border-[#dfe4da] bg-white shadow-xs; }

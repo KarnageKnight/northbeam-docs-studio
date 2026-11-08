@@ -1,13 +1,13 @@
 # Research: Northbeam Docs Studio
 
 **Date**: 2026-11-07
-**Status**: Research consolidated. The Phase 11 application passes build/typecheck,
-98 unit tests, and 112 PostgreSQL/HTTP cases on macOS arm64 with Linux containers.
+**Status**: Research consolidated. The Phase 12 application passes build/typecheck,
+98 unit tests, and 118 PostgreSQL/HTTP cases on macOS arm64 with Linux containers.
 Production Docker migrations/startup, restart idempotence, failure/interrupt cleanup, and
-overlap rejection were verified. Phases 1–10 are approved; [tabbed UI design](ui-design.md) is selected.
+overlap rejection were verified. Phases 1–11 are approved; [tabbed UI design](ui-design.md) is selected.
 Writer create/list/open, draft saving/restart persistence, safe Markdown preview, and
 two-tab save conflict/reload behavior are verified. Publish API atomicity and rollback/crash
-recovery and the writer Publish UI are verified. Phase 7 is approved. Phase 8 is approved. Phase 9 is approved. Phase 10 is approved. Phase 11 Restore API/browser checks pass; human phase approval is pending. Later lifecycle/UI
+recovery and the writer Publish UI are verified. Phase 7 is approved. Phase 8 is approved. Phase 9 is approved. Phase 10 is approved. Phase 11 is approved. Phase 12 deletion API/browser checks pass; human phase approval is pending. Later lifecycle/UI
 features and Windows/Linux host execution remain future verification.
 
 Public content is writer-published articles on any topic. Generic article wording is a
@@ -75,6 +75,15 @@ status CHECK rejection `23514`. The immutable-row trigger uses `55000`. Tests as
 observed outcomes. Future lifecycle operations still perform the approved business checks;
 constraint error handling must not assume all reference failures use the same SQLSTATE.
 See [PostgreSQL error codes](https://www.postgresql.org/docs/18/errcodes-appendix.html).
+
+## Writer browser identity
+
+The user selected `/writer/articles/:slug/edit` instead of the internal article UUID in
+browser links. Slugs are already unique and immutable. Keeping `/edit` distinguishes an
+article with slug `new` from `/writer/articles/new`, the creation form. The writer-only
+`GET /api/writer/articles/by-slug/:slug` returns the existing WriterArticle projection
+for every publication state. Its UUID remains the identity for lifecycle/history APIs
+and database relations; revision checks and public visibility are unchanged.
 
 ## API, validation, and errors
 
@@ -282,3 +291,19 @@ and shares response-baseline handling so newer local edits survive delayed succe
 Browser checks verify cancel/confirm, stale/missing/network recovery, subsequent explicit
 Save/Publish, unchanged public/history, and responsive controls without hydration/runtime
 errors. No new architecture choice, library, or database change was required.
+
+
+## Phase 12 deletion evidence
+
+Delete uses its approved article-first transaction without a caller revision. It checks
+owned snapshot existence and the locked current/retained reference, retaining the restrictive
+FK as protection. It never updates article fields/audits/counter; later publication uses
+the stored allocation instead of deriving it from remaining rows. Tests cover eligible/
+protected states, target validation, empty 204, unchanged public/article state, rollback,
+restart, and deleted-target inspection/Restore rejection.
+
+The history action follows existing confirmation/composable patterns, preserving local
+text and saved revision even during delayed responses. Browser checks verify labels,
+cancel/confirm, missing/protected/network recovery, number preservation, public isolation,
+and responsive controls without hydration/runtime errors. No new architecture or library
+was needed; coordinated lifecycle races remain in Phase 13.

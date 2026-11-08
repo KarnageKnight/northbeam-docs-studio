@@ -16,6 +16,11 @@ export async function getWriterArticle(id: string) {
   return article ? toWriterArticle(article) : null
 }
 
+export async function getWriterArticleBySlug(slug: string) {
+  const [article] = await db.select().from(articles).where(eq(articles.slug, slug))
+  return article ? toWriterArticle(article) : null
+}
+
 export async function listPublicArticles(): Promise<PublicSummary[]> {
   const rows = await db.select({
     slug: articles.slug, title: articleVersions.title, tags: articleVersions.tags, publishedAt: articles.publishedAt,

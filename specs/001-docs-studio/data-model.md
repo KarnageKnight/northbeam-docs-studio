@@ -18,8 +18,10 @@ history/reference/date/counter/draft, rollback, and republish are verified.
 History list/inspection reads are now verified with exact content, version-number ordering,
 ownership, unchanged article/snapshot/public state, and restart persistence. Restore now copies owned content into draft/revision/update time within the locked
 transaction, preserving publication/history/counter/date. Old/current/last-published and
-identical restores, target errors, rollback, and persistence are verified. Delete rules
-remain targets for later phases.
+identical restores, target errors, rollback, and persistence are verified. Eligible deletion
+now uses an article-first transaction without changing article/audit/counter/public state;
+retained references remain protected after unpublish. Rollback, restart, unavailable deleted
+targets, and later publication without number reuse are verified.
 
 Authority: [spec.md](spec.md), [plan.md](plan.md) P006–P075, and approved
 [assumptions](assumptions.md). API projections are defined in [the HTTP contract](contracts/http-api.md).
