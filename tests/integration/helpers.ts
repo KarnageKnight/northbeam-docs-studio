@@ -58,3 +58,32 @@ export async function waitForBlockedQuery(blockerPid: number) {
   }
   throw new Error('No database operation reached the lock barrier.')
 }
+
+export async function runContendingRequests(
+  articleId: string,
+  first: () => Promise<Response>,
+  second: () => Promise<Response>,
+) {
+  const controller = await pool.connect()
+  const requests: Promise<Response>[] = []
+  try {
+    await controller.query('BEGIN')
+    await controller.query('SELECT id FROM articles WHERE id=$1 FOR UPDATE', [articleId])
+    const { rows: [{ pid }] } = await controller.query('SELECT pg_backend_pid() AS pid')
+    requests.push(first())
+    const firstPid = await waitForBlockedQuery(pid)
+    requests.push(second())
+    // Observe the second transaction behind the first before releasing their shared row.
+    const secondPid = await waitForBlockedQuery(firstPid)
+    if (new Set([pid, firstPid, secondPid]).size !== 3) throw new Error('Contenders must use independent database connections.')
+    await controller.query('ROLLBACK')
+    return await Promise.all(requests)
+  }
+  finally {
+    try {
+      await controller.query('ROLLBACK')
+      await Promise.allSettled(requests)
+    }
+    finally { controller.release() }
+  }
+}

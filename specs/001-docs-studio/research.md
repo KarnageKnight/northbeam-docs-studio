@@ -1,14 +1,15 @@
 # Research: Northbeam Docs Studio
 
 **Date**: 2026-11-07
-**Status**: Research consolidated. The Phase 12 application passes build/typecheck,
-98 unit tests, and 118 PostgreSQL/HTTP cases on macOS arm64 with Linux containers.
+**Status**: Research consolidated. The Phase 13 application passes build/typecheck,
+98 unit tests, and 131 PostgreSQL/HTTP cases on macOS arm64 with Linux containers.
 Production Docker migrations/startup, restart idempotence, failure/interrupt cleanup, and
-overlap rejection were verified. Phases 1–11 are approved; [tabbed UI design](ui-design.md) is selected.
+overlap rejection were verified. Phases 1–12 are approved; [tabbed UI design](ui-design.md) is selected.
 Writer create/list/open, draft saving/restart persistence, safe Markdown preview, and
 two-tab save conflict/reload behavior are verified. Publish API atomicity and rollback/crash
-recovery and the writer Publish UI are verified. Phase 7 is approved. Phase 8 is approved. Phase 9 is approved. Phase 10 is approved. Phase 11 is approved. Phase 12 deletion API/browser checks pass; human phase approval is pending. Later lifecycle/UI
-features and Windows/Linux host execution remain future verification.
+recovery and the writer Publish UI are verified. Phase 7 is approved. Phase 8 is approved. Phase 9 is approved. Phase 10 is approved. Phase 11 is approved. Phase 12 deletion and writer slug URLs are approved. Phase 13 coordinated lifecycle races
+and two-tab rejection/reload checks pass; human phase approval is pending. Later acceptance
+audits and Windows/Linux host execution remain future verification.
 
 Public content is writer-published articles on any topic. Generic article wording is a
 confirmed product clarification, with no change to lifecycle behavior or architecture.
@@ -306,4 +307,22 @@ The history action follows existing confirmation/composable patterns, preserving
 text and saved revision even during delayed responses. Browser checks verify labels,
 cancel/confirm, missing/protected/network recovery, number preservation, public isolation,
 and responsive controls without hydration/runtime errors. No new architecture or library
-was needed; coordinated lifecycle races remain in Phase 13.
+was needed; coordinated lifecycle races were subsequently verified in Phase 13 below.
+
+
+## Phase 13 concurrency evidence
+
+The existing suites now verify shared rejection behavior and nine deterministic overlap
+cases using the approved PostgreSQL row-lock/independent-connection approach. The test-only
+controller holds the article row; actual blocking and three distinct backend PIDs establish
+request order and overlap before release. No application hook or timing-only race was added.
+Same-revision contenders produce exactly one success and one stale conflict. Publish/delete
+and restore/delete follow both serialized orders while preserving ownership, snapshots,
+public isolation, first dates, counters, revisions, and audit values. All requests finish
+before fixture reset and barriers are released in cleanup.
+
+Four two-tab Chrome cases preserve input typed while stale responses are paused, prove no
+automatic write retry or SQL/public mutation, and verify reload cancel/confirm followed by
+explicit resubmission. No runtime/hydration errors occurred. Full suite: 98 unit + 131
+PostgreSQL/HTTP cases; build and typechecks pass. No production or architectural change was
+needed. Phase 13 awaits human approval; later phases remain unstarted.

@@ -1,12 +1,24 @@
 import { randomUUID } from 'node:crypto'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import { appUrl, pool, resetDatabase, restartApp, startApp, stopApp, waitForBlockedQuery } from './helpers'
+import { appUrl, pool, resetDatabase, restartApp, runContendingRequests, startApp, stopApp, waitForBlockedQuery } from './helpers'
 
 const writerUrl = `${appUrl}/api/writer/articles`
 const input = { title: '  Finding inspiration  ', slug: ' Finding-Inspiration ' }
 
 function createDraft(body: unknown = input) {
   return fetch(writerUrl, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+  })
+}
+
+function save(id: string, body: unknown) {
+  return fetch(`${writerUrl}/${id}/draft`, {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+  })
+}
+
+function publish(id: string, body: unknown) {
+  return fetch(`${writerUrl}/${id}/publish`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
   })
 }
@@ -21,6 +33,21 @@ function restore(id: string, body: unknown, versionId: string = randomUUID()) {
   return fetch(`${writerUrl}/${id}/versions/${versionId}/restore`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
   })
+}
+
+function deleteVersion(articleId: string, versionId: string) {
+  return fetch(`${writerUrl}/${articleId}/versions/${versionId}`, { method: 'DELETE' })
+}
+
+async function readState() {
+  const articles = (await pool.query('SELECT * FROM articles ORDER BY id')).rows
+  const versions = (await pool.query('SELECT * FROM article_versions ORDER BY article_id, version_number')).rows
+  const publicList = await (await fetch(`${appUrl}/api/public/articles`)).json()
+  const publicDetails = await Promise.all(articles.map(async (article) => {
+    const response = await fetch(`${appUrl}/api/public/articles/${article.slug}`)
+    return { status: response.status, body: await response.json() }
+  }))
+  return { articles, versions, publicList, publicDetails }
 }
 
 beforeAll(startApp)
@@ -197,9 +224,6 @@ describe('list and open saved drafts', () => {
 
 describe('save a complete draft', () => {
   const draft = { title: '  Updated title  ', body: '  # Updated words\n', tags: [' Ideas ', 'ideas', 'life'] }
-  const save = (id: string, body: unknown) => fetch(`${writerUrl}/${id}/draft`, {
-    method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
-  })
 
   it('saves and reopens content after restart without creating history', async () => {
     const article = await (await createDraft()).json()
@@ -216,16 +240,19 @@ describe('save a complete draft', () => {
     expect((await pool.query('SELECT * FROM article_versions')).rows).toEqual([])
   })
 
-  it('advances unchanged saves and rejects stale saves without changing any data', async () => {
-    const article = await (await createDraft()).json()
-    const response = await save(article.id, { ...article.draft, expectedRevision: 0 })
+  it('advances unchanged saves and rejects every stale lifecycle action without changing stored or public state', async () => {
+    const article = await (await createDraft({ ...input, body: 'Published words' })).json()
+    expect((await publish(article.id, { expectedRevision: 0 })).status).toBe(200)
+    const response = await save(article.id, { ...article.draft, expectedRevision: 1 })
     expect(response.status).toBe(200)
-    expect((await response.json()).revision).toBe(1)
-    const before = (await pool.query('SELECT * FROM articles')).rows
-    const stale = await save(article.id, { ...draft, expectedRevision: 0 })
-    expect(stale.status).toBe(409)
-    expect((await stale.json()).data.code).toBe('STALE_REVISION')
-    expect((await pool.query('SELECT * FROM articles')).rows).toEqual(before)
+    expect((await response.json()).revision).toBe(2)
+    const before = await readState()
+    for (const action of [save, publish, unpublish, restore]) {
+      const stale = await action(article.id, action === save ? { ...draft, expectedRevision: 1 } : { expectedRevision: 1 })
+      expect(stale.status).toBe(409)
+      expect((await stale.json()).data.code).toBe('STALE_REVISION')
+      expect(await readState()).toEqual(before)
+    }
   })
 
   it.each(['published', 'unpublished'])('keeps %s snapshot, reference, date, and counters unchanged', async (status) => {
@@ -278,7 +305,7 @@ describe('save a complete draft', () => {
     try {
       const failed = await save(article.id, { ...draft, expectedRevision: 0 })
       expect(failed.status).toBe(500)
-      expect(await failed.text()).not.toContain('private save detail')
+      expect(await failed.text()).not.toMatch(/private save detail|UPDATE.*articles|stack|23505|55000/i)
       expect((await pool.query('SELECT * FROM articles')).rows).toEqual(before)
     }
     finally { await pool.query('DROP TRIGGER fail_test_save ON articles; DROP FUNCTION fail_test_save()') }
@@ -288,9 +315,6 @@ describe('save a complete draft', () => {
 
 
 describe('publish saved content', () => {
-  const publish = (id: string, body: unknown) => fetch(`${writerUrl}/${id}/publish`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
-  })
 
   it('atomically publishes saved content, keeps immutable snapshots, and preserves the first date on republish', async () => {
     const article = await (await createDraft({ ...input, body: '  # Saved words\n', tags: [' Ideas ', 'life'] })).json()
@@ -344,12 +368,14 @@ describe('publish saved content', () => {
   it.each(['', ' \n\t', '\u2003'])('rejects a blank saved body %j, but checks stale revision first', async (body) => {
     const article = await (await createDraft({ ...input, body })).json()
     const before = (await pool.query('SELECT * FROM articles')).rows
+    const beforeState = await readState()
     const invalid = await publish(article.id, { expectedRevision: 0 })
     expect(invalid.status).toBe(400)
     expect((await invalid.json()).data).toMatchObject({ code: 'VALIDATION_ERROR', fieldErrors: { body: expect.any(Array) } })
     const stale = await publish(article.id, { expectedRevision: 1 })
     expect(stale.status).toBe(409)
     expect((await stale.json()).data.code).toBe('STALE_REVISION')
+    expect(await readState()).toEqual(beforeState)
     expect((await pool.query('SELECT * FROM articles')).rows).toEqual(before)
     expect((await pool.query('SELECT * FROM article_versions')).rows).toEqual([])
   })
@@ -365,38 +391,44 @@ describe('publish saved content', () => {
     expect((await pool.query('SELECT * FROM article_versions')).rows).toEqual([])
   })
 
-  it.each([{}, { expectedRevision: null }, { expectedRevision: '0' }, { expectedRevision: -1 }, { expectedRevision: 0.5 }, { expectedRevision: Number.MAX_SAFE_INTEGER + 1 }, { expectedRevision: 0, title: 'Browser text' }])(
+  it.each([{}, { expectedRevision: null }, { expectedRevision: '0' }, { expectedRevision: -1 }, { expectedRevision: 0.5 }, { expectedRevision: Number.MAX_SAFE_INTEGER + 1 }, { expectedRevision: false }, { expectedRevision: {} }, { expectedRevision: 0, extra: true }, { expectedRevision: 0, title: 'Browser text' }])(
     'rejects invalid publication action payloads before lookup (case %#)', async (body) => {
-      for (const action of [publish, unpublish, restore]) {
-        const response = await action(randomUUID(), body)
-        expect(response.status).toBe(400)
-        expect((await response.json()).data.code).toBe('VALIDATION_ERROR')
+      const article = await (await createDraft({ ...input, body: 'Saved words' })).json()
+      const published = await (await publish(article.id, { expectedRevision: 0 })).json()
+      const before = await readState()
+      const actions = 'title' in body ? [publish, unpublish, restore] : [save, publish, unpublish, restore]
+      for (const action of actions) {
+        const payload = action === save ? { ...published.draft, ...body } : body
+        for (const id of [article.id, randomUUID()]) {
+          const response = await action(id, payload)
+          expect(response.status).toBe(400)
+          expect((await response.json()).data.code).toBe('VALIDATION_ERROR')
+          expect(await readState()).toEqual(before)
+        }
       }
-      expect((await pool.query('SELECT * FROM articles')).rows).toEqual([])
-      expect((await pool.query('SELECT * FROM article_versions')).rows).toEqual([])
     },
   )
 
   it('distinguishes malformed/missing IDs, validates JSON, and rejects safe but stale revisions without mutation', async () => {
     const article = await (await createDraft({ ...input, body: 'Words' })).json()
-    const before = (await pool.query('SELECT * FROM articles')).rows
+    const before = await readState()
     for (const [id, revision, status, code] of [
       ['invalid', 0, 400, 'VALIDATION_ERROR'], [randomUUID(), 0, 404, 'ARTICLE_NOT_FOUND'],
       [article.id, Number.MAX_SAFE_INTEGER, 409, 'STALE_REVISION'],
     ] as const) {
-      for (const action of [publish, unpublish, restore]) {
-        const response = await action(id, { expectedRevision: revision })
+      for (const action of [save, publish, unpublish, restore]) {
+        const response = await action(id, action === save ? { ...article.draft, expectedRevision: revision } : { expectedRevision: revision })
         expect(response.status).toBe(status)
         expect((await response.json()).data.code).toBe(code)
+        expect(await readState()).toEqual(before)
       }
     }
-    for (const action of ['publish', 'unpublish', `versions/${randomUUID()}/restore`]) {
-      const malformed = await fetch(`${writerUrl}/${article.id}/${action}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{' })
+    for (const action of ['draft', 'publish', 'unpublish', `versions/${randomUUID()}/restore`]) {
+      const malformed = await fetch(`${writerUrl}/${article.id}/${action}`, { method: action === 'draft' ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: '{' })
       expect(malformed.status).toBe(400)
       expect((await malformed.json()).data.code).toBe('VALIDATION_ERROR')
     }
-    expect((await pool.query('SELECT * FROM articles')).rows).toEqual(before)
-    expect((await pool.query('SELECT * FROM article_versions')).rows).toEqual([])
+    expect(await readState()).toEqual(before)
   })
 
   it.each([false, true])('rolls back publication after snapshot insertion (previously published: %s)', async (alreadyPublished) => {
@@ -631,10 +663,12 @@ describe('unpublish while retaining publication history', () => {
     }
     const before = (await pool.query('SELECT * FROM articles')).rows
     const snapshots = (await pool.query('SELECT * FROM article_versions')).rows
+    const beforeState = await readState()
     for (const [token, code] of [[revision, 'INVALID_PUBLICATION_STATE'], [revision + 1, 'STALE_REVISION']] as const) {
       const response = await unpublish(article.id, { expectedRevision: token })
       expect(response.status).toBe(409)
       expect((await response.json()).data.code).toBe(code)
+      expect(await readState()).toEqual(beforeState)
     }
     expect((await pool.query('SELECT * FROM articles')).rows).toEqual(before)
     expect((await pool.query('SELECT * FROM article_versions')).rows).toEqual(snapshots)
@@ -651,7 +685,7 @@ describe('unpublish while retaining publication history', () => {
     try {
       const failed = await unpublish(article.id, { expectedRevision: 1 })
       expect(failed.status).toBe(500)
-      expect(await failed.text()).not.toContain('private unpublish detail')
+      expect(await failed.text()).not.toMatch(/private unpublish detail|UPDATE.*articles|stack|23505|55000/i)
       expect((await pool.query('SELECT * FROM articles')).rows).toEqual(before)
       expect((await pool.query('SELECT * FROM article_versions')).rows).toEqual(snapshots)
       expect((await fetch(`${appUrl}/api/public/articles/${article.slug}`)).status).toBe(200)
@@ -788,12 +822,14 @@ describe('restore snapshot into draft', () => {
     const published = await (await fetch(`${writerUrl}/${other.id}/publish`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ expectedRevision: 0 }) })).json()
     const before = (await pool.query('SELECT * FROM articles ORDER BY id')).rows
     const snapshots = (await pool.query('SELECT * FROM article_versions')).rows
+    const beforeState = await readState()
     for (const versionId of [randomUUID(), published.currentPublishedVersionId]) {
       for (const [revision, code] of [[0, 'SNAPSHOT_NOT_FOUND'], [1, 'STALE_REVISION']] as const) {
         const response = await restore(article.id, { expectedRevision: revision }, versionId)
         expect(response.status).toBe(code === 'SNAPSHOT_NOT_FOUND' ? 404 : 409)
         const error = await response.json()
         expect(error.data.code).toBe(code)
+        expect(await readState()).toEqual(beforeState)
         expect(JSON.stringify(error)).not.toContain('Private other snapshot')
       }
     }
@@ -818,7 +854,7 @@ describe('restore snapshot into draft', () => {
     try {
       const failed = await restore(article.id, { expectedRevision: 2 }, published.currentPublishedVersionId)
       expect(failed.status).toBe(500)
-      expect(await failed.text()).not.toContain('private restore detail')
+      expect(await failed.text()).not.toMatch(/private restore detail|UPDATE.*articles|stack|23505|55000/i)
       expect((await pool.query('SELECT * FROM articles')).rows).toEqual(before)
       expect((await pool.query('SELECT * FROM article_versions')).rows).toEqual(snapshots)
       expect(await (await fetch(`${appUrl}/api/public/articles/${article.slug}`)).json()).toEqual(live)
@@ -832,7 +868,6 @@ describe('restore snapshot into draft', () => {
 
 
 describe('delete eligible snapshot history', () => {
-  const deleteVersion = (articleId: string, versionId: string) => fetch(`${writerUrl}/${articleId}/versions/${versionId}`, { method: 'DELETE' })
 
   it.each(['published', 'unpublished'])('deletes eligible history without changing %s article/public state or reusing version numbers', async (state) => {
     const article = await (await createDraft({ ...input, body: 'Published words', tags: ['saved'] })).json()
@@ -939,5 +974,134 @@ describe('delete eligible snapshot history', () => {
     expect(recovered.status).toBe(204)
     expect(await recovered.text()).toBe('')
     expect((await pool.query('SELECT * FROM articles')).rows).toEqual(before)
+  })
+})
+
+
+describe('coordinated lifecycle contention', () => {
+  it.each([
+    ['save', 'save'], ['publish', 'save'], ['save', 'publish'],
+    ['unpublish', 'restore'], ['restore', 'unpublish'],
+  ] as const)('serializes same-revision %s then %s with one success and one stale rejection', async (winner, loser) => {
+    const article = await (await createDraft({ ...input, body: 'Snapshot words', tags: ['live'] })).json()
+    const published = await (await publish(article.id, { expectedRevision: 0 })).json()
+    const baseline = { title: 'Saved baseline', body: 'Baseline draft words', tags: ['draft'] }
+    expect((await save(article.id, { ...baseline, expectedRevision: 1 })).status).toBe(200)
+    const before = await readState()
+    const candidate = (title: string) => ({ title, body: `${title} words`, tags: ['candidate'] })
+    const actions = {
+      save: (title: string) => save(article.id, { ...candidate(title), expectedRevision: 2 }),
+      publish: () => publish(article.id, { expectedRevision: 2 }),
+      unpublish: () => unpublish(article.id, { expectedRevision: 2 }),
+      restore: () => restore(article.id, { expectedRevision: 2 }, published.currentPublishedVersionId),
+    }
+    const [success, stale] = await runContendingRequests(article.id,
+      () => actions[winner]('Winning draft'), () => actions[loser]('Losing draft'))
+    expect(success.status).toBe(200)
+    const saved = await success.json()
+    expect(stale.status).toBe(409)
+    expect((await stale.json()).data.code).toBe('STALE_REVISION')
+    const after = await readState()
+    const draft = winner === 'save' ? candidate('Winning draft') : winner === 'restore' ? article.draft : baseline
+    expect(saved).toEqual({
+      ...published, draft, revision: 3, status: winner === 'unpublish' ? 'unpublished' : 'published',
+      currentPublishedVersionId: winner === 'publish' ? expect.any(String) : published.currentPublishedVersionId,
+    })
+    expect(after.articles).toEqual([{
+      ...before.articles[0], draft_title: draft.title, draft_body: draft.body, draft_tags: draft.tags,
+      revision: 3, status: saved.status, current_published_version_id: saved.currentPublishedVersionId,
+      next_version_number: winner === 'publish' ? 3 : 2, updated_at: expect.any(Date),
+    }])
+    expect(after.articles[0].updated_at.getTime()).toBeGreaterThan(before.articles[0].updated_at.getTime())
+    expect(after.versions.slice(0, 1)).toEqual(before.versions)
+    if (winner === 'publish') {
+      expect(after.versions).toHaveLength(2)
+      expect(after.versions[1]).toEqual({
+        id: saved.currentPublishedVersionId, article_id: article.id, version_number: 2,
+        title: baseline.title, body: baseline.body, tags: baseline.tags, created_at: after.articles[0].updated_at,
+      })
+      expect(after.publicDetails).toEqual([{ status: 200, body: { ...baseline, slug: article.slug, publishedAt: published.publishedAt } }])
+      expect(after.publicList).toEqual([{ slug: article.slug, title: baseline.title, tags: baseline.tags, publishedAt: published.publishedAt }])
+    }
+    else {
+      expect(after.versions).toEqual(before.versions)
+      if (winner === 'unpublish') {
+        expect(after.publicList).toEqual([])
+        expect(after.publicDetails[0].status).toBe(404)
+        expect(after.publicDetails[0].body.data.code).toBe('ARTICLE_NOT_FOUND')
+      }
+      else {
+        expect(after.publicList).toEqual(before.publicList)
+        expect(after.publicDetails).toEqual(before.publicDetails)
+      }
+    }
+  })
+
+
+  it.each([true, false])('serializes publish/delete in both orders (publish first: %s)', async (publishFirst) => {
+    const article = await (await createDraft({ ...input, body: 'Original snapshot', tags: ['old'] })).json()
+    const first = await (await publish(article.id, { expectedRevision: 0 })).json()
+    const draft = { title: 'Next publication', body: 'New live words', tags: ['next'] }
+    expect((await save(article.id, { ...draft, expectedRevision: 1 })).status).toBe(200)
+    const before = await readState()
+    const publishing = () => publish(article.id, { expectedRevision: 2 })
+    const deleting = () => deleteVersion(article.id, first.currentPublishedVersionId)
+    const responses = await runContendingRequests(article.id,
+      publishFirst ? publishing : deleting, publishFirst ? deleting : publishing)
+    const publication = responses[publishFirst ? 0 : 1]
+    const deletion = responses[publishFirst ? 1 : 0]
+    expect(publication.status).toBe(200)
+    const published = await publication.json()
+    expect(deletion.status).toBe(publishFirst ? 204 : 409)
+    if (publishFirst) expect(await deletion.text()).toBe('')
+    else expect((await deletion.json()).data.code).toBe('SNAPSHOT_PROTECTED')
+    expect(published).toEqual({ ...first, draft, revision: 3, currentPublishedVersionId: expect.any(String) })
+    const after = await readState()
+    expect(after.articles).toEqual([{
+      ...before.articles[0], revision: 3, next_version_number: 3,
+      current_published_version_id: published.currentPublishedVersionId, updated_at: expect.any(Date),
+    }])
+    expect(after.articles[0].updated_at.getTime()).toBeGreaterThan(before.articles[0].updated_at.getTime())
+    expect(after.versions.filter(version => version.id === first.currentPublishedVersionId)).toEqual(publishFirst ? [] : before.versions)
+    expect(after.versions).toHaveLength(publishFirst ? 1 : 2)
+    expect(after.versions.at(-1)).toEqual({
+      id: published.currentPublishedVersionId, article_id: article.id, version_number: 2,
+      title: draft.title, body: draft.body, tags: draft.tags, created_at: after.articles[0].updated_at,
+    })
+    expect(after.publicDetails).toEqual([{ status: 200, body: { ...draft, slug: article.slug, publishedAt: first.publishedAt } }])
+    expect(after.publicList).toEqual([{ slug: article.slug, title: draft.title, tags: draft.tags, publishedAt: first.publishedAt }])
+  })
+
+  it.each([true, false])('serializes restore/delete in both orders (restore first: %s)', async (restoreFirst) => {
+    const article = await (await createDraft({ ...input, body: 'Historical words', tags: ['historical'] })).json()
+    const first = await (await publish(article.id, { expectedRevision: 0 })).json()
+    expect((await save(article.id, { title: 'Live title', body: 'Live words', tags: ['live'], expectedRevision: 1 })).status).toBe(200)
+    const live = await (await publish(article.id, { expectedRevision: 2 })).json()
+    expect((await save(article.id, { title: 'Local title', body: 'Local words', tags: ['local'], expectedRevision: 3 })).status).toBe(200)
+    const before = await readState()
+    const restoring = () => restore(article.id, { expectedRevision: 4 }, first.currentPublishedVersionId)
+    const deleting = () => deleteVersion(article.id, first.currentPublishedVersionId)
+    const responses = await runContendingRequests(article.id,
+      restoreFirst ? restoring : deleting, restoreFirst ? deleting : restoring)
+    const restoration = responses[restoreFirst ? 0 : 1]
+    const deletion = responses[restoreFirst ? 1 : 0]
+    expect(deletion.status).toBe(204)
+    expect(await deletion.text()).toBe('')
+    expect(restoration.status).toBe(restoreFirst ? 200 : 404)
+    if (restoreFirst) {
+      expect(await restoration.json()).toEqual({ ...live, draft: article.draft, revision: 5 })
+    }
+    else expect((await restoration.json()).data.code).toBe('SNAPSHOT_NOT_FOUND')
+    const after = await readState()
+    expect(after.articles).toEqual(restoreFirst ? [{
+      ...before.articles[0], draft_title: article.draft.title, draft_body: article.draft.body,
+      draft_tags: article.draft.tags, revision: 5, updated_at: expect.any(Date),
+    }] : before.articles)
+    if (restoreFirst) expect(after.articles[0].updated_at.getTime()).toBeGreaterThan(before.articles[0].updated_at.getTime())
+    expect(after.versions).toEqual(before.versions.filter(version => version.id !== first.currentPublishedVersionId))
+    expect(after.versions).toHaveLength(1)
+    expect(after.versions[0].id).toBe(live.currentPublishedVersionId)
+    expect(after.publicList).toEqual(before.publicList)
+    expect(after.publicDetails).toEqual(before.publicDetails)
   })
 })

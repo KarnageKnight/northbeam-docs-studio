@@ -2,9 +2,9 @@
 
 **Feature**: `001-docs-studio` | **Date**: 2026-11-07 | **Spec**: [spec.md](spec.md)
 
-**Status**: Phases 1–11 approved. The user selected the Write/Preview tabbed UI design in
-[ui-design.md](ui-design.md); T035 is complete. Phase 12 snapshot deletion is implemented and verified,
-pending human approval. Phase 13 and later work have not started. The spec-first checkpoint was verified before
+**Status**: Phases 1–12 approved. The user selected the Write/Preview tabbed UI design in
+[ui-design.md](ui-design.md); T035 is complete. Phase 12 snapshot deletion and writer slug routes are implemented, verified, and approved.
+Phase 13 rejection and independent-connection concurrency evidence is verified, pending human approval. Phase 14 and later work have not started. The spec-first checkpoint was verified before
 code without git commands. The feature identifier is `001-docs-studio`; it does not establish
 a git branch name. Individual architecture decisions P001–P077 remain authoritative.
 
@@ -114,11 +114,11 @@ execution evidence follows implementation.
 
 | Principle | Planning obligation | Current status |
 | --- | --- | --- |
-| I. Specification before implementation | Complete and review spec, plan, and tasks before code; human records git checkpoint. | Spec, design, tasks, and analysis recorded; the spec-first checkpoint was verified before the authorized Phase 1 implementation. Phases 1–11 approved; Write/Preview tabs selected. |
+| I. Specification before implementation | Complete and review spec, plan, and tasks before code; human records git checkpoint. | Spec, design, tasks, and analysis recorded; the spec-first checkpoint was verified before the authorized Phase 1 implementation. Phases 1–12 approved; Write/Preview tabs selected. |
 | II. Draft and snapshot isolation | Public reads use live snapshots; immutable history and referenced-snapshot protection. | Data model and contracts specify table separation, immutable-row trigger, owned reference, and retained-reference deletion protection. |
 | III. Atomic lifecycle and concurrency | Transactional publication and revision checks; no partial state or stale overwrites. | Contracts specify article-first locking, revision-before-eligibility ordering, transactional allocation, rollback, and SQL constraints. |
-| IV. Database-backed evidence | Real PostgreSQL lifecycle/failure/race tests; passing build and suite once scaffolded. | Quickstart maps invariants to real HTTP/SQL evidence, independent connections, rollback and restart checks. Build/typecheck, 98 unit cases, and 118 real PostgreSQL/HTTP cases pass, including publication, post-insert failure/crash rollback, restart, and safe rendering. Remaining lifecycle/race evidence follows its feature tasks. |
-| V. Small reviewable changes | Small scoped tasks, verification, explanation, human review, and no AI commits. | Implement one small task at a time; keep subsequent tasks separate unless explicitly requested together. Leave changes for human review and approval. T001–T017/T022–T025/T036–T039 verified; T035 approved; Phases 1–11 approved and Phase 12 review pending. |
+| IV. Database-backed evidence | Real PostgreSQL lifecycle/failure/race tests; passing build and suite once scaffolded. | Quickstart maps invariants to real HTTP/SQL evidence, independent connections, rollback and restart checks. Build/typecheck, 98 unit cases, and 131 real PostgreSQL/HTTP cases pass, including observed independent-connection contention, both delete-race orders, post-insert failure/crash rollback, restart, and safe rendering. Final acceptance/platform audits remain. |
+| V. Small reviewable changes | Small scoped tasks, verification, explanation, human review, and no AI commits. | Implement one small task at a time; keep subsequent tasks separate unless explicitly requested together. Leave changes for human review and approval. T001–T020/T022–T025/T036–T039 verified; T035 approved; Phases 1–12 approved and Phase 13 review pending. |
 | VI. Human architecture decisions | Present alternatives and record each human selection before dependent work. | P001–P077 record selections and rationale; consolidated artifacts await final human review. |
 | VII. Consistent patterns | Establish approved patterns and reuse them across implementation tasks. | UI/service contract fixes shared validation, handlers/errors, transaction helper, data access, renderer, and local-state patterns. |
 
@@ -152,8 +152,8 @@ Generated design artifacts:
 - [quickstart.md](quickstart.md): verified foundation commands and future feature acceptance procedures.
 
 [tasks.md](tasks.md) contains 39 dependency-ordered tasks across all 14 stories, with
-verification and human review gates. T001–T017, T022–T025, and T035–T039 are verified
-and checked (26 tasks); Phases 1–11 are approved. Phase 12 review is pending; later tasks have not started.
+verification and human review gates. T001–T020, T022–T025, and T035–T039 are verified
+and checked (29 tasks); Phases 1–12 are approved. Phase 13 review is pending; later tasks have not started.
 
 ### UI design review before page implementation
 
@@ -2155,7 +2155,7 @@ resources were preserved. The temporary validation project was removed after che
 Port 3000 was already occupied; the validation app used a temporary loopback-3300 override.
 The committed default is loopback 3000. Windows/Linux host execution, lifecycle operations,
 concurrency races, and later feature UI remain unverified/unimplemented. Phases 1–3 are approved;
-Write/Preview tabs are the selected UI design; Phases 1–11 are approved and Phase 12 awaits human review. See [README.md](../../README.md) for current commands.
+Write/Preview tabs are the selected UI design; Phases 1–12 are approved and Phase 13 awaits human review. See [README.md](../../README.md) for current commands.
 
 ## Entry chooser requested during Phase 4 review
 
@@ -2420,4 +2420,29 @@ missing/protected/network feedback and recovery, counter preservation, and 320/3
 controls with 44px targets. No runtime/hydration errors occurred. Pinned-type audit: 46
 files/nine Vue scripts, no findings. Disposable resources were removed; normal resources
 were preserved. No schema, migration, dependency, architecture, or renderer policy changed.
-Phase 12 awaits review; Phase 13 coordinated concurrency evidence remains unstarted.
+Phase 12 was subsequently approved by the user; Phase 13 evidence is recorded below.
+
+
+## Phase 13 verification evidence
+
+T018 extends existing request/rejection cases across Save/Publish/Unpublish/Restore,
+including complete SQL/audit/history/public comparisons, large safe stale revisions,
+strict payloads, revision-before-eligibility ordering, and sanitized production failures.
+Existing unit validation already covers the required token domain and needed no duplicate cases.
+
+T019/T020 add nine coordinated overlap cases to the existing HTTP integration suite.
+A controller connection holds the article row; the helper observes the first HTTP backend
+blocked on it and the second queued behind the first, verifies three distinct PIDs, then
+releases the row. Both requests settle before reset; cleanup releases barriers on failure.
+Save/save, publish/save in both orders, and unpublish/restore in both orders give one
+success and one stale conflict with exactly one revision advance. Publish/delete and
+restore/delete cover both serialized outcomes, preserving owned references, publication
+dates, snapshot contents, counters, audits, and public isolation without deadlock/partial state.
+
+Two real Chrome tabs verify all four stale actions, text entered while the 409 response
+is paused, unchanged SQL/public state, no automatic write retry, reload cancel/confirm,
+and successful explicit resubmission. No runtime or hydration errors occurred.
+Nuxt/test typechecks, production build, and full suite pass: 98 unit + 131 PostgreSQL/HTTP
+cases (229 total). No application code, API, schema, migration, dependency, architecture,
+or Markdown policy changed. Disposable resources were removed; normal resources were
+preserved. Phase 13 awaits human review; Phase 14 remains unstarted.

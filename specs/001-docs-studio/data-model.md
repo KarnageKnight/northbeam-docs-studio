@@ -150,6 +150,12 @@ one statement. Title/body/tags come from snapshots; publication date comes from 
 Default Read Committed statement snapshots and immutable content suffice for these reads;
 public reads do not take lifecycle write locks.
 
+Phase 13 verifies these invariants under nine observed independent-connection overlaps:
+same-revision contenders advance revision exactly once, and publish/delete and restore/delete
+preserve ownership, current references, dates, counters, audits, snapshots, and public isolation
+in both serialized orders. No schema or migration change was needed; full evidence is in
+[quickstart.md](quickstart.md).
+
 Phase 2 verification proves schema defaults/nullability, unique/status/ownership/reference
 constraints, update-rejecting triggers, migration application/idempotence, and reset/journal
 isolation against PostgreSQL 18.6. Lifecycle atomicity, rollback, races, and complete
