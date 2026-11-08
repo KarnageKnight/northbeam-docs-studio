@@ -8,7 +8,9 @@ editor state patterns. Public list and detail APIs/types/pages are implemented i
 7–8. Detail reuses MarkdownContent and native Nuxt fetching/status helpers. Phase 9 Unpublish
 uses the existing transaction/editor/action patterns while always retaining the local
 buffer. Phase 10 adds newest-first history and read-only snapshot inspection through the
-existing composable/component/query boundaries. Restore/Delete remain target contracts.
+existing composable/component/query boundaries. Phase 11 Restore uses the locked revision
+transaction and inspected-history action, with named dirty-buffer confirmation and no
+implicit publication. Delete remains a target contract.
 
 Use the approved [HTTP contract](http-api.md), [data model](../data-model.md), and
 [plan](../plan.md). These interfaces derive from the selected thin-handler, function,

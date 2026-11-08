@@ -3,9 +3,9 @@
 An article-publishing application for writing on any topic. Public readers see articles
 explicitly published by writers.
 
-Phase 10 adds read-only version history to the writer workspace. Phases 1–9 are approved;
-Phase 10 is verified and awaits human review.
-Restore and deletion remain in later phases of
+Phase 11 adds Restore into draft from inspected version history. Phases 1–10 are approved;
+Phase 11 is verified and awaits human review.
+Snapshot deletion remains in a later phase of
 [tasks.md](specs/001-docs-studio/tasks.md).
 
 ## Run with Docker
@@ -100,7 +100,8 @@ live snapshot until the next explicit Publish. **Unpublish** is available while 
 even with local edits: it removes public access without saving or discarding those edits.
 Status changes to Unpublished while the last snapshot reference and first date remain.
 Version history below the editor lists published snapshots newest first; Inspect loads
-read-only content separately from local edits. Restore/Delete controls arrive later.
+read-only content separately from local edits. Restore into draft is available for any
+retained owned version; Delete arrives later.
 The **Public** choice opens the published article list at `/`. The chooser appears on fresh root-page visits, keeps the choice during client
 navigation, and leaves direct writer links uninterrupted. Escape dismisses to Public.
 There is no separate “Open writer workspace” landing page or persistent role selection.
@@ -109,7 +110,8 @@ Current API: `POST /api/writer/articles`, `GET /api/writer/articles`,
 `GET /api/writer/articles/:articleId`, `PUT /api/writer/articles/:articleId/draft`,
 `POST /api/writer/articles/:articleId/publish`, `POST /api/writer/articles/:articleId/unpublish`,
 `GET /api/public/articles`, `GET /api/public/articles/:slug`, `GET /api/writer/articles/:articleId/versions`, and
-`GET /api/writer/articles/:articleId/versions/:versionId`.
+`GET /api/writer/articles/:articleId/versions/:versionId`, and
+`POST /api/writer/articles/:articleId/versions/:versionId/restore`.
 A save requires complete `title`, `body`, `tags`, and `expectedRevision`; it returns the
 updated WriterArticle. Publish and Unpublish accept only `expectedRevision` and return WriterArticle.
 See the [HTTP contract](specs/001-docs-studio/contracts/http-api.md).
@@ -150,6 +152,17 @@ Drafts without publications show No published versions yet. Refresh history and 
 list/inspection retry feedback are provided; Publish refreshes the list automatically.
 Neither inspection nor refresh changes revisions, stored content, or public visibility.
 
+
+## Restore into draft
+
+Inspect a snapshot, then choose Restore into draft. If local edits are unsaved, the inline
+prompt names the version and offers Confirm restore or Cancel restore. Success loads the
+snapshot's title/body/tags into the saved draft and advances revision, including identical
+restores. It never publishes or changes history, live reference, first date, or counter.
+Current and last-published snapshots can also be restored. Errors preserve local text;
+conflicts require explicit reload/resubmission. New text typed while a restore response
+is pending stays local and unsaved. Publish remains a separate deliberate action.
+
 ## Verify
 
 Development verification requires the pinned Node/pnpm versions. The full suite and
@@ -184,7 +197,7 @@ Reviewers are not required to execute tests.
 
 Verified on macOS arm64 on 2026-11-07:
 
-- 98 unit tests for title/create/save/publish validation and safe Markdown; 108 real PostgreSQL/HTTP integration tests.
+- 98 unit tests for title/create/save/publish validation and safe Markdown; 112 real PostgreSQL/HTTP integration tests.
 - Save normalization, stale/no-op revisions, publication/snapshot preservation, transaction
   rollback/recovery, and draft persistence after restart.
 - Real Chrome editor checks: unsaved preview, keyboard tabs, validation, two-tab stale saves,
@@ -216,6 +229,11 @@ Verified on macOS arm64 on 2026-11-07:
 - Real Chrome history checks cover safe read-only inspection, retained reference labels,
   unsaved/in-flight text retention, refresh/retry/loading, missing versions, and mobile layouts.
   No runtime exceptions or hydration warnings were observed.
+- Restore checks cover old/current/last-published/identical copies, revision-before-target
+  errors, exact draft-only changes, rollback, restart, and unchanged public/history state.
+- Real Chrome Restore checks cover dirty confirmation/cancel, delayed-response text retention,
+  two-tab conflicts with explicit reload/resubmit, network/missing-target feedback, Save/Publish
+  afterward, and responsive controls without runtime/hydration errors.
 - Creation normalization/defaults, malformed input, slug collisions, exact read projections,
   valid/malformed/missing UUIDs, unchanged read audits, and draft persistence after app restart.
 - Unexpected database failures return generic production 500 responses.
@@ -263,7 +281,7 @@ separates build/test dependencies from the production runtime, which retains mig
 
 The current testing tradeoff is sequential cases and one disposable database per run,
 keeping fixture reset and cleanup straightforward at the cost of overlapping/parallel runs.
-Remaining lifecycle tests, coordinated database races, restore/delete controls, and final platform
+Remaining lifecycle tests, coordinated database races, delete controls, and final platform
 verification will be added with their owning feature phases. See the [plan](specs/001-docs-studio/plan.md),
 [data model](specs/001-docs-studio/data-model.md), and [contracts](specs/001-docs-studio/contracts/http-api.md).
 
@@ -271,8 +289,8 @@ The approved Phase 3 [UI design](specs/001-docs-studio/ui-design.md) contains fi
 wireframes and a Deloitte-inspired black/white/green visual theme. The editor uses
 Write/Preview tabs in one panel at every width,
 with history planned below. A top-header Public / Writer switch links the two portals.
-Switching tabs preserves local edits without saving or publishing. Phases 1–9 are approved;
-Phase 10 history inspection is verified and awaits human review.
+Switching tabs preserves local edits without saving or publishing. Phases 1–10 are approved;
+Phase 11 Restore is verified and awaits human review.
 
 For visual review, open [the offline design preview](specs/001-docs-studio/design-preview/index.html)
 in a browser. It shows only the approved tabbed editor across all five screens, mobile sizing, and feedback
