@@ -29,7 +29,7 @@ export async function useArticleEditor(articleId: string) {
     : !article.value?.draft.title.trim() || !article.value.draft.body.trim()
         ? 'Save a nonblank title and body before publishing.' : '')
 
-  function reportWriteError(error: unknown, action: 'save' | 'publish' | 'unpublish') {
+  function reportWriteError(error: unknown, action: 'save' | 'publish' | 'unpublish' | 'restore') {
     const failure = error as { data?: { data?: { code?: string; fieldErrors?: Record<string, string[]> } } }
     const details = failure.data?.data
     fieldErrors.value = details?.fieldErrors ?? {}
@@ -40,6 +40,10 @@ export async function useArticleEditor(articleId: string) {
     else if (details?.code === 'INVALID_PUBLICATION_STATE') {
       conflict.value = true
       errorMessage.value = 'This article is not currently published. Your local text is still here. Reload the saved article before trying again.'
+    }
+    else if (details?.code === 'SNAPSHOT_NOT_FOUND') {
+      inspectedVersion.value = null
+      errorMessage.value = 'This snapshot is no longer available. Refresh history and inspect an available version. Your local text is still here.'
     }
     else if (details?.code === 'VALIDATION_ERROR') errorMessage.value = 'Check the highlighted fields and try again.'
     else errorMessage.value = `We could not ${action} your ${action === 'save' ? 'draft' : 'article'}. Your local text is still here. Please try again.`
@@ -141,7 +145,7 @@ export async function useArticleEditor(articleId: string) {
   }
 
   async function inspectVersion(versionId: string) {
-    if (inspectionPending.value || !article.value) return
+    if (inspectionPending.value || pending.value || !article.value) return
     selectedVersionId.value = versionId
     inspectedVersion.value = null
     inspectionError.value = ''
@@ -157,6 +161,29 @@ export async function useArticleEditor(articleId: string) {
     finally { inspectionPending.value = false }
   }
 
-  return { article, draft, tagsText, dirty, pending, conflict, publishDisabledReason, loadError, fieldErrors, errorMessage, successMessage, save, publish, unpublish, reload,
+  async function restore(versionId: string) {
+    if (pending.value || conflict.value || inspectionPending.value || !article.value) return
+    const submitted = localContent()
+    const expectedRevision = article.value.revision
+    pending.value = true
+    errorMessage.value = ''
+    successMessage.value = ''
+    fieldErrors.value = {}
+    try {
+      const restored = await $fetch<WriterArticle>(`${url}/versions/${encodeURIComponent(versionId)}/restore`, {
+        method: 'POST', retry: 0, body: { expectedRevision },
+      })
+      acceptSaved(restored, submitted)
+      successMessage.value = dirty.value
+        ? 'Version restored into draft, not published. Newer local edits are still unsaved.'
+        : 'Version restored into draft, not published.'
+    }
+    catch (error) {
+      reportWriteError(error, 'restore')
+    }
+    finally { pending.value = false }
+  }
+
+  return { article, draft, tagsText, dirty, pending, conflict, publishDisabledReason, loadError, fieldErrors, errorMessage, successMessage, save, publish, unpublish, restore, reload,
     history, historyStatus, historyError, refreshHistory, inspectedVersion, selectedVersionId, inspectionPending, inspectionError, inspectVersion }
 }

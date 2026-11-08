@@ -1,13 +1,13 @@
 # Research: Northbeam Docs Studio
 
 **Date**: 2026-11-07
-**Status**: Research consolidated. The Phase 10 application passes build/typecheck,
-98 unit tests, and 108 PostgreSQL/HTTP cases on macOS arm64 with Linux containers.
+**Status**: Research consolidated. The Phase 11 application passes build/typecheck,
+98 unit tests, and 112 PostgreSQL/HTTP cases on macOS arm64 with Linux containers.
 Production Docker migrations/startup, restart idempotence, failure/interrupt cleanup, and
-overlap rejection were verified. Phases 1–9 are approved; [tabbed UI design](ui-design.md) is selected.
+overlap rejection were verified. Phases 1–10 are approved; [tabbed UI design](ui-design.md) is selected.
 Writer create/list/open, draft saving/restart persistence, safe Markdown preview, and
 two-tab save conflict/reload behavior are verified. Publish API atomicity and rollback/crash
-recovery and the writer Publish UI are verified. Phase 7 is approved. Phase 8 is approved. Phase 9 is approved. Phase 10 history API/browser checks pass; human phase approval is pending. Later lifecycle/UI
+recovery and the writer Publish UI are verified. Phase 7 is approved. Phase 8 is approved. Phase 9 is approved. Phase 10 is approved. Phase 11 Restore API/browser checks pass; human phase approval is pending. Later lifecycle/UI
 features and Windows/Linux host execution remain future verification.
 
 Public content is writer-published articles on any topic. Generic article wording is a
@@ -266,4 +266,19 @@ context and SSR hydration; manual initial refresh had produced browser mismatche
 replaced by native payload hydration. Browser checks verify no final hydration/runtime
 errors, local text retention, snapshot/public isolation, refresh/retry/loading behavior,
 missing-version feedback, retained labels, and mobile controls. No new library, architecture,
-or persistence decision was required; Restore/Delete remain in subsequent phases.
+or persistence decision was required; Phase 11 adds Restore and Delete remains subsequent work.
+
+
+## Phase 11 Restore evidence
+
+Restore reuses the article-first revision transaction and resolves snapshot ownership
+through that same transaction. It copies only saved snapshot content into draft/revision/
+update time. Tests prove unchanged publication/history/counter/date, old/current/identical
+and unpublished retained targets, stale-before-target errors, rollback, and restart.
+
+The selected-snapshot action follows existing page confirmation and composable write
+patterns. It captures the named target for dirty confirmation, uses explicit expectedRevision,
+and shares response-baseline handling so newer local edits survive delayed success.
+Browser checks verify cancel/confirm, stale/missing/network recovery, subsequent explicit
+Save/Publish, unchanged public/history, and responsive controls without hydration/runtime
+errors. No new architecture choice, library, or database change was required.

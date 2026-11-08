@@ -1,8 +1,8 @@
 # Tasks: Northbeam Docs Studio
 
 **Feature**: `001-docs-studio` · **Created**: 2026-11-07
-**Status**: Phases 1–9 approved. Phase 10 history inspection is implemented and verified, pending human approval.
-T035 retains the user-approved Write/Preview tabbed design. Phase 11 and later work have not started.
+**Status**: Phases 1–10 approved. Phase 11 Restore is implemented and verified, pending human approval.
+T035 retains the user-approved Write/Preview tabbed design. Phase 12 and later work have not started.
 **Input**: [specification](spec.md), [plan](plan.md), [research](research.md),
 [data model](data-model.md), [HTTP contract](contracts/http-api.md),
 [UI/service contract](contracts/ui-and-services.md), [quickstart](quickstart.md),
@@ -470,7 +470,8 @@ Disposable test/browser resources were removed; normal resources were preserved.
 migration, dependency, architecture, or Markdown-policy change was needed. Phase 11 Restore
 remains unstarted.
 
-**Phase approval**: Pending human review. Demonstrate this phase, present verification results, and wait for explicit human approval before starting the next phase.
+**Phase approval**: Approved by the user by requesting the next phase.
+Phase 11 Restore is authorized; later phases retain their review gates.
 
 ## Phase 11: US6 — Restore into draft (P1)
 
@@ -478,8 +479,37 @@ remains unstarted.
 **Dependencies**: History inspection approved.
 **Independent test**: Restore old/current/last-published/identical snapshots from UI; check returned draft/revision and feedback, unchanged live state/history, stale-preserved local text, and rejected invalid targets.
 
-- [ ] T016 [US6] Extend `tests/integration/articles.test.ts` before adding `server/services/articles/restoreDraft.ts`, its request schema in `server/validation/articles.ts`, and `server/api/writer/articles/[articleId]/versions/[versionId]/restore.post.ts`. Lock article and compare revision before resolving snapshot eligibility; then copy owned title/body/tags into draft and increment revision/update updated_at even for identical content. Preserve slug, status, reference, counter, first date, created_at, every snapshot, and public output/availability. Accept current/last-published snapshots; missing/wrong-owner snapshots give 404 SNAPSHOT_NOT_FOUND, while an otherwise valid stale request gives 409 STALE_REVISION first, with no changes.
-- [ ] T037 [US6] Add Restore to `app/components/ArticleHistory.vue` and route it through `app/composables/useArticleEditor.ts` and `app/pages/writer/articles/[articleId].vue`. A successful explicit restore loads returned draft/revision without publishing; use the saved revision and preserve local text on rejection. Show pending/success/error feedback and verify old/current/last-published/identical restores, missing/wrong-owner targets, stale restores, unchanged public state/history, and explicit save/publish rules afterward. Reuse existing integration coverage and record the browser walkthrough in `quickstart.md`.
+- [x] T016 [US6] Extend `tests/integration/articles.test.ts` before adding `server/services/articles/restoreDraft.ts`, its request schema in `server/validation/articles.ts`, and `server/api/writer/articles/[articleId]/versions/[versionId]/restore.post.ts`. Lock article and compare revision before resolving snapshot eligibility; then copy owned title/body/tags into draft and increment revision/update updated_at even for identical content. Preserve slug, status, reference, counter, first date, created_at, every snapshot, and public output/availability. Accept current/last-published snapshots; missing/wrong-owner snapshots give 404 SNAPSHOT_NOT_FOUND, while an otherwise valid stale request gives 409 STALE_REVISION first, with no changes.
+- [x] T037 [US6] Add Restore to `app/components/ArticleHistory.vue` and route it through `app/composables/useArticleEditor.ts` and `app/pages/writer/articles/[articleId].vue`. A successful explicit restore loads returned draft/revision without publishing; use the saved revision and preserve local text on rejection. Show pending/success/error feedback and verify old/current/last-published/identical restores, missing/wrong-owner targets, stale restores, unchanged public state/history, and explicit save/publish rules afterward. Reuse existing integration coverage and record the browser walkthrough in `quickstart.md`.
+
+**T016 evidence**: Extended existing strict-action revision/body cases to Restore and
+added focused old/current/identical published/unpublished restoration, rejected target/
+precedence, and rollback/recovery scenarios. Missing schema checks failed first. Restore
+uses the shared article-lock/revision transaction; owned snapshot lookup uses the callback
+transaction, then copies only title/body/tags and advances revision/update time. Exact
+HTTP/SQL assertions prove retained publication/reference/date/counter/audits/history,
+unchanged public output/visibility, stale-before-target errors, rollback, and restart.
+Typechecks/build/full suite pass: 98 unit + 112 PostgreSQL/HTTP cases. T037 UI/browser work
+is next; no Delete endpoint/control is added.
+
+**T037 / Phase 11 evidence**: Added Restore into draft to the inspected snapshot region.
+Dirty inputs require an inline confirmation naming the captured target version, with
+cancel preserving text and making no write. Restore uses saved expectedRevision and shared
+pending/error/conflict handling, updates the saved draft/revision on success, and reports
+not published. Newer local input typed during a response survives; a subsequent explicit
+save uses the returned revision. Missing snapshots clear stale inspection and ask for
+history refresh; rejected restores preserve local text with no automatic rebase/retry.
+Production Chrome/SQL checks passed old/current/identical and last-published unpublished
+restores, dirty cancel/confirm, delayed successful response retention, explicit Save/Publish
+afterward, two-tab stale rejection with reload/cancel/resubmit, network failure/retry,
+controlled missing-target feedback, persistence on reopening, and unchanged public/history/
+reference/date state. At 320/390/1440px Restore/confirmation controls fit with 44px targets;
+no runtime exceptions/hydration warnings or Delete controls were observed.
+Typechecks, production build, and full suite pass: 98 unit + 112 PostgreSQL/HTTP cases
+(210 total). Pinned-type audit: 44 files/nine Vue scripts, no findings. Disposable test/
+browser resources were removed; normal resources were preserved. No schema, migration,
+dependency, architecture, or Markdown-policy change was needed. Phase 12 Delete remains
+unstarted.
 
 **Phase approval**: Pending human review. Demonstrate this phase, present verification results, and wait for explicit human approval before starting the next phase.
 
@@ -566,8 +596,8 @@ remains unstarted.
 Execute the phases above in order, with explicit human approval at every boundary.
 Task IDs are stable references rather than a numeric execution sequence. UI tasks moved
 into their owning story retain their original ID; newly split UI tasks are T036–T039.
-T001–T015, T022–T025, T035–T036, and T039 are complete with evidence above (22 tasks).
-Phases 1–9 are approved; Phase 10 awaits human approval.
+T001–T016, T022–T025, T035–T037, and T039 are complete with evidence above (24 tasks).
+Phases 1–10 are approved; Phase 11 awaits human approval.
 Later phase approvals and tasks remain pending.
 
 ```text

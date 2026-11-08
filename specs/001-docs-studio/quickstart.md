@@ -1,15 +1,15 @@
 # Quickstart and Verification Guide
 
 **Date**: 2026-11-07
-**Status**: Phases 1–9 approved. Phase 10 history inspection is implemented and verified,
-pending human approval. Restore/Delete features have not started.
+**Status**: Phases 1–10 approved. Phase 11 Restore is implemented and verified,
+pending human approval. Delete has not started.
 
 ## Current commands and evidence
 
 With Node 24.22.2 and pnpm 12.18.0: `pnpm install --frozen-lockfile`, `pnpm dev`,
 `pnpm run test:unit`, `pnpm run test:integration`, `pnpm test`, `pnpm exec nuxt typecheck`,
 and `pnpm run build` are available. Full verification passes 98 database-free unit cases
-and 108 real PostgreSQL/HTTP integration cases, plus typecheck and production build.
+and 112 real PostgreSQL/HTTP integration cases, plus typecheck and production build.
 Docker startup builds the application, applies migrations, and serves the writer feature.
 See [README.md](../../README.md) for prerequisites, configuration, and cleanup procedures.
 
@@ -219,7 +219,7 @@ unsaved Markdown, save, return to the list, reopen, and reload. Try blank title/
 collision; entered values remain available after errors. Body/tags start empty in the form.
 The API also accepts validated body/tags at creation. Public dismisses the entry popup to the implemented published article list. Fresh root visits show the chooser; direct writer links and client
 portal switching do not reopen it. Editing/preview/save, Publish, Unpublish, and read-only history inspection are available;
-Restore/Delete actions arrive in their owning phases. Preview escapes raw HTML and rejects unsafe links.
+Restore is available from inspected history; Delete arrives in its owning phase. Preview escapes raw HTML and rejects unsafe links.
 
 For conflict review, open the same article in two tabs, save one, then save the older tab.
 Its text remains available. Reload saved article offers confirmation/cancel for dirty text;
@@ -371,7 +371,8 @@ Failed list/inspection requests show separate retry feedback instead of an empty
 Existing real HTTP/SQL cases verify empty history, valid non-v4 IDs, exact projections,
 version-number ordering against conflicting UUID/time order, published/unpublished content,
 missing/wrong-owner errors, unchanged article/history/public state, and restart persistence.
-Restore/Delete remain in later phases; inspection creates or mutates no snapshot.
+Inspection creates or mutates no snapshot. Phase 11 adds the separate Restore action;
+Delete remains in a later phase.
 
 
 **Phase 10 browser evidence**: Real Chrome/SQL against a fresh production Docker app at
@@ -388,6 +389,38 @@ runtime exceptions/hydration warnings. Build/typechecks and all 206 tests pass (
 108 integration); pinned-type audit found no deprecations in 42 files/nine Vue scripts.
 Disposable resources were removed; normal resources were preserved. Restore/Delete remain
 later work.
+
+
+## Restore walkthrough
+
+Inspect an old version, choose Restore into draft, and confirm replacement if local inputs
+are dirty. Cancel must keep all local text and make no request. Success changes only saved
+draft content/revision/update time and says not published. Inspect and restore current,
+last-published after Unpublish, and identical snapshots as well. Confirm no history or
+public content/availability/date/reference/counter changes; publish remains explicit.
+
+A stale second-tab Restore must preserve local text and offer explicit reload/resubmit.
+Missing/wrong-owner targets return SNAPSHOT_NOT_FOUND after the locked revision check;
+a stale token wins before target eligibility. Errors and delayed responses preserve local
+text, including newer typing while a request is pending. Existing strict-action tests now
+include Restore and focused HTTP/SQL cases prove old/current/identical restores in both
+publication states, unchanged history/public metadata, rollback/recovery, and restart.
+
+
+**Phase 11 browser evidence**: Real Chrome/SQL against a fresh production Docker app at
+loopback 3300 passed old/current/identical Restore with exact draft/revision and not-published
+feedback, unchanged live reference/content/date/history, and last-published/identical Restore
+after Unpublish without restoring public access. Dirty confirmation names the target;
+cancel makes no write and keeps local text. Successful delayed Restore preserves newer
+local typing; subsequent explicit Save uses the returned revision, and Publish remains
+separate. Two-tab stale rejection preserved local text; reload cancel/confirm and explicit
+resubmission worked. Network failure/retry and a controlled isolated SQL missing-target
+fixture preserved draft/revision; stale inspection cleared and refresh recovered. At
+320/390/1440px Restore/confirmation controls fit with 44px targets; reopening showed the
+persisted restored draft. No runtime exceptions/hydration warnings or Delete controls
+were observed. Typechecks/build and all 210 tests pass (98 unit + 112 integration);
+pinned-type audit found no deprecations in 44 files/nine Vue scripts. Disposable resources
+were removed while normal resources were preserved. Delete remains Phase 12 work.
 
 ## Acceptance coverage
 
@@ -429,14 +462,14 @@ Implementation follows [tasks.md](tasks.md): build each feature's API and UI tog
 run its existing/new meaningful checks and browser walkthrough, then present the results
 for human phase approval. Do not wait until all APIs exist to exercise writer screens.
 The later integrated walkthrough repeats the combined experience; it does not defer
-feature-level feedback, conflict preservation, or verification. Phases 1–9 are approved.
-T001–T015, T022–T025, T035–T036, and T039 are verified and checked (22 tasks).
-Phase 10 awaits human approval; later tasks remain unchecked.
+feature-level feedback, conflict preservation, or verification. Phases 1–10 are approved.
+T001–T016, T022–T025, T035–T037, and T039 are verified and checked (24 tasks).
+Phase 11 awaits human approval; later tasks remain unchecked.
 
 ## Design handoff
 
 Review [plan.md](plan.md), [data-model.md](data-model.md), and [contracts](contracts/http-api.md).
 Analysis and the spec-first checkpoint were verified before the authorized Phase 1
 implementation. The [tabbed design](ui-design.md) and Phase 4 create/list/open are approved;
-review Phase 10 history inspection before starting Phase 11 Restore. AI creates no commits. Full application behavior and
+review Phase 11 Restore before starting Phase 12 snapshot deletion. AI creates no commits. Full application behavior and
 Windows/Linux host support remain unverified.

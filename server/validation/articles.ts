@@ -31,6 +31,7 @@ export const saveDraftSchema = z.strictObject({
 
 export const publishArticleSchema = z.strictObject({ expectedRevision: expectedRevisionSchema })
 export const unpublishArticleSchema = z.strictObject({ expectedRevision: expectedRevisionSchema })
+export const restoreDraftSchema = z.strictObject({ expectedRevision: expectedRevisionSchema })
 
 export const publishContentSchema = z.object({
   title: titleSchema,

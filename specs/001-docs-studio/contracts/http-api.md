@@ -14,6 +14,9 @@ first date/draft/counter, and public list/detail access is removed. Remaining hi
 mutation endpoints are targets for later phases. Phase 10 GET version list/detail are
 implemented and verified, including exact fields, newest-number ordering, UUID validation,
 article-before-snapshot absence, wrong-owner protection, and unchanged state on reads.
+Phase 11 Restore is implemented and verified: expectedRevision is checked before snapshot
+eligibility; success copies only owned snapshot content into draft/revision/update time,
+without publication/history changes. Delete remains a later endpoint.
 
 Authority: [specification](../spec.md) and [plan](../plan.md) P025–P033. The
 [data model](../data-model.md) owns storage; this contract owns wire representations.
