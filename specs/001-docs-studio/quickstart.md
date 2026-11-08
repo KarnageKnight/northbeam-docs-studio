@@ -1,15 +1,15 @@
 # Quickstart and Verification Guide
 
 **Date**: 2026-11-07
-**Status**: Phases 1–8 approved. Phase 9 Unpublish is implemented and verified,
-pending human approval. History features have not started.
+**Status**: Phases 1–9 approved. Phase 10 history inspection is implemented and verified,
+pending human approval. Restore/Delete features have not started.
 
 ## Current commands and evidence
 
 With Node 24.22.2 and pnpm 12.18.0: `pnpm install --frozen-lockfile`, `pnpm dev`,
 `pnpm run test:unit`, `pnpm run test:integration`, `pnpm test`, `pnpm exec nuxt typecheck`,
 and `pnpm run build` are available. Full verification passes 98 database-free unit cases
-and 103 real PostgreSQL/HTTP integration cases, plus typecheck and production build.
+and 108 real PostgreSQL/HTTP integration cases, plus typecheck and production build.
 Docker startup builds the application, applies migrations, and serves the writer feature.
 See [README.md](../../README.md) for prerequisites, configuration, and cleanup procedures.
 
@@ -218,8 +218,8 @@ Open `/writer/articles`, create a draft with title/slug, edit title/body/tags, p
 unsaved Markdown, save, return to the list, reopen, and reload. Try blank title/invalid slug, then a normalized slug
 collision; entered values remain available after errors. Body/tags start empty in the form.
 The API also accepts validated body/tags at creation. Public dismisses the entry popup to the implemented published article list. Fresh root visits show the chooser; direct writer links and client
-portal switching do not reopen it. Editing/preview/save, Publish, and Unpublish are available; history
-actions arrive in their owning phases. Preview escapes raw HTML and rejects unsafe links.
+portal switching do not reopen it. Editing/preview/save, Publish, Unpublish, and read-only history inspection are available;
+Restore/Delete actions arrive in their owning phases. Preview escapes raw HTML and rejects unsafe links.
 
 For conflict review, open the same article in two tabs, save one, then save the older tab.
 Its text remains available. Reload saved article offers confirmation/cancel for dirty text;
@@ -357,6 +357,38 @@ build, and full suite pass (98 unit + 103 integration); the pinned-type audit fo
 deprecations across 39 files/eight Vue scripts. Disposable resources were removed,
 preserving normal resources. History inspection remains Phase 10 work.
 
+
+## History inspection walkthrough
+
+Open a never-published draft: history says No published versions yet. Publish, save changed
+content, then publish again; history updates newest first by version number. Inspect an
+older snapshot and the current snapshot separately from the draft form. Confirm exact
+title/tags and shared safe Markdown, Current published label, and unchanged unsaved local
+inputs. Unpublish and repeat inspection: history remains readable and the retained
+reference is labeled Last published. Refresh history explicitly for external changes.
+Failed list/inspection requests show separate retry feedback instead of an empty success.
+
+Existing real HTTP/SQL cases verify empty history, valid non-v4 IDs, exact projections,
+version-number ordering against conflicting UUID/time order, published/unpublished content,
+missing/wrong-owner errors, unchanged article/history/public state, and restart persistence.
+Restore/Delete remain in later phases; inspection creates or mutates no snapshot.
+
+
+**Phase 10 browser evidence**: Real Chrome/SQL against a fresh production Docker app at
+loopback 3300 passed empty draft history, publish-driven refresh, newest-first numbers,
+old/current inspection with safe shared Markdown, retained history/last-reference label
+after unpublish, and unchanged unsaved local title/body/tags plus stored/public state.
+Separate list/inspection network failures showed retry/loading; input typed during a
+paused history read survived. A controlled isolated SQL deletion of an eligible old
+snapshot verified missing-version feedback and refresh without a Delete API/control.
+At 320/390/1440px history fit with 44px action targets; reopening reset inspection and
+loaded the saved draft. Initial article/history fetches are created together before
+awaiting, preserving Nuxt context and SSR payload hydration. Final walkthrough had no
+runtime exceptions/hydration warnings. Build/typechecks and all 206 tests pass (98 unit +
+108 integration); pinned-type audit found no deprecations in 42 files/nine Vue scripts.
+Disposable resources were removed; normal resources were preserved. Restore/Delete remain
+later work.
+
 ## Acceptance coverage
 
 These are final acceptance targets; the feature walkthroughs and lifecycle checks remain pending.
@@ -397,14 +429,14 @@ Implementation follows [tasks.md](tasks.md): build each feature's API and UI tog
 run its existing/new meaningful checks and browser walkthrough, then present the results
 for human phase approval. Do not wait until all APIs exist to exercise writer screens.
 The later integrated walkthrough repeats the combined experience; it does not defer
-feature-level feedback, conflict preservation, or verification. Phases 1–8 are approved.
-T001–T014, T022–T024, T035–T036, and T039 are verified and checked (20 tasks).
-Phase 9 awaits human approval; later tasks remain unchecked.
+feature-level feedback, conflict preservation, or verification. Phases 1–9 are approved.
+T001–T015, T022–T025, T035–T036, and T039 are verified and checked (22 tasks).
+Phase 10 awaits human approval; later tasks remain unchecked.
 
 ## Design handoff
 
 Review [plan.md](plan.md), [data-model.md](data-model.md), and [contracts](contracts/http-api.md).
 Analysis and the spec-first checkpoint were verified before the authorized Phase 1
 implementation. The [tabbed design](ui-design.md) and Phase 4 create/list/open are approved;
-review Phase 9 Unpublish before starting Phase 10 history inspection. AI creates no commits. Full application behavior and
+review Phase 10 history inspection before starting Phase 11 Restore. AI creates no commits. Full application behavior and
 Windows/Linux host support remain unverified.

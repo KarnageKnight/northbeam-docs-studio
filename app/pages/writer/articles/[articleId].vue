@@ -1,7 +1,8 @@
 <script setup lang="ts">
 definePageMeta({ key: route => String(route.params.articleId) })
 const route = useRoute()
-const { article, draft, tagsText, dirty, pending, conflict, publishDisabledReason, loadError, fieldErrors, errorMessage, successMessage, save, publish, unpublish, reload } = await useArticleEditor(String(route.params.articleId))
+const { article, draft, tagsText, dirty, pending, conflict, publishDisabledReason, loadError, fieldErrors, errorMessage, successMessage, save, publish, unpublish, reload,
+  history, historyStatus, historyError, refreshHistory, inspectedVersion, selectedVersionId, inspectionPending, inspectionError, inspectVersion } = await useArticleEditor(String(route.params.articleId))
 const missing = computed(() => loadError.value?.status === 404)
 const confirmReload = ref(false)
 
@@ -42,6 +43,7 @@ useHead({ title: computed(() => `${article.value?.draft.title ?? 'Article'} · N
       </div>
       <p v-if="successMessage" class="notice success" role="status">{{ successMessage }}</p>
       <ArticleEditorForm :draft="draft" :tags-text="tagsText" :dirty="dirty" :pending="pending" :conflict="conflict" :publish-disabled-reason="publishDisabledReason" :can-unpublish="article.status === 'published'" :field-errors="fieldErrors" @update:title="draft.title = $event" @update:body="draft.body = $event" @update:tags-text="tagsText = $event" @save="save" @publish="publish" @unpublish="unpublish" />
+      <ArticleHistory :versions="history ?? []" :loading="historyStatus === 'pending'" :failed="!!historyError" :publication-status="article.status" :published-version-id="article.currentPublishedVersionId" :inspected-version="inspectedVersion" :selected-version-id="selectedVersionId" :inspection-pending="inspectionPending" :inspection-error="inspectionError" @refresh="refreshHistory()" @inspect="inspectVersion" />
     </template>
   </div>
 </template>

@@ -1,5 +1,5 @@
-import { and, eq } from 'drizzle-orm'
-import type { PublicDetail, PublicSummary, WriterSummary } from '../../../shared/types/articles'
+import { and, desc, eq } from 'drizzle-orm'
+import type { PublicDetail, PublicSummary, VersionDetail, VersionSummary, WriterSummary } from '../../../shared/types/articles'
 import { db } from '../../db/client'
 import { articles, articleVersions } from '../../db/schema'
 import { toWriterArticle } from './toWriterArticle'
@@ -33,4 +33,18 @@ export async function getPublicArticle(slug: string): Promise<PublicDetail | nul
     eq(articles.id, articleVersions.articleId), eq(articles.currentPublishedVersionId, articleVersions.id),
   )).where(and(eq(articles.status, 'published'), eq(articles.slug, slug)))
   return article ? { ...article, publishedAt: article.publishedAt!.toISOString() } : null
+}
+
+export function listArticleVersions(articleId: string): Promise<VersionSummary[]> {
+  return db.select({ id: articleVersions.id, versionNumber: articleVersions.versionNumber })
+    .from(articleVersions).where(eq(articleVersions.articleId, articleId))
+    .orderBy(desc(articleVersions.versionNumber))
+}
+
+export async function getArticleVersion(articleId: string, versionId: string): Promise<VersionDetail | null> {
+  const [version] = await db.select({
+    id: articleVersions.id, versionNumber: articleVersions.versionNumber,
+    title: articleVersions.title, body: articleVersions.body, tags: articleVersions.tags,
+  }).from(articleVersions).where(and(eq(articleVersions.articleId, articleId), eq(articleVersions.id, versionId)))
+  return version ?? null
 }

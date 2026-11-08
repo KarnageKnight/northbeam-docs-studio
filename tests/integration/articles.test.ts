@@ -625,3 +625,82 @@ describe('unpublish while retaining publication history', () => {
     expect((await unpublish(article.id, { expectedRevision: 1 })).status).toBe(200)
   })
 })
+
+
+describe('read-only version history', () => {
+  const versionsUrl = (id: string) => `${writerUrl}/${id}/versions`
+
+  it('returns an empty history for a draft and accepts valid non-v4 article and snapshot UUIDs', async () => {
+    const articleId = '11111111-1111-1111-8111-111111111111'
+    const versionId = '22222222-2222-2222-8222-222222222222'
+    await pool.query('INSERT INTO articles (id,slug,draft_title) VALUES ($1,$2,$3)', [articleId, 'legacy-history', 'Legacy article'])
+    const empty = await fetch(versionsUrl(articleId))
+    expect(empty.status).toBe(200)
+    expect(await empty.json()).toEqual([])
+    await pool.query('INSERT INTO article_versions (id,article_id,version_number,title,body,tags) VALUES ($1,$2,1,$3,$4,$5)', [versionId, articleId, 'Old title', 'Old body', ['old']])
+    expect(await (await fetch(versionsUrl(articleId))).json()).toEqual([{ id: versionId, versionNumber: 1 }])
+    const detail = await fetch(`${versionsUrl(articleId)}/${versionId}`)
+    expect(detail.status).toBe(200)
+    expect(await detail.json()).toEqual({ id: versionId, versionNumber: 1, title: 'Old title', body: 'Old body', tags: ['old'] })
+  })
+
+  it.each(['published', 'unpublished'])('lists newest numbers and inspects exact immutable content without changing %s state', async (state) => {
+    const article = await (await createDraft({ ...input, body: '# First body', tags: ['first'] })).json()
+    const publish = (revision: number) => fetch(`${writerUrl}/${article.id}/publish`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ expectedRevision: revision }) })
+    const first = await (await publish(0)).json()
+    const secondDraft = { title: 'Second title', body: '# Second body', tags: ['second'] }
+    expect((await fetch(`${writerUrl}/${article.id}/draft`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...secondDraft, expectedRevision: 1 }) })).status).toBe(200)
+    const second = await (await publish(2)).json()
+    if (state === 'unpublished') expect((await unpublish(article.id, { expectedRevision: 3 })).status).toBe(200)
+    const before = (await pool.query('SELECT * FROM articles')).rows
+    const snapshots = (await pool.query('SELECT * FROM article_versions ORDER BY version_number')).rows
+    const publicBefore = await (await fetch(`${appUrl}/api/public/articles`)).json()
+    const response = await fetch(versionsUrl(article.id))
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual([{ id: second.currentPublishedVersionId, versionNumber: 2 }, { id: first.currentPublishedVersionId, versionNumber: 1 }])
+    for (const [id, versionNumber, draft] of [[first.currentPublishedVersionId, 1, article.draft], [second.currentPublishedVersionId, 2, secondDraft]] as const) {
+      const detail = await fetch(`${versionsUrl(article.id)}/${id}`)
+      expect(detail.status).toBe(200)
+      expect(await detail.json()).toEqual({ id, versionNumber, ...draft })
+    }
+    expect((await pool.query('SELECT * FROM articles')).rows).toEqual(before)
+    expect((await pool.query('SELECT * FROM article_versions ORDER BY version_number')).rows).toEqual(snapshots)
+    expect(await (await fetch(`${appUrl}/api/public/articles`)).json()).toEqual(publicBefore)
+    await restartApp()
+    expect(await (await fetch(versionsUrl(article.id))).json()).toEqual([{ id: second.currentPublishedVersionId, versionNumber: 2 }, { id: first.currentPublishedVersionId, versionNumber: 1 }])
+  })
+
+  it('orders by version number even when UUID and timestamp order disagree', async () => {
+    const article = await (await createDraft()).json()
+    const oldId = 'ffffffff-ffff-4fff-bfff-ffffffffffff'
+    const newId = '00000000-0000-4000-8000-000000000001'
+    await pool.query('INSERT INTO article_versions (id,article_id,version_number,title,body,tags,created_at) VALUES ($1,$3,1,$4,$5,$6,$7),($2,$3,2,$4,$5,$6,$8)', [oldId, newId, article.id, 'Title', 'Body', [], '2026-11-07T15:00:00Z', '2026-11-07T12:00:00Z'])
+    expect(await (await fetch(versionsUrl(article.id))).json()).toEqual([{ id: newId, versionNumber: 2 }, { id: oldId, versionNumber: 1 }])
+  })
+
+  it('validates both IDs before lookup and distinguishes missing articles from missing or wrong-owner snapshots', async () => {
+    const article = await (await createDraft()).json()
+    const other = await (await createDraft({ ...input, slug: 'other-history', body: 'Other private body' })).json()
+    const published = await (await fetch(`${writerUrl}/${other.id}/publish`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ expectedRevision: 0 }) })).json()
+    const missingId = randomUUID()
+    const before = (await pool.query('SELECT * FROM articles ORDER BY id')).rows
+    const snapshots = (await pool.query('SELECT * FROM article_versions')).rows
+    for (const [suffix, status, code] of [
+      ['invalid/versions', 400, 'VALIDATION_ERROR'], [missingId + '/versions', 404, 'ARTICLE_NOT_FOUND'],
+      ['invalid/versions/' + missingId, 400, 'VALIDATION_ERROR'],
+      [missingId + '/versions/invalid', 400, 'VALIDATION_ERROR'],
+      [article.id + '/versions/invalid', 400, 'VALIDATION_ERROR'],
+      [missingId + '/versions/' + missingId, 404, 'ARTICLE_NOT_FOUND'],
+      [article.id + '/versions/' + missingId, 404, 'SNAPSHOT_NOT_FOUND'],
+      [article.id + '/versions/' + published.currentPublishedVersionId, 404, 'SNAPSHOT_NOT_FOUND'],
+    ] as const) {
+      const response = await fetch(`${writerUrl}/${suffix}`)
+      expect(response.status).toBe(status)
+      const error = await response.json()
+      expect(error.data.code).toBe(code)
+      expect(JSON.stringify(error)).not.toContain('Other private body')
+    }
+    expect((await pool.query('SELECT * FROM articles ORDER BY id')).rows).toEqual(before)
+    expect((await pool.query('SELECT * FROM article_versions')).rows).toEqual(snapshots)
+  })
+})

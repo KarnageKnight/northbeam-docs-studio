@@ -27,3 +27,14 @@ export interface PublicSummary {
 export interface PublicDetail extends PublicSummary {
   body: string
 }
+
+export interface VersionSummary {
+  id: string
+  versionNumber: number
+}
+
+export interface VersionDetail extends VersionSummary {
+  title: string
+  body: string
+  tags: string[]
+}
