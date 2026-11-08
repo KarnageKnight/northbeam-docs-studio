@@ -92,6 +92,17 @@
   .draft-preview { @apply min-h-80 p-4 sm:min-h-96 sm:p-6; }
   .editor-actions { @apply mt-5 flex flex-wrap items-center justify-between gap-4; }
   .editor-action-buttons { @apply flex flex-wrap gap-3; }
+  .article-history { @apply mt-7 p-5 sm:p-7; }
+  .history-heading { @apply mb-5 flex flex-wrap items-center justify-between gap-4; }
+  .history-heading h2 { @apply mb-1; }
+  .history-row { @apply grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-t border-[#edf0e8] py-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]; }
+  .history-version { @apply font-semibold; }
+  .history-row .hint { @apply col-start-1 row-start-2 sm:col-start-2 sm:row-start-1; }
+  .history-row .button { @apply col-start-2 row-span-2 row-start-1 sm:col-start-3 sm:row-span-1; }
+  .history-feedback { @apply mt-5; }
+  .history-inspection { @apply mt-5 min-w-0 space-y-4 border-t border-[#dfe4da] pt-6; overflow-wrap: anywhere; }
+  .history-inspection h3 { @apply text-sm font-semibold text-[#61695e]; }
+  .history-inspection h4 { @apply text-2xl font-semibold; }
   .notice.warning { @apply border-amber-200 bg-amber-50 text-amber-900; }
   .notice.success { @apply border-green-200 bg-green-50 text-green-800; }
   .confirmation-actions { @apply mt-3 flex flex-wrap gap-3; }

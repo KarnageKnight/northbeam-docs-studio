@@ -7,7 +7,8 @@ Phase 6 adds the Publish handler/service and writer action using the same transa
 editor state patterns. Public list and detail APIs/types/pages are implemented in Phases
 7–8. Detail reuses MarkdownContent and native Nuxt fetching/status helpers. Phase 9 Unpublish
 uses the existing transaction/editor/action patterns while always retaining the local
-buffer. Later history interfaces below remain target contracts.
+buffer. Phase 10 adds newest-first history and read-only snapshot inspection through the
+existing composable/component/query boundaries. Restore/Delete remain target contracts.
 
 Use the approved [HTTP contract](http-api.md), [data model](../data-model.md), and
 [plan](../plan.md). These interfaces derive from the selected thin-handler, function,

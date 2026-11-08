@@ -7,8 +7,8 @@ and the documented responsive layouts and feedback states. Only this approved de
 is retained in the preview assets.
 **Scope**: Five screen wireframes, rendered visual mockups, and feedback states.
 Writer list/creation, editable Write/Preview/save, and Phase 6 Publish follow this design.
-Public list/detail and Phase 9 Unpublish follow the approved design. History wireframes
-remain targets for later feature phases.
+Public list/detail, Unpublish, and Phase 10 read-only history follow the approved design.
+Restore/Delete controls remain targets for later feature phases.
 
 Use the approved [specification](spec.md), [plan](plan.md),
 [HTTP contract](contracts/http-api.md), and [UI/service boundaries](contracts/ui-and-services.md).
@@ -328,6 +328,15 @@ conflict/reload feedback is reused; state errors request explicit reload. Browse
 verified actual public removal, republish, two-tab conflicts, network retry, and responsive
 three-action layouts with 44px targets. History controls remain in later phases.
 
+
+**Phase 10 implementation**: Version history sits below the editor with newest-first
+numbers, Current published/Last published labels, and a separate read-only inspection
+region. Shared Markdown renders only the selected snapshot; local inputs remain intact.
+Refresh and separate list/inspection loading/error/retry feedback are implemented. Browser
+checks passed old/current/retained inspection, safe content, missing-version feedback,
+local/stored/public isolation, and 320/390/1440px layouts with 44px controls and no final
+hydration/runtime warnings. Restore/Delete controls remain in later phases.
+
 ## Feedback states across screens
 
 | State | Approved presentation and recovery |
@@ -366,8 +375,8 @@ After reviewing the rendered previews, the user explicitly approved the final
 black/white/green tabbed design on 2026-11-07. This approval covers the current styling,
 layouts, and documented interaction/feedback states.
 
-T035 is complete. Phases 1–8 are approved. Phase 9 Unpublish is implemented and verified,
-pending human approval. History arrives later.
+T035 is complete. Phases 1–9 are approved. Phase 10 read-only history is implemented and verified,
+pending human approval. Restore/Delete arrive later.
 Later visual changes require human approval.
 Wireframes and rendered previews demonstrate design intent. Prototype checks are recorded
 above; actual application browser, responsive, and accessibility behavior must still be

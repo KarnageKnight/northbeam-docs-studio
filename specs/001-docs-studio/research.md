@@ -1,13 +1,13 @@
 # Research: Northbeam Docs Studio
 
 **Date**: 2026-11-07
-**Status**: Research consolidated. The Phase 9 application passes build/typecheck,
-98 unit tests, and 103 PostgreSQL/HTTP cases on macOS arm64 with Linux containers.
+**Status**: Research consolidated. The Phase 10 application passes build/typecheck,
+98 unit tests, and 108 PostgreSQL/HTTP cases on macOS arm64 with Linux containers.
 Production Docker migrations/startup, restart idempotence, failure/interrupt cleanup, and
-overlap rejection were verified. Phases 1–8 are approved; [tabbed UI design](ui-design.md) is selected.
+overlap rejection were verified. Phases 1–9 are approved; [tabbed UI design](ui-design.md) is selected.
 Writer create/list/open, draft saving/restart persistence, safe Markdown preview, and
 two-tab save conflict/reload behavior are verified. Publish API atomicity and rollback/crash
-recovery and the writer Publish UI are verified. Phase 7 is approved. Phase 8 is approved. Phase 9 Unpublish API/browser checks pass; human phase approval is pending. Later lifecycle/UI
+recovery and the writer Publish UI are verified. Phase 7 is approved. Phase 8 is approved. Phase 9 is approved. Phase 10 history API/browser checks pass; human phase approval is pending. Later lifecycle/UI
 features and Windows/Linux host execution remain future verification.
 
 Public content is writer-published articles on any topic. Generic article wording is a
@@ -250,4 +250,20 @@ The writer action retains the local buffer unconditionally while updating saved 
 it never implicitly saves dirty content. Browser checks prove before/in-flight edit
 retention, conflicts with explicit reload/cancel/resubmit, network retry, invalid-state
 feedback, public navigation, and responsive action layout. No new abstraction, library,
-or persistence decision was needed; history remains its own subsequent feature.
+or persistence decision was needed; Phase 10 subsequently adds read-only history.
+
+
+## Phase 10 read-only history evidence
+
+History summary/detail queries use approved narrow projections and snapshot ownership.
+Ordering uses version number rather than UUID or audit timestamp. Existing integration
+coverage now verifies empty drafts, published/unpublished inspection, exact fields, UUID
+validation, missing/wrong-owner distinctions, unchanged stored/public state, and restart.
+
+ArticleHistory follows the approved component/composable boundaries and reuses the shared
+renderer. Initial native fetches are created together before awaiting to preserve Nuxt
+context and SSR hydration; manual initial refresh had produced browser mismatches and was
+replaced by native payload hydration. Browser checks verify no final hydration/runtime
+errors, local text retention, snapshot/public isolation, refresh/retry/loading behavior,
+missing-version feedback, retained labels, and mobile controls. No new library, architecture,
+or persistence decision was required; Restore/Delete remain in subsequent phases.

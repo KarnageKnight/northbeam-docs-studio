@@ -1,10 +1,16 @@
-import type { WriterArticle } from '../../shared/types/articles'
+import type { VersionDetail, VersionSummary, WriterArticle } from '../../shared/types/articles'
 
 export async function useArticleEditor(articleId: string) {
   const url = `/api/writer/articles/${encodeURIComponent(articleId)}`
-  const { data, error } = await useFetch<WriterArticle>(url)
+  const articleRequest = useFetch<WriterArticle>(url)
+  const historyRequest = useFetch<VersionSummary[]>(`${url}/versions`, { retry: 0 })
+  const [{ data, error }, { data: history, status: historyStatus, error: historyError, refresh: refreshHistory }] = await Promise.all([articleRequest, historyRequest])
   const article = ref<WriterArticle | null>(data.value ?? null)
   const loadError = ref<{ status?: number } | null>(error.value ?? null)
+  const inspectedVersion = ref<VersionDetail | null>(null)
+  const selectedVersionId = ref<string | null>(null)
+  const inspectionPending = ref(false)
+  const inspectionError = ref('')
   const draft = reactive({ title: article.value?.draft.title ?? '', body: article.value?.draft.body ?? '' })
   const tagsText = ref(article.value?.draft.tags.join(', ') ?? '')
   const pending = ref(false)
@@ -85,6 +91,7 @@ export async function useArticleEditor(articleId: string) {
       })
       acceptSaved(published, submitted)
       successMessage.value = 'Article published. A new version was created.'
+      await refreshHistory()
     }
     catch (error) {
       reportWriteError(error, 'publish')
@@ -105,6 +112,7 @@ export async function useArticleEditor(articleId: string) {
       conflict.value = false
       fieldErrors.value = {}
       successMessage.value = dirty.value ? 'Saved draft loaded. Newer local edits were kept.' : 'Saved draft loaded.'
+      await refreshHistory()
     }
     catch (error) {
       if (!article.value) loadError.value = error as { status?: number }
@@ -132,5 +140,23 @@ export async function useArticleEditor(articleId: string) {
     finally { pending.value = false }
   }
 
-  return { article, draft, tagsText, dirty, pending, conflict, publishDisabledReason, loadError, fieldErrors, errorMessage, successMessage, save, publish, unpublish, reload }
+  async function inspectVersion(versionId: string) {
+    if (inspectionPending.value || !article.value) return
+    selectedVersionId.value = versionId
+    inspectedVersion.value = null
+    inspectionError.value = ''
+    inspectionPending.value = true
+    try {
+      inspectedVersion.value = await $fetch<VersionDetail>(`${url}/versions/${encodeURIComponent(versionId)}`, { retry: 0 })
+    }
+    catch (error) {
+      inspectionError.value = (error as { status?: number }).status === 404
+        ? 'This version is no longer available. Refresh history to see available versions.'
+        : 'We could not load this version. Please try again.'
+    }
+    finally { inspectionPending.value = false }
+  }
+
+  return { article, draft, tagsText, dirty, pending, conflict, publishDisabledReason, loadError, fieldErrors, errorMessage, successMessage, save, publish, unpublish, reload,
+    history, historyStatus, historyError, refreshHistory, inspectedVersion, selectedVersionId, inspectionPending, inspectionError, inspectVersion }
 }

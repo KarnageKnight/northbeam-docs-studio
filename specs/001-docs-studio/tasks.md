@@ -1,8 +1,8 @@
 # Tasks: Northbeam Docs Studio
 
 **Feature**: `001-docs-studio` · **Created**: 2026-11-07
-**Status**: Phases 1–8 approved. Phase 9 Unpublish is implemented and verified, pending human approval.
-T035 retains the user-approved Write/Preview tabbed design. Phase 10 and later work have not started.
+**Status**: Phases 1–9 approved. Phase 10 history inspection is implemented and verified, pending human approval.
+T035 retains the user-approved Write/Preview tabbed design. Phase 11 and later work have not started.
 **Input**: [specification](spec.md), [plan](plan.md), [research](research.md),
 [data model](data-model.md), [HTTP contract](contracts/http-api.md),
 [UI/service contract](contracts/ui-and-services.md), [quickstart](quickstart.md),
@@ -430,7 +430,8 @@ eight Vue scripts, no findings. Disposable test/browser resources were removed; 
 resources were preserved. No schema, migration, dependency, or architecture change was
 needed. Phase 10 history inspection remains unstarted.
 
-**Phase approval**: Pending human review. Demonstrate this phase, present verification results, and wait for explicit human approval before starting the next phase.
+**Phase approval**: Approved by the user by requesting the next phase.
+Phase 10 history inspection is authorized; later phases retain their review gates.
 
 ## Phase 10: US5 — Inspect version history (P1)
 
@@ -438,8 +439,36 @@ needed. Phase 10 history inspection remains unstarted.
 **Dependencies**: Publish/unpublish and editor approved.
 **Independent test**: Inspect newest-first saved versions and full content, empty history, and history after unpublish; reject wrong-owner/missing snapshots and prove read-only state.
 
-- [ ] T015 [US5] Extend `tests/integration/articles.test.ts` and add history/owned-detail queries in `server/services/articles/queries.ts`, types in `shared/types/articles.ts`, `server/api/writer/articles/[articleId]/versions/index.get.ts`, and `server/api/writer/articles/[articleId]/versions/[versionId]/index.get.ts`. Return VersionSummary array newest first by versionNumber and exact VersionDetail on inspection; never order by UUID/audit timestamp. Validate both UUIDs, distinguish missing article from snapshot, use 404 SNAPSHOT_NOT_FOUND for missing/wrong-owner snapshots, and preserve all revisions/audit/publication/history values on reads, including after unpublish.
-- [ ] T025 [US5] Add `app/components/ArticleHistory.vue` and connect listing/inspection through `app/composables/useArticleEditor.ts` and `app/pages/writer/articles/[articleId].vue`. Show newest-first numbers and inspected title/body/tags, label the current/retained reference, and provide empty/loading/error feedback. Verify read-only history in published/unpublished states and that inspection changes no draft/publication/history data. Restore and delete controls are introduced only with their own feature phases T037/T038; use existing real API coverage and no browser automation dependency.
+- [x] T015 [US5] Extend `tests/integration/articles.test.ts` and add history/owned-detail queries in `server/services/articles/queries.ts`, types in `shared/types/articles.ts`, `server/api/writer/articles/[articleId]/versions/index.get.ts`, and `server/api/writer/articles/[articleId]/versions/[versionId]/index.get.ts`. Return VersionSummary array newest first by versionNumber and exact VersionDetail on inspection; never order by UUID/audit timestamp. Validate both UUIDs, distinguish missing article from snapshot, use 404 SNAPSHOT_NOT_FOUND for missing/wrong-owner snapshots, and preserve all revisions/audit/publication/history values on reads, including after unpublish.
+- [x] T025 [US5] Add `app/components/ArticleHistory.vue` and connect listing/inspection through `app/composables/useArticleEditor.ts` and `app/pages/writer/articles/[articleId].vue`. Show newest-first numbers and inspected title/body/tags, label the current/retained reference, and provide empty/loading/error feedback. Verify read-only history in published/unpublished states and that inspection changes no draft/publication/history data. Restore and delete controls are introduced only with their own feature phases T037/T038; use existing real API coverage and no browser automation dependency.
+
+**T015 evidence**: Five new cases in the existing integration suite failed before the
+history endpoints existed; the prior 103 integration cases passed. The native list/detail
+handlers now validate UUIDs before lookup, distinguish article/snapshot absence, and reject
+wrong-owner targets. Queries return exact VersionSummary/VersionDetail projections and
+order by descending version number even when UUID/time ordering disagrees. Tests prove
+empty draft history, valid non-v4 IDs, published/unpublished read-only inspection, unchanged
+SQL/public state/audits, and restart persistence. Typecheck, changed-test typecheck, build,
+and full suite pass: 98 unit + 108 PostgreSQL/HTTP cases. T025 UI/browser work is next.
+
+**T025 / Phase 10 evidence**: Added the separate read-only history component and
+per-editor listing/inspection state. Rows show newest-first version numbers and current/
+last-published reference labels; selection loads exact title/body/tags with shared safe
+Markdown. Publish refreshes history; explicit Refresh history and separate list/inspection
+loading/error/retry states preserve local inputs. Initial native article/history fetches
+are created before awaiting and hydrate from their server payloads; existing missing-page
+tests and real-browser checks verify Nuxt context and hydration correctness.
+Production Chrome/SQL checks passed empty draft history, automatic post-publish refresh,
+old/current inspection, raw HTML/unsafe link policy, dirty/local typing retention, unchanged
+stored/public state, and retained inspection after unpublish. Network list/detail failures,
+loading/retry recovery, controlled missing-version feedback/refresh, reopening state, and
+320/390/1440px history layouts with 44px targets passed. No runtime exceptions or hydration
+warnings occurred. No Restore/Delete control or endpoint was added.
+Nuxt/changed-test typechecks, production build, and full suite pass: 98 unit + 108 real
+PostgreSQL/HTTP cases (206 total). Pinned-type audit: 42 files/nine Vue scripts, no findings.
+Disposable test/browser resources were removed; normal resources were preserved. No schema,
+migration, dependency, architecture, or Markdown-policy change was needed. Phase 11 Restore
+remains unstarted.
 
 **Phase approval**: Pending human review. Demonstrate this phase, present verification results, and wait for explicit human approval before starting the next phase.
 
@@ -537,8 +566,8 @@ needed. Phase 10 history inspection remains unstarted.
 Execute the phases above in order, with explicit human approval at every boundary.
 Task IDs are stable references rather than a numeric execution sequence. UI tasks moved
 into their owning story retain their original ID; newly split UI tasks are T036–T039.
-T001–T014, T022–T024, T035–T036, and T039 are complete with evidence above (20 tasks).
-Phases 1–8 are approved; Phase 9 awaits human approval.
+T001–T015, T022–T025, T035–T036, and T039 are complete with evidence above (22 tasks).
+Phases 1–9 are approved; Phase 10 awaits human approval.
 Later phase approvals and tasks remain pending.
 
 ```text
