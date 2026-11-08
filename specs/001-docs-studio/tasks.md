@@ -1,8 +1,8 @@
 # Tasks: Northbeam Docs Studio
 
 **Feature**: `001-docs-studio` · **Created**: 2026-11-07
-**Status**: Phases 1–11 approved. Phase 12 snapshot deletion is implemented and verified, pending human approval.
-T035 retains the user-approved Write/Preview tabbed design. Phase 13 and later work have not started.
+**Status**: Phases 1–12 approved. Phase 13 concurrency/rejection evidence is verified, pending human approval.
+T035 retains the user-approved Write/Preview tabbed design. Phase 14 and later work have not started.
 **Input**: [specification](spec.md), [plan](plan.md), [research](research.md),
 [data model](data-model.md), [HTTP contract](contracts/http-api.md),
 [UI/service contract](contracts/ui-and-services.md), [quickstart](quickstart.md),
@@ -549,9 +549,9 @@ No runtime exceptions or hydration warnings occurred.
 Typechecks, build, and full suite pass: 98 unit + 118 real PostgreSQL/HTTP cases (216 total).
 Pinned-type audit: 46 files/nine Vue scripts, no findings. Disposable resources were removed;
 normal resources were preserved. No schema, migration, dependency, architecture, or Markdown
-policy change was needed. Phase 13 coordinated concurrency evidence remains unstarted.
+policy change was needed. Coordinated concurrency was subsequently verified in Phase 13 below.
 
-**Phase approval**: Pending human review. Demonstrate this phase, present verification results, and wait for explicit human approval before starting the next phase.
+**Phase approval**: Approved by the user on 2026-11-07 by requesting the next phase. Phase 13 is authorized; later phases retain their approval gates.
 
 **Phase 12 review follow-up — writer slug URLs**: The user selected
 `/writer/articles/:slug/edit`, keeping creation at `/writer/articles/new` and allowing
@@ -563,7 +563,7 @@ checks passed all existing editor actions, article-to-article navigation, stale-
 preservation/reload, and initial lookup failure/Retry, without runtime or hydration
 errors. Typechecks/build/full suite pass: 98 unit + 119 PostgreSQL/HTTP cases (217 total);
 the pinned-type audit found no deprecations in 47 files/nine Vue scripts. See quickstart
-for details. Phase 12 remains pending human review; Phase 13 has not started.
+for details. The user subsequently approved Phase 12 and authorized Phase 13.
 
 ## Phase 13: US8 — Cross-feature concurrency evidence (P1)
 
@@ -571,9 +571,46 @@ for details. Phase 12 remains pending human review; Phase 13 has not started.
 **Dependencies**: All lifecycle and public features approved; conflicts already implemented with each write.
 **Independent test**: Parameterize stale operations and exact native errors, coordinate independent connections for same-revision writes and delete races, then repeat two-tab UI rejection/reload with preserved local content. No basic conflict handling is deferred to this phase.
 
-- [ ] T018 [US8] Parameterize existing cases in `tests/integration/articles.test.ts` for save/publish/unpublish/restore stale-token behavior and extend `tests/unit/articles-validation.test.ts` where needed. Cover missing/null/string/fraction/negative/unsafe expectedRevision, strict unknown fields, a safe-integer revision beyond PostgreSQL integer range, missing articles, no-op revision advancement, and stale-before-publish-body/unpublish-state/restore-target checks. Assert exact native status/application code and unchanged SQL/public state for all rejected operations; extend generic unexpected-production-500 evidence without exposing database details. Fix only demonstrated defects in `server/validation/articles.ts`, `server/utils/api-errors.ts`, or the relevant lifecycle helper/operation.
-- [ ] T019 [US8] Extend `tests/integration/articles.test.ts` and existing SQL helpers in `tests/integration/helpers.ts` with coordinated same-revision save/save and publish/save contention, plus a parameterized valid unpublish/restore contender where clear. Use real independent backend connections and an observed lock barrier, not Promise.all timing alone; release barriers in cleanup. Assert one success/one 409 STALE_REVISION, one revision advance, coherent draft/live snapshot/counter/date/audit values, and no partial history. Reuse the existing lifecycle assertions instead of duplicating entire suites.
-- [ ] T020 [US8] Extend the existing contention cases in `tests/integration/articles.test.ts` and `tests/integration/helpers.ts` for publish/delete and restore/delete on the same article using deterministic lock coordination, exercising both operation orders. Verify each serialized outcome follows the HTTP contract: retained references cannot disappear, ownership stays valid, an eligible old snapshot may be deleted after the reference moves, and restore either copies an existing snapshot or fails without mutation if deletion wins. Complete operations before resets and prove no deadlock/partial state; change lifecycle code only for demonstrated failures.
+- [x] T018 [US8] Parameterize existing cases in `tests/integration/articles.test.ts` for save/publish/unpublish/restore stale-token behavior and extend `tests/unit/articles-validation.test.ts` where needed. Cover missing/null/string/fraction/negative/unsafe expectedRevision, strict unknown fields, a safe-integer revision beyond PostgreSQL integer range, missing articles, no-op revision advancement, and stale-before-publish-body/unpublish-state/restore-target checks. Assert exact native status/application code and unchanged SQL/public state for all rejected operations; extend generic unexpected-production-500 evidence without exposing database details. Fix only demonstrated defects in `server/validation/articles.ts`, `server/utils/api-errors.ts`, or the relevant lifecycle helper/operation.
+
+**T018 evidence**: Existing action cases now cover Save alongside Publish/Unpublish/Restore
+for missing/null/string/fraction/negative/unsafe/boolean/object revisions, unknown fields,
+malformed/missing IDs/JSON, large safe stale tokens, and exact HTTP/application errors.
+Every shared rejection check compares full SQL rows/audits/history and public responses;
+existing stale-before-body/state/target and no-op advancement coverage remains intact.
+Production failure probes also check that lifecycle errors expose no private detail/SQL/stack.
+No application defect was found. Build, Nuxt/test typechecks, and the full suite pass:
+98 unit + 122 real PostgreSQL/HTTP cases (220 total). T019 is next.
+
+- [x] T019 [US8] Extend `tests/integration/articles.test.ts` and existing SQL helpers in `tests/integration/helpers.ts` with coordinated same-revision save/save and publish/save contention, plus a parameterized valid unpublish/restore contender where clear. Use real independent backend connections and an observed lock barrier, not Promise.all timing alone; release barriers in cleanup. Assert one success/one 409 STALE_REVISION, one revision advance, coherent draft/live snapshot/counter/date/audit values, and no partial history. Reuse the existing lifecycle assertions instead of duplicating entire suites.
+
+**T019 evidence**: A shared test helper holds the article row on a controller connection,
+observes the first HTTP transaction blocked on it, then observes the second queued behind
+the first. Three distinct backend PIDs prove independent overlapping connections before
+release; cleanup releases the barrier and settles requests before fixture reset. Five cases
+cover save/save, publish/save in both orders, and valid unpublish/restore in both orders.
+Each proves the first succeeds, the second returns 409 STALE_REVISION, exactly one revision
+advance, complete draft/publication/audit/counter consistency, and unchanged prior snapshots.
+No application changes were needed. Test typecheck and full production-build-backed suite
+pass: 98 unit + 127 PostgreSQL/HTTP cases (225 total). T020 is next.
+
+- [x] T020 [US8] Extend the existing contention cases in `tests/integration/articles.test.ts` and `tests/integration/helpers.ts` for publish/delete and restore/delete on the same article using deterministic lock coordination, exercising both operation orders. Verify each serialized outcome follows the HTTP contract: retained references cannot disappear, ownership stays valid, an eligible old snapshot may be deleted after the reference moves, and restore either copies an existing snapshot or fails without mutation if deletion wins. Complete operations before resets and prove no deadlock/partial state; change lifecycle code only for demonstrated failures.
+
+
+**T020 evidence**: The observed-lock helper now drives publish/delete and restore/delete
+in both orders. Publication-first moves the reference before old-snapshot deletion (200/204);
+deletion-first rejects the retained reference before publication succeeds (409/200).
+Restore-first copies historical content before deletion (200/204); deletion-first makes
+restore return 404 SNAPSHOT_NOT_FOUND without changing any article/audit/public state.
+All outcomes retain a valid owned live reference, exact prior snapshot content, preserved
+first publication date, coherent revision/counter/audits, and no partial writes/deadlocks.
+Both HTTP requests settle and barriers release before resets. No application change was
+needed. Test typecheck/full suite pass: 98 unit + 131 PostgreSQL/HTTP cases (229 total).
+Two-tab browser verification also passes for Save/Publish/Unpublish/Restore: stale 409
+preserves in-flight local input and full SQL/public state, no automatic write retry occurs,
+reload cancel/confirm works, and explicit resubmission succeeds. No runtime exceptions
+or hydration warnings occurred. Disposable resources were removed; normal data was preserved.
+Build/Nuxt/test typechecks pass. Phase 14 has not started.
 
 **Phase approval**: Pending human review. Demonstrate this phase, present verification results, and wait for explicit human approval before starting the next phase.
 
@@ -637,8 +674,8 @@ for details. Phase 12 remains pending human review; Phase 13 has not started.
 Execute the phases above in order, with explicit human approval at every boundary.
 Task IDs are stable references rather than a numeric execution sequence. UI tasks moved
 into their owning story retain their original ID; newly split UI tasks are T036–T039.
-T001–T017, T022–T025, and T035–T039 are complete with evidence above (26 tasks).
-Phases 1–11 are approved; Phase 12 awaits human approval.
+T001–T020, T022–T025, and T035–T039 are complete with evidence above (29 tasks).
+Phases 1–12 are approved; Phase 13 awaits human approval.
 Later phase approvals and tasks remain pending.
 
 ```text

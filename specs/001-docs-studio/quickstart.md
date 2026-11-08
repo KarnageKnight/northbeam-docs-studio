@@ -1,15 +1,15 @@
 # Quickstart and Verification Guide
 
 **Date**: 2026-11-07
-**Status**: Phases 1–11 approved. Phase 12 snapshot deletion is implemented and verified,
-pending human approval. Phase 13 concurrency evidence has not started.
+**Status**: Phases 1–12 approved. Phase 13 concurrency/rejection evidence is verified,
+pending human approval. Phase 14 and later work have not started.
 
 ## Current commands and evidence
 
 With Node 24.22.2 and pnpm 12.18.0: `pnpm install --frozen-lockfile`, `pnpm dev`,
 `pnpm run test:unit`, `pnpm run test:integration`, `pnpm test`, `pnpm exec nuxt typecheck`,
 and `pnpm run build` are available. Full verification passes 98 database-free unit cases
-and 118 real PostgreSQL/HTTP integration cases, plus typecheck and production build.
+and 131 real PostgreSQL/HTTP integration cases (229 total), plus typecheck and production build.
 Docker startup builds the application, applies migrations, and serves the writer feature.
 See [README.md](../../README.md) for prerequisites, configuration, and cleanup procedures.
 
@@ -183,7 +183,7 @@ cleanup ends. Handle stale-run diagnostics without treating an active run as dis
 The runner and its failure paths were verified on macOS arm64 with Linux containers.
 See README for ownership diagnostics and stale-lock handling; Windows/Linux host runs remain unverified.
 
-Future lifecycle concurrency cases must coordinate locks and observe distinct database connections before
+Phase 13 lifecycle concurrency cases coordinate locks and observe distinct database connections before
 releasing contenders; a pair of promises alone is not proof of overlap. A temporary
 database failure can force publication rollback after snapshot insertion; remove temporary
 fixture DDL before later cases. The restart case stops/restarts the built application
@@ -452,8 +452,8 @@ external API deletion verified missing-target feedback/refresh without losing lo
 At 320/390/1440px Delete/Restore/confirmation controls fit with 44px targets. No runtime
 exceptions/hydration warnings occurred. Typechecks/build and all 216 tests pass (98 unit +
 118 integration); pinned-type audit found no deprecations in 46 files/nine Vue scripts.
-Disposable resources were removed while normal resources were preserved. Phase 13 coordinated
-concurrency evidence remains pending; this phase does not claim its race audit is complete.
+Disposable resources were removed while normal resources were preserved. Coordinated
+concurrency was subsequently verified in Phase 13; see its evidence below.
 
 ## Acceptance coverage
 
@@ -495,16 +495,16 @@ Implementation follows [tasks.md](tasks.md): build each feature's API and UI tog
 run its existing/new meaningful checks and browser walkthrough, then present the results
 for human phase approval. Do not wait until all APIs exist to exercise writer screens.
 The later integrated walkthrough repeats the combined experience; it does not defer
-feature-level feedback, conflict preservation, or verification. Phases 1–11 are approved.
-T001–T017, T022–T025, and T035–T039 are verified and checked (26 tasks).
-Phase 12 awaits human approval; later tasks remain unchecked.
+feature-level feedback, conflict preservation, or verification. Phases 1–12 are approved.
+T001–T020, T022–T025, and T035–T039 are verified and checked (29 tasks).
+Phase 13 awaits human approval; later tasks remain unchecked.
 
 ## Design handoff
 
 Review [plan.md](plan.md), [data-model.md](data-model.md), and [contracts](contracts/http-api.md).
 Analysis and the spec-first checkpoint were verified before the authorized Phase 1
 implementation. The [tabbed design](ui-design.md) and Phase 4 create/list/open are approved;
-review Phase 12 deletion before starting Phase 13 coordinated concurrency evidence. AI creates no commits. Full application behavior and
+review Phase 13 concurrency evidence before starting Phase 14 slug lifecycle audit. AI creates no commits. Full application behavior and
 Windows/Linux host support remain unverified.
 
 ## Writer slug URLs — Phase 12 review change
@@ -528,4 +528,48 @@ explicit reload, and failed initial lookup Retry with subsequent history/publica
 No runtime exceptions, malformed history requests, or hydration warnings occurred.
 The pinned-type deprecation audit checked 47 source files/nine Vue scripts with no findings.
 The prior phase counts above remain historical. Disposable verification resources were
-removed; the normal application and database were preserved. Phase 13 remains unstarted.
+removed; the normal application and database were preserved. The user subsequently
+approved Phase 12 and authorized Phase 13; its evidence follows.
+
+
+## Phase 13: rejection and concurrency verification
+
+Verified on 2026-11-07, macOS arm64 with PostgreSQL 18.6 in isolated Linux containers.
+No application behavior, architecture, schema, dependencies, or test orchestration changed.
+The existing unit cases already cover strict expectedRevision types; the HTTP cases now
+exercise all four revision-checked actions, invalid payloads, malformed/missing identifiers,
+large safe stale revisions, stale-before-body/state/target ordering, no-op advancement,
+and generic production errors. Rejections compare complete SQL/audit/history/public state.
+
+The contention helper holds the article row on a controller connection, starts the first
+HTTP request and observes its blocked backend, then starts the second request and observes
+it queued behind the first. Three distinct PIDs demonstrate overlap on independent
+connections. Only then does the controller release its row lock. Requests settle before
+fixture reset, and failure cleanup releases the barrier.
+
+| Coordinated overlap | Verified result |
+| --- | --- |
+| Save/save | First succeeds; second gets 409 STALE_REVISION; exactly one revision advance and winning draft |
+| Publish/save, in both orders | First succeeds; second gets 409 STALE_REVISION; publication exists only if Publish wins |
+| Unpublish/restore, in both orders | First succeeds; second gets 409 STALE_REVISION; coherent state, unchanged history/date/reference/counter |
+| Publish then delete retained snapshot | 200/204; new owned reference exists and the superseded snapshot is deleted |
+| Delete retained snapshot then publish | 409 SNAPSHOT_PROTECTED/200; protected snapshot survives and publication creates the next version |
+| Restore then delete historical snapshot | 200/204; copied draft remains valid after source deletion; live snapshot is unchanged |
+| Delete historical snapshot then restore | 204/404 SNAPSHOT_NOT_FOUND; draft/revision/audits/public output stay unchanged |
+
+All nine overlap cases finish without deadlocks or partial state. Assertions include full
+article/audit rows, unchanged prior snapshots, exact revision/counter changes, ownership,
+first publication dates, and public list/detail output.
+
+Two Chrome tabs separately verify stale Save/Publish/Unpublish/Restore. Text entered while
+the rejected response is paused survives the 409; SQL and public output remain unchanged.
+Each action makes one write request, with no automatic retry. Reload cancellation retains
+text; confirmed reload loads the winner's draft/revision; explicit resubmission succeeds.
+There were no runtime exceptions or hydration warnings.
+
+`pnpm exec nuxt typecheck`, explicit strict integration-test typecheck, `pnpm build`, and
+`pnpm test` pass. Final suite: 98 unit + 131 real PostgreSQL/HTTP cases (229 total).
+The pinned-type deprecation audit checked 47 files/nine Vue scripts with no findings.
+All test-runner resources and the separate Phase 13 browser-check project/volume were
+removed; existing application resources/data were preserved. The phase awaits human review;
+Phase 14 has not started. Windows/Linux host execution remains unverified.

@@ -19,6 +19,9 @@ eligibility; success copies only owned snapshot content into draft/revision/upda
 without publication/history changes. Phase 12 DELETE snapshot is implemented and verified:
 no caller revision, article-first lock, owned-target check, current/retained reference
 protection, empty 204, and unchanged article/audits/counter/public state.
+Phase 13 verifies shared rejection behavior and observed independent-connection contention:
+same-revision writes produce one success/one stale conflict; publish/delete and restore/delete
+follow both serialized orders without partial state. The route/body/error contracts are unchanged.
 
 Authority: [specification](../spec.md) and [plan](../plan.md) P025–P033. The
 [data model](../data-model.md) owns storage; this contract owns wire representations.

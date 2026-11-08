@@ -3,9 +3,8 @@
 An article-publishing application for writing on any topic. Public readers see articles
 explicitly published by writers.
 
-Phase 12 adds deletion of eligible historical snapshots. Phases 1–11 are approved;
-Phase 12 is verified and awaits human review.
-Cross-feature concurrency and final acceptance remain in later phases of
+Phases 1–12 are approved. Phase 13 verifies stale-write rejection and coordinated
+lifecycle races and awaits human review. Final acceptance remains in later phases of
 [tasks.md](specs/001-docs-studio/tasks.md).
 
 ## Run with Docker
@@ -215,10 +214,15 @@ Reviewers are not required to execute tests.
 
 Verified on macOS arm64 on 2026-11-07:
 
-- 98 unit tests for title/create/save/publish validation and safe Markdown; 119 real PostgreSQL/HTTP integration tests (217 total).
+- 98 unit tests for title/create/save/publish validation and safe Markdown; 131 real PostgreSQL/HTTP integration tests (229 total).
 - Writer slug links, direct reloads, slug `new` versus creation, and restart reopening;
   Chrome also verified existing editor actions, article-to-article navigation, and failed
   lookup Retry without runtime exceptions or hydration warnings.
+- Observed PostgreSQL lock barriers and three distinct backend connections verify same-revision
+  save/save, publish/save, and unpublish/restore contention, plus publish/delete and
+  restore/delete in both orders. Rejections preserve SQL/audit/history/public state.
+- Two-tab stale Save/Publish/Unpublish/Restore checks preserve in-flight local edits;
+  reload cancel/confirm and explicit resubmission work without automatic write retries.
 - Save normalization, stale/no-op revisions, publication/snapshot preservation, transaction
   rollback/recovery, and draft persistence after restart.
 - Real Chrome editor checks: unsaved preview, keyboard tabs, validation, two-tab stale saves,
@@ -306,16 +310,16 @@ separates build/test dependencies from the production runtime, which retains mig
 
 The current testing tradeoff is sequential cases and one disposable database per run,
 keeping fixture reset and cleanup straightforward at the cost of overlapping/parallel runs.
-Remaining acceptance audits, coordinated database races, and final platform
-verification will be added with their owning feature phases. See the [plan](specs/001-docs-studio/plan.md),
+Coordinated database races are verified. Remaining acceptance audits and final platform
+verification follow their own phase gates. See the [plan](specs/001-docs-studio/plan.md),
 [data model](specs/001-docs-studio/data-model.md), and [contracts](specs/001-docs-studio/contracts/http-api.md).
 
 The approved Phase 3 [UI design](specs/001-docs-studio/ui-design.md) contains five screen
 wireframes and a Deloitte-inspired black/white/green visual theme. The editor uses
 Write/Preview tabs in one panel at every width,
 with history planned below. A top-header Public / Writer switch links the two portals.
-Switching tabs preserves local edits without saving or publishing. Phases 1–11 are approved;
-Phase 12 Delete is verified and awaits human review.
+Switching tabs preserves local edits without saving or publishing. Phases 1–12 are approved;
+Phase 13 concurrency/rejection checks are verified and await human review.
 
 For visual review, open [the offline design preview](specs/001-docs-studio/design-preview/index.html)
 in a browser. It shows only the approved tabbed editor across all five screens, mobile sizing, and feedback

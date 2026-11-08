@@ -13,6 +13,10 @@ transaction and inspected-history action, with named dirty-buffer confirmation a
 implicit publication. Phase 12 Delete uses an article-first transaction without revision
 mutation, plus inspected-target confirmation and visible current/retained protection.
 The API independently rechecks eligibility and history refresh preserves local text.
+Phase 13 verifies stale Save/Publish/Unpublish/Restore in two Chrome tabs: input entered
+while the 409 response is paused survives, reload cancel/confirm works, and explicit
+resubmission succeeds without automatic write retries. Components and service contracts
+are unchanged; no runtime or hydration errors occurred.
 
 Use the approved [HTTP contract](http-api.md), [data model](../data-model.md), and
 [plan](../plan.md). These interfaces derive from the selected thin-handler, function,
