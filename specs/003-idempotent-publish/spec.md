@@ -8,6 +8,14 @@
 
 **Input**: User description: "Idempotent publish (publishing twice with no draft changes doesn't create a redundant identical snapshot). This is also a stretch goal."
 
+## Clarifications
+
+### Session 2026-11-09
+
+- Q: When an unpublished article is published again without content changes, should it reuse its last-published version? → A: Reuse the retained last-published snapshot and restore public access without creating a snapshot or allocating a version number. Advance the article revision and modification time for the publication-state change while preserving the original publication date.
+- Q: Should changing only the order of tags create a new version when publishing? → A: No. Compare normalized tag membership without regard to order. If title and body match exactly and tag membership is unchanged, reuse the referenced snapshot and retain its published tag order; preserve the saved draft's tag order.
+- Q: When already-published content is unchanged, should Publish leave the article revision and modification time unchanged too? → A: Yes. A valid current-revision Publish leaves all persisted fields unchanged, including article revision, modification time, and the referenced snapshot, and creates no snapshot.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Publish Unchanged Content Without Duplicating History (Priority: P1)
@@ -24,8 +32,9 @@ and the writer receives clear feedback that the content was already published.
 
 **Acceptance Scenarios**:
 
-1. **Given** a published article whose saved title, Markdown body, and ordered tags exactly
-   match its live snapshot, **When** the writer publishes with the current revision,
+1. **Given** a published article whose saved title and Markdown body match its live snapshot
+   exactly and whose normalized tag membership is identical regardless of order,
+   **When** the writer publishes with the current revision,
    **Then** publication succeeds without creating a snapshot or changing the live reference.
 2. **Given** that unchanged publish, **When** the result is inspected, **Then** the draft,
    history, revision, next version number, audit timestamps, first publication date, and
@@ -37,6 +46,9 @@ and the writer receives clear feedback that the content was already published.
    snapshot content and published, **Then** no new snapshot is created.
 5. **Given** unchanged content, **When** publication is repeated several times using the
    current revision, **Then** all attempts leave the same live version and history.
+6. **Given** only the saved tag order differs from the live snapshot, **When** published
+   with the current revision, **Then** no version is created, the snapshot's public tag
+   order remains unchanged, and the saved draft retains its own tag order.
 
 ---
 
@@ -57,7 +69,7 @@ snapshot. Repeat Publish and confirm no further state change.
 1. **Given** a never-published article with a valid saved draft, **When** published,
    **Then** its first snapshot is created, it becomes public, and its first publication
    date and revision follow the existing publication rules.
-2. **Given** saved title, Markdown body, or ordered tags differing from the referenced
+2. **Given** saved title, Markdown body, or normalized tag membership differing from the referenced
    snapshot, **When** published, **Then** exactly one new numbered snapshot becomes live,
    existing versions remain immutable, and the original publication date is preserved.
 3. **Given** an unpublished article whose saved draft matches its retained last-published
@@ -105,8 +117,10 @@ publication. Verify no extra snapshots or partial changes and preserved local ed
   flags. Saving identical content does not require another publication version.
 - Body whitespace, trailing newlines, Unicode sequences, Markdown syntax, and title
   whitespace are compared exactly as stored; visually equivalent rendering is insufficient.
-- Tags use the existing saved normalization rules; their stored order participates in
-  equality because snapshots and public responses preserve that order.
+- Tags use the existing saved normalization rules and compare by membership, ignoring order.
+  Reusing a snapshot preserves its public tag order and leaves saved draft order intact,
+  including when republishing after Unpublish. If another content change creates a new
+  snapshot, that snapshot copies the current saved draft tag order.
 - Draft-only articles always require a first snapshot; identical content belonging to
   another article never affects publication.
 - Blank-body and other existing publication validation still reject invalid drafts.
@@ -151,10 +165,14 @@ modes, and other stretch features.
 Requirement IDs below are local to `003-idempotent-publish`.
 
 - **FR-001**: The system MUST determine publication equality from exact saved title,
-  Markdown source body, and ordered normalized tags compared with the same article's
-  referenced live or last-published snapshot.
+  Markdown source body, and order-independent normalized tag membership compared with
+  the same article's referenced live or last-published snapshot. Tag reordering alone MUST
+  NOT create a new version. Reuse MUST preserve the referenced snapshot's public tag order
+  and the saved draft's own tag order; a new snapshot MUST copy saved draft tag order.
 - **FR-002**: A valid current-revision publish of already-published identical content MUST
-  succeed without creating a snapshot or changing any persisted article or version field.
+  succeed without creating a snapshot or changing any persisted article or version field,
+  including the article revision and modification time. Concurrent valid unchanged attempts
+  MUST NOT invalidate each other by advancing the revision.
 - **FR-003**: A never-published article or saved content different from its referenced
   snapshot MUST follow ordinary publication behavior and create exactly one new snapshot
   for the successful state-changing attempt.
@@ -195,10 +213,14 @@ Requirement IDs below are local to `003-idempotent-publish`.
 
 - **SC-001**: After initial publication, ten consecutive current-revision publishes with
   unchanged saved content add zero snapshots, consume zero version numbers, and change
-  zero persisted fields.
-- **SC-002**: Each review case changing title, body, tag membership, or tag order creates
-  exactly one new version on valid publication; identical saves and exact reversions to
-  the current snapshot create zero redundant versions.
+  zero persisted fields, including revision and modification time. Multiple concurrent
+  unchanged attempts using that same revision also succeed without persistent changes
+  when no state-changing operation intervenes.
+- **SC-002**: Each review case changing title, body, or tag membership creates exactly one
+  new version on valid publication; identical saves, tag-only reorderings, and reversions
+  to matching text and tag membership create zero redundant versions. Tag-only reordering
+  cases for already-published and unpublished articles preserve the referenced snapshot's
+  public tag order and the saved draft's own order. New-version cases copy saved tag order.
 - **SC-003**: Unpublish followed by unchanged Publish restores public access with the same
   snapshot and original publication date, zero new versions, and one revision advancement
   for that republish. A following unchanged Publish makes zero additional changes.
@@ -212,10 +234,13 @@ Requirement IDs below are local to `003-idempotent-publish`.
 - "No draft changes" means equality of saved versioned content, not equality of revisions.
 - Only the referenced live/last-published snapshot is eligible for reuse. Existing redundant
   history remains untouched.
-- Exact stored text and ordered tags define identity. Rendered equivalence and ignoring tag
-  order are excluded; this default is independent of the version-diff feature's presentation.
-- Unchanged republishing after Unpublish reuses the retained snapshot and restores visibility.
-  Already-published unchanged Publish is a complete persistent no-op. These are proposed
-  product defaults for review.
+- Exact stored title/body text and order-independent normalized tag membership define
+  equality. Tag order is ignored, consistent with the version-diff feature's presentation,
+  confirmed by the user on 2026-11-09. Rendered text equivalence remains excluded.
+- Unchanged republishing after Unpublish reuses the retained snapshot and restores visibility,
+  advancing the article revision and modification time while preserving the original
+  publication date. Confirmed by the user on 2026-11-09.
+- Already-published unchanged Publish leaves all persisted fields unchanged, including
+  revision and modification time. Confirmed by the user on 2026-11-09.
 - Existing writer access, validation, save-before-publish behavior, and conflict handling
   remain in use. No new architectural mechanism or dependency is selected here.
