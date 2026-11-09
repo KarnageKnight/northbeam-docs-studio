@@ -6,7 +6,7 @@
 on 2026-11-08, including intermediate gates. Integrated interface acceptance and the final
 audit/documentation are verified. Linux-client Docker acceptance and macOS host development
 pass; Windows T028 remains open, so Phase 16 and FR-013/SC-005 are not fully verified.
-Phase 18 is unstarted. The spec-first checkpoint was verified before code without git
+Phase 18 review work is verified, pending final human approval. The spec-first checkpoint was verified before code without git
 commands. Feature identifier `001-docs-studio` does not establish a branch name;
 architecture decisions P001–P077 remain authoritative.
 
@@ -120,7 +120,7 @@ execution evidence follows implementation.
 | II. Draft and snapshot isolation | Public reads use live snapshots; immutable history and referenced-snapshot protection. | Data model and contracts specify table separation, immutable-row trigger, owned reference, and retained-reference deletion protection. |
 | III. Atomic lifecycle and concurrency | Transactional publication and revision checks; no partial state or stale overwrites. | Contracts specify article-first locking, revision-before-eligibility ordering, transactional allocation, rollback, and SQL constraints. |
 | IV. Database-backed evidence | Real PostgreSQL lifecycle/failure/race tests; passing build and suite once scaffolded. | Quickstart maps invariants to real HTTP/SQL evidence, independent connections, rollback and restart checks. Build/typecheck, 99 unit cases, and 143 real PostgreSQL/HTTP cases pass, including normalized slug collisions/immutability/boundaries, observed competing inserts and lifecycle contention, both delete-race orders, rollback/crash recovery, restart, and safe rendering. Final acceptance/platform audits remain. |
-| V. Small reviewable changes | Small scoped tasks, verification, explanation, human review, and no AI commits. | Implement one small task at a time; keep subsequent tasks separate unless explicitly requested together. Leave changes for human review and approval. 36 tasks verified; Windows T028 open; Phase 18 unstarted. One-shot execution through Phase 17 was explicitly authorized; no AI commits. |
+| V. Small reviewable changes | Small scoped tasks, verification, explanation, human review, and no AI commits. | Implement one small task at a time; keep subsequent tasks separate unless explicitly requested together. Leave changes for human review and approval. 38 tasks verified; Windows T028 open; Phase 18 review prepared; final human approval pending. One-shot execution through Phase 17 was explicitly authorized; no AI commits. |
 | VI. Human architecture decisions | Present alternatives and record each human selection before dependent work. | P001–P077 record selections and rationale; consolidated artifacts await final human review. |
 | VII. Consistent patterns | Establish approved patterns and reuse them across implementation tasks. | UI/service contract fixes shared validation, handlers/errors, transaction helper, data access, renderer, and local-state patterns. |
 
@@ -154,8 +154,8 @@ Generated design artifacts:
 - [quickstart.md](quickstart.md): verified foundation commands and future feature acceptance procedures.
 
 [tasks.md](tasks.md) contains 39 dependency-ordered tasks across all 14 stories, with
-verification and human review gates. T001–T027, T029–T032, and T035–T039 are verified
-and checked (36 tasks). Windows T028 remains open; Phase 18 T033/T034 is unstarted.
+verification and human review gates. T001–T027 and T029–T039 are verified
+and checked (38 tasks). Windows T028 remains open; Phase 18 T033/T034 review work is verified.
 The user authorized execution through Phase 17 without additional intermediate gates.
 
 ### UI design review before page implementation
@@ -2492,4 +2492,19 @@ and artifact/roadmap reconciliation. Unit tests pass without a DB or working Doc
 the full 242-test suite provisions/migrates/resets/cleans only its own integration resources.
 No new application code, tests, migration, architecture, dependency, or Markdown policy was
 needed. FR-013/SC-005 remain partially verified because Windows runtime acceptance is open.
-The user authorized this run through Phase 17; Phase 18 is outside scope and unstarted.
+The user authorized this run through Phase 17; The user subsequently authorized Phase 18 review; its evidence is recorded below.
+
+
+## Phase 18 review evidence — November 8, 2026
+
+Clean-copy default startup/build and the entire README demo plus four two-tab recovery
+checks pass without runtime/hydration errors. Runtime/config/test source matches the
+workspace byte-for-byte; prior final 242-test/typecheck/build evidence remains applicable.
+No application fix or architectural change was needed. Rehearsal resources were removed.
+
+Raw repository-object review confirms spec/plan/tasks/constitution checkpoint `c1249f9`
+before first application commit `c9edadd`, with 44 commits reachable from audited HEAD
+`32ba2436`. A local review ZIP preserves existing reachable objects/refs while excluding
+local configuration/hooks/secrets/generated files. Handoff notes and manifest/checksum
+support human review. No git commands, commits, history rewrite, remote write, or submission
+were performed. Windows T028 remains open; final human approval/submission is outstanding.

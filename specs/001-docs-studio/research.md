@@ -7,7 +7,7 @@ the user authorized execution through Phase 17. Integrated browser acceptance, c
 Linux-client Docker startup/persistence/failure recovery, and Docker-free macOS development
 with local PostgreSQL 18.6/HMR/restart are verified. Windows T028 remains open; a standalone
 native Linux host was not separately exercised. Audit/documentation work through Phase 17
-is verified with this gap disclosed; Phase 18 is unstarted.
+is verified with this gap disclosed. Phase 18 review is prepared, pending final human approval.
 
 Public content is writer-published articles on any topic. Generic article wording is a
 confirmed product clarification, with no change to lifecycle behavior or architecture.
@@ -366,3 +366,13 @@ FR-013/SC-005 are therefore partial. The user’s one-shot authorization permits
 of independent audit/docs through Phase 17, not a claim that unavailable checks passed.
 Temporary services were stopped/removed and normal resources preserved. No application,
 architecture, dependency, schema, API, or Markdown policy change was introduced.
+
+
+## Delivery review evidence
+
+On November 8, 2026 a fresh source copy passed production startup/build and the full demo
+plus two-tab recovery, with matching runtime/config/test source and no application changes.
+Repository-object audit confirms a complete spec/plan/tasks/constitution checkpoint before
+first application code. A review ZIP preserves reachable history without local config/hooks
+or secrets; its manifest/checksum and [handoff notes](handoff.md) support human review.
+Windows T028 and final human handoff approval remain open; no submission or commit occurred.

@@ -3,7 +3,9 @@
 **Feature**: `001-docs-studio` · **Created**: 2026-11-07
 **Status**: Phases 1–14 approved. The user authorized one-shot execution through Phase 17
 on 2026-11-08, including intermediate phase gates. Phase 15 and Phase 17 work is verified;
-Phase 16 is partially verified with Windows T028 open. Phase 18 is unstarted.
+Phase 16 is partially verified with Windows T028 open. On 2026-11-08 the user authorized
+Phase 18 delivery review. T033/T034 review work is verified and the handoff is prepared;
+Windows T028 and final human approval remain open.
 **Input**: [specification](spec.md), [plan](plan.md), [research](research.md),
 [data model](data-model.md), [HTTP contract](contracts/http-api.md),
 [UI/service contract](contracts/ui-and-services.md), [quickstart](quickstart.md),
@@ -689,7 +691,8 @@ The user subsequently authorized one-shot execution through Phase 17 on 2026-11-
 
 **T030–T032 evidence (2026-11-08)**: Audited every FR-001–FR-014 and SC-001–SC-006 in quickstart’s final evidence map. Existing lifecycle assertions cover the required invariants; no duplicate tests or application fixes were needed. Final `pnpm test`: 99 unit + 143 real PostgreSQL/HTTP cases (242), no skips; Nuxt and strict test-source typechecks/build pass. Unit-only verification passes with DATABASE_URL unset and an unusable Docker socket; integration provisioning/migrations/resets/cleanup removed only owned resources. README now records actual setup, model/rationale, shared concurrent writer access, safe Markdown, tradeoffs, demo, and platform limits. Artifacts and roadmap were synchronized. FR-013/SC-005 remain partially verified solely because Windows T028 is unavailable.
 
-**Phase status**: Audit/documentation work verified under the user’s one-shot authorization. Results await human review; platform T028 remains unchecked. Phase 18 has not started and retains its separate review gate.
+**Phase status**: Audit/documentation work verified under the user’s one-shot authorization. Results await human review; platform T028 remains unchecked. The user subsequently authorized Phase 18 delivery review on 2026-11-08; final handoff
+still requires human review and submission remains human-owned.
 
 ## Phase 18: Final delivery review
 
@@ -697,21 +700,42 @@ The user subsequently authorized one-shot execution through Phase 17 on 2026-11-
 **Dependencies**: All previous phases approved; reserve final two hours for defects/handoff.
 **Independent test**: Rehearse the documented complete demo and validate final evidence, deliverables, and human-maintained history; do not submit or commit automatically.
 
-- [ ] T033 Rehearse clean-copy installation and the complete reviewer demo from `README.md` and `specs/001-docs-studio/quickstart.md`, excluding local secrets/tooling/generated output from the temporary copy and retaining required tracked migration/lockfile assets. Reuse the existing platform and lifecycle evidence; rerun full suite/typecheck/build when fixes change the resulting state. Record remaining defects/platform gaps honestly and resolve required failures before marking the rehearsal complete; do not delete unrelated services/data or create git commits.
-- [ ] T034 Review final deliverables against `specs/001-docs-studio/spec.md`, `plan.md`, `tasks.md`, and `README.md`: every required story has its evidence, API/UI/run commands match contracts, and actual omissions/tradeoffs are explicit. Explain the resulting design and checks for human review, confirm the human-maintained spec-before-code history/checkpoints without git commands, and prepare the requested repository/archive handoff. Leave submission and commits to the human; add no stretch work or unrelated refactoring.
+- [x] T033 Rehearse clean-copy installation and the complete reviewer demo from `README.md` and `specs/001-docs-studio/quickstart.md`, excluding local secrets/tooling/generated output from the temporary copy and retaining required tracked migration/lockfile assets. Reuse the existing platform and lifecycle evidence; rerun full suite/typecheck/build when fixes change the resulting state. Record remaining defects/platform gaps honestly and resolve required failures before marking the rehearsal complete; do not delete unrelated services/data or create git commits.
+- [x] T034 Review final deliverables against `specs/001-docs-studio/spec.md`, `plan.md`, `tasks.md`, and `README.md`: every required story has its evidence, API/UI/run commands match contracts, and actual omissions/tradeoffs are explicit. Explain the resulting design and checks for human review, confirm the human-maintained spec-before-code history/checkpoints without git commands, and prepare the requested repository/archive handoff. Leave submission and commits to the human; add no stretch work or unrelated refactoring.
+
+**T033 evidence (2026-11-08)**: A clean temporary copy retained source, lockfile,
+migrations, tests and SDD artifacts while excluding local secrets/tooling/generated data.
+Default-port production Compose build/start and the full README demo passed, including
+safe preview, draft/live isolation, all history actions, missing pages, responsive controls,
+and four two-tab stale-action/reload/resubmit checks. No runtime/hydration errors or app
+fixes were found. Rehearsed runtime/config/test files match the workspace; final existing
+242-test/typecheck/build evidence is reused because that source is unchanged. Disposable
+resources were removed. Windows T028 remains an explicit unavailable platform check.
+
+**T034 evidence (2026-11-08)**: Reviewed the original Word brief plus spec/plan/tasks,
+README, routes, migrations, coverage/platform map, and documented tradeoffs/assumptions.
+Raw repository-object audit at HEAD `32ba2436d67c192ddfc4c8d5bbdca909b712c586` found 44
+reachable commits and confirmed spec/plan/tasks/constitution checkpoint `c1249f9` before
+first application commit `c9edadd`. No git commands/history changes/commits were used.
+[handoff.md](handoff.md) records evidence, limits, and the human-owned submission boundary.
+The review ZIP preserves reachable repository history and includes a file manifest/checksum,
+while excluding local config/hooks/secrets/generated data. No application, architecture,
+requirement, dependency, or stretch change was introduced. Full cross-platform signoff
+remains pending Windows T028; final handoff/submission requires human review.
 
 **Phase approval**: Pending human review. Present final evidence and wait for explicit human approval before handoff; submission remains human-owned.
 
 ## Dependencies and execution order
 
 Execute the phases above in order. The 2026-11-08 user instruction authorized Phases 15–17
-in one shot, including intermediate gates; preserve the Phase 18 boundary and all unavailable checks.
+in one shot, including intermediate gates; the subsequent 2026-11-08 request authorized Phase 18 review, while final human approval
+and all unavailable checks remain explicit.
 Task IDs are stable references rather than a numeric execution sequence. UI tasks moved
 into their owning story retain their original ID; newly split UI tasks are T036–T039.
-T001–T027, T029–T032, and T035–T039 are verified with evidence above (36 tasks).
+T001–T027 and T029–T039 are verified with evidence above (38 tasks).
 Phases 1–14 are approved. Phase 15 and Phase 17 work is verified; Phase 16 is partial
-with Windows T028 open. Phase 18 T033/T034 is unstarted. The user’s one-shot instruction
-authorized this execution without claiming unavailable Windows checks passed.
+with Windows T028 open. Phase 18 review work is verified and awaits final human approval;
+its authorization did not waive or mark unavailable Windows checks as passed.
 
 ```text
 Setup T001–T002 → Foundation T003–T005 → UI design T035

@@ -174,7 +174,7 @@ normalization/uniqueness/immutability, competing-create, and browser checks pass
 + 143 integration cases, typechecks/build) and were approved by the user. On 2026-11-08
 the user authorized one-shot execution through Phase 17. Integrated browser acceptance,
 Linux-client Docker startup/persistence, macOS host development, and final audit/docs pass.
-Windows T028 remains unverified and Phase 18 is unstarted; no new product assumption or
+Windows T028 remains unverified. Phase 18 review is prepared pending final human approval; no new product assumption or
 architecture decision is introduced; mocks alone cannot replace the required PostgreSQL evidence. See [quickstart](quickstart.md).
 
 The user selected feature-by-feature delivery: each feature phase combines its API, UI,

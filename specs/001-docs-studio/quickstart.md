@@ -4,7 +4,8 @@
 **Status**: Phases 1–14 approved. The user authorized execution through Phase 17 on
 2026-11-08. Integrated acceptance and final audit/documentation are verified. Linux-client
 Docker acceptance and macOS host development pass; Windows acceptance T028 remains open.
-Phase 18 is unstarted. See the final acceptance evidence below.
+Phase 18 clean-copy rehearsal and delivery review are prepared, pending final human approval.
+See the final acceptance evidence and handoff notes below.
 
 **Last verified**: 2026-11-08.
 
@@ -502,8 +503,8 @@ for human phase approval. Do not wait until all APIs exist to exercise writer sc
 The later integrated walkthrough repeats the combined experience; it does not defer
 feature-level feedback, conflict preservation, or verification. Phases 1–14 are approved.
 The user authorized one-shot execution through Phase 17, including intermediate gates.
-T001–T027, T029–T032, and T035–T039 are verified (36 tasks). T028 remains open for Windows;
-T033/T034 in Phase 18 are unstarted.
+T001–T027 and T029–T039 are verified (38 tasks). T028 remains open for Windows;
+T033/T034 in Phase 18 are verified review tasks; final handoff awaits human approval.
 
 ## Design handoff
 
@@ -708,5 +709,35 @@ reconciled without changing architecture or requirements.
 
 Phases 15 and 17 work are verified under the one-shot authorization. Phase 16 remains
 partially verified because T028 is unavailable; FR-013/SC-005 cannot be called fully verified.
-Phase 18 rehearsal/submission review (T033/T034) is unstarted. No git commands, AI commits,
+Phase 18 rehearsal/submission review (T033/T034) was subsequently authorized and verified;
+final handoff/submission remains human-owned. No git commands, AI commits,
 submission, CI/deployment changes, or stretch features were introduced.
+
+
+## Phase 18: delivery rehearsal and history review — November 8, 2026
+
+T033 used a fresh source copy retaining every tracked HEAD file, the locked manifests,
+reviewed migrations, and SDD artifacts. Local environment files/tooling/dependencies,
+generated output, database storage, and the original Word brief were excluded. Default-port
+production Compose build/start passed. The full README demo and four two-tab conflict
+checks passed again without runtime/hydration errors. Rehearsed runtime/config/test files
+match the workspace byte-for-byte (59 files); no application fixes were needed. The unchanged
+source retains the final 242-test/typecheck/build evidence above. Disposable containers,
+network, and volume were removed; normal resources were preserved.
+
+T034 reviewed the Word brief, implementation/contracts, requirements map, setup/demo,
+tradeoffs, limits, and SDD history. Reading refs and raw objects without git commands found
+44 reachable commits at HEAD `32ba2436d67c192ddfc4c8d5bbdca909b712c586` on
+`adding-validation-tests`. Checkpoint `c1249f9ad1f329aea765e5702a97633ab9aa6a6d` contains
+spec/plan/tasks/constitution and no application code; it precedes first application commit
+`c9edadd3e940ee6c59f8e9e1a3ed939c0748f840`. Existing object identities/history are preserved.
+
+[handoff.md](handoff.md) records a local review ZIP with source, required artifacts, existing
+reachable history, and a file manifest/archive checksum. Local git config/remotes/hooks,
+secrets and generated output are omitted; a minimal config/index are confined to the review
+copy. No original git metadata is modified and no commit is created. Pending documentation
+stays uncommitted and visible as working-tree changes in the candidate.
+
+Phase 18 review work is verified, pending final human approval. Windows T028 is still
+unavailable and FR-013/SC-005 remain partially verified. Preparing a review candidate does
+not upload, merge, commit, submit, or waive the platform gap.

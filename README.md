@@ -6,7 +6,8 @@ Public readers see only explicitly published content.
 
 Integrated acceptance, Linux-client Docker startup/persistence, macOS host development,
 and the final verification audit are recorded in the [verification guide](specs/001-docs-studio/quickstart.md).
-**Windows acceptance remains unverified (T028).** Phase 18 delivery review has not started.
+**Windows acceptance remains unverified (T028).** Final delivery review is prepared;
+see the [handoff notes](specs/001-docs-studio/handoff.md). Submission awaits human review.
 
 ## Run with Docker
 
@@ -206,3 +207,13 @@ The [specification](specs/001-docs-studio/spec.md), [plan](specs/001-docs-studio
 and [verification guide](specs/001-docs-studio/quickstart.md) record the decisions and evidence.
 For the approved sample-only visual preview, open
 [design-preview/index.html](specs/001-docs-studio/design-preview/index.html).
+
+
+## Delivery review
+
+A clean-copy build and complete demo rehearsal passed on November 8, 2026. The existing
+repository history confirms that Spec Kit artifacts preceded application code. A local
+review ZIP preserves that history and includes a file manifest/checksum; local configuration,
+hooks, secrets, dependencies, and generated output are excluded. Delivery-review documentation
+remains uncommitted. See the [handoff notes](specs/001-docs-studio/handoff.md) for the history
+checkpoints, archive scope, Windows gap, and human-owned review/commit/submission boundary.
