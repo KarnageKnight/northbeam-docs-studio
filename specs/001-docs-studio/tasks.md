@@ -5,7 +5,8 @@
 on 2026-11-08, including intermediate phase gates. Phase 15 and Phase 17 work is verified;
 Phase 16 is partially verified with Windows T028 open. On 2026-11-08 the user authorized
 Phase 18 delivery review. T033/T034 review work is verified and the handoff is prepared;
-Windows T028 and final human approval remain open.
+Final review was approved by the user on 2026-11-08. Windows T028 remains unverified;
+commits and submission remain human-owned.
 **Input**: [specification](spec.md), [plan](plan.md), [research](research.md),
 [data model](data-model.md), [HTTP contract](contracts/http-api.md),
 [UI/service contract](contracts/ui-and-services.md), [quickstart](quickstart.md),
@@ -691,8 +692,7 @@ The user subsequently authorized one-shot execution through Phase 17 on 2026-11-
 
 **T030–T032 evidence (2026-11-08)**: Audited every FR-001–FR-014 and SC-001–SC-006 in quickstart’s final evidence map. Existing lifecycle assertions cover the required invariants; no duplicate tests or application fixes were needed. Final `pnpm test`: 99 unit + 143 real PostgreSQL/HTTP cases (242), no skips; Nuxt and strict test-source typechecks/build pass. Unit-only verification passes with DATABASE_URL unset and an unusable Docker socket; integration provisioning/migrations/resets/cleanup removed only owned resources. README now records actual setup, model/rationale, shared concurrent writer access, safe Markdown, tradeoffs, demo, and platform limits. Artifacts and roadmap were synchronized. FR-013/SC-005 remain partially verified solely because Windows T028 is unavailable.
 
-**Phase status**: Audit/documentation work verified under the user’s one-shot authorization. Results await human review; platform T028 remains unchecked. The user subsequently authorized Phase 18 delivery review on 2026-11-08; final handoff
-still requires human review and submission remains human-owned.
+**Phase status**: Audit/documentation work verified under the user’s one-shot authorization. Results were included in the final review approved on 2026-11-08; platform T028 remains unchecked. The user subsequently authorized Phase 18 delivery review on 2026-11-08; final review was subsequently approved on 2026-11-08 and submission remains human-owned.
 
 ## Phase 18: Final delivery review
 
@@ -721,20 +721,23 @@ first application commit `c9edadd`. No git commands/history changes/commits were
 The review ZIP preserves reachable repository history and includes a file manifest/checksum,
 while excluding local config/hooks/secrets/generated data. No application, architecture,
 requirement, dependency, or stretch change was introduced. Full cross-platform signoff
-remains pending Windows T028; final handoff/submission requires human review.
+remains pending Windows T028; final review was subsequently approved on 2026-11-08.
+Submission remains human-owned.
 
-**Phase approval**: Pending human review. Present final evidence and wait for explicit human approval before handoff; submission remains human-owned.
+**Phase approval**: Approved explicitly by the user on 2026-11-08. This records final
+review approval, not a Windows execution result: T028 remains unchecked. Commits, merging,
+and submission remain human-owned; no external action is authorized or performed.
 
 ## Dependencies and execution order
 
 Execute the phases above in order. The 2026-11-08 user instruction authorized Phases 15–17
-in one shot, including intermediate gates; the subsequent 2026-11-08 request authorized Phase 18 review, while final human approval
-and all unavailable checks remain explicit.
+in one shot, including intermediate gates; the subsequent 2026-11-08 request authorized Phase 18 review. Final review approval was recorded on 2026-11-08; unavailable checks
+remain explicit.
 Task IDs are stable references rather than a numeric execution sequence. UI tasks moved
 into their owning story retain their original ID; newly split UI tasks are T036–T039.
 T001–T027 and T029–T039 are verified with evidence above (38 tasks).
 Phases 1–14 are approved. Phase 15 and Phase 17 work is verified; Phase 16 is partial
-with Windows T028 open. Phase 18 review work is verified and awaits final human approval;
+with Windows T028 open. Phase 18 review work is verified and approved;
 its authorization did not waive or mark unavailable Windows checks as passed.
 
 ```text

@@ -1,7 +1,7 @@
 # Final review handoff
 
-**Prepared**: November 8, 2026. **Status**: Review-ready; Windows acceptance T028 remains
-unverified and final submission is human-owned.
+**Prepared**: November 8, 2026. **Final review approved**: November 8, 2026.
+Windows acceptance T028 remains unverified; commits and final submission are human-owned.
 
 ## What is ready
 
@@ -28,7 +28,7 @@ At the audited branch `adding-validation-tests`, HEAD was
 - The checkpoint is an ancestor of that first implementation commit and contains all
   four artifacts with no application code. The required spec-before-code trail is intact.
 
-Latest delivery-review documentation remains uncommitted for human review. The archive
+Delivery-review documentation, including this approval record, remains uncommitted. The archive
 includes the reviewed working files and unchanged existing history; it does not represent
 a new commit. Humans own commits, merging, approval, and submission.
 
@@ -44,7 +44,8 @@ Git metadata in the review copy uses the existing branch/main refs and identical
 objects, with a minimal local configuration and an index representing committed HEAD.
 Uncommitted documentation therefore remains visible as working-tree changes.
 
-The archive is a review candidate, not an uploaded or approved submission. If files change
+The archive is a locally prepared candidate with final review approval recorded. It has
+not been uploaded or submitted. If files change
 after review, regenerate the candidate or deliver the reviewed repository with its history.
 
 ## Remaining acceptance
@@ -63,7 +64,8 @@ remain outside scope. There is no known unresolved application defect from the e
 
 ## Human review boundary
 
-Review the README demo, requirement/platform evidence, task status, history trail, and
-archive contents. Confirm or complete Windows acceptance, review and commit the pending
-documentation, then decide whether to submit the repository link or reviewed ZIP. No
+The user approved final review of the demo, evidence, task status, history trail, and
+archive on November 8, 2026. Windows acceptance remains unverified. The remaining human
+actions are to commit the pending documentation, merge as appropriate, and choose the
+repository link or reviewed ZIP for submission with the platform limitation disclosed. No
 submission, remote write, merge, or git commit has been performed by the agent.

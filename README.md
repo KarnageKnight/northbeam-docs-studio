@@ -7,7 +7,7 @@ Public readers see only explicitly published content.
 Integrated acceptance, Linux-client Docker startup/persistence, macOS host development,
 and the final verification audit are recorded in the [verification guide](specs/001-docs-studio/quickstart.md).
 **Windows acceptance remains unverified (T028).** Final delivery review is prepared;
-see the [handoff notes](specs/001-docs-studio/handoff.md). Submission awaits human review.
+see the [handoff notes](specs/001-docs-studio/handoff.md). Final review was approved on November 8, 2026; commits and submission remain human-owned.
 
 ## Run with Docker
 
@@ -205,6 +205,9 @@ resolution are pinned in the manifest/lockfile.
 The [specification](specs/001-docs-studio/spec.md), [plan](specs/001-docs-studio/plan.md),
 [data model](specs/001-docs-studio/data-model.md), [contracts](specs/001-docs-studio/contracts/http-api.md),
 and [verification guide](specs/001-docs-studio/quickstart.md) record the decisions and evidence.
+The [user decision inventory](specs/001-docs-studio/decision-inventory.md) groups all recorded
+product/architecture selections and distinguishes agreed non-functional requirements from
+unspecified load, availability, performance, and recovery targets.
 For the approved sample-only visual preview, open
 [design-preview/index.html](specs/001-docs-studio/design-preview/index.html).
 

@@ -6,7 +6,7 @@
 on 2026-11-08, including intermediate gates. Integrated interface acceptance and the final
 audit/documentation are verified. Linux-client Docker acceptance and macOS host development
 pass; Windows T028 remains open, so Phase 16 and FR-013/SC-005 are not fully verified.
-Phase 18 review work is verified, pending final human approval. The spec-first checkpoint was verified before code without git
+Phase 18 review work is verified, approved by the user on 2026-11-08. The spec-first checkpoint was verified before code without git
 commands. Feature identifier `001-docs-studio` does not establish a branch name;
 architecture decisions P001–P077 remain authoritative.
 
@@ -120,8 +120,8 @@ execution evidence follows implementation.
 | II. Draft and snapshot isolation | Public reads use live snapshots; immutable history and referenced-snapshot protection. | Data model and contracts specify table separation, immutable-row trigger, owned reference, and retained-reference deletion protection. |
 | III. Atomic lifecycle and concurrency | Transactional publication and revision checks; no partial state or stale overwrites. | Contracts specify article-first locking, revision-before-eligibility ordering, transactional allocation, rollback, and SQL constraints. |
 | IV. Database-backed evidence | Real PostgreSQL lifecycle/failure/race tests; passing build and suite once scaffolded. | Quickstart maps invariants to real HTTP/SQL evidence, independent connections, rollback and restart checks. Build/typecheck, 99 unit cases, and 143 real PostgreSQL/HTTP cases pass, including normalized slug collisions/immutability/boundaries, observed competing inserts and lifecycle contention, both delete-race orders, rollback/crash recovery, restart, and safe rendering. Final acceptance/platform audits remain. |
-| V. Small reviewable changes | Small scoped tasks, verification, explanation, human review, and no AI commits. | Implement one small task at a time; keep subsequent tasks separate unless explicitly requested together. Leave changes for human review and approval. 38 tasks verified; Windows T028 open; Phase 18 review prepared; final human approval pending. One-shot execution through Phase 17 was explicitly authorized; no AI commits. |
-| VI. Human architecture decisions | Present alternatives and record each human selection before dependent work. | P001–P077 record selections and rationale; consolidated artifacts await final human review. |
+| V. Small reviewable changes | Small scoped tasks, verification, explanation, human review, and no AI commits. | Implement one small task at a time; keep subsequent tasks separate unless explicitly requested together. Leave changes for human review and approval. 38 tasks verified; Windows T028 open; Phase 18 review prepared; final review approved on 2026-11-08. One-shot execution through Phase 17 was explicitly authorized; no AI commits. |
+| VI. Human architecture decisions | Present alternatives and record each human selection before dependent work. | P001–P077 record selections and rationale; consolidated artifacts received final review approval on 2026-11-08. |
 | VII. Consistent patterns | Establish approved patterns and reuse them across implementation tasks. | UI/service contract fixes shared validation, handlers/errors, transaction helper, data access, renderer, and local-state patterns. |
 
 Do not treat this design review as evidence that application behavior has passed checks.
@@ -2507,4 +2507,4 @@ before first application commit `c9edadd`, with 44 commits reachable from audite
 `32ba2436`. A local review ZIP preserves existing reachable objects/refs while excluding
 local configuration/hooks/secrets/generated files. Handoff notes and manifest/checksum
 support human review. No git commands, commits, history rewrite, remote write, or submission
-were performed. Windows T028 remains open; final human approval/submission is outstanding.
+were performed. Windows T028 remains open; final review is approved; commits and submission remain human-owned.

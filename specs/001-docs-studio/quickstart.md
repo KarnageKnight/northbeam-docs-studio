@@ -4,7 +4,7 @@
 **Status**: Phases 1–14 approved. The user authorized execution through Phase 17 on
 2026-11-08. Integrated acceptance and final audit/documentation are verified. Linux-client
 Docker acceptance and macOS host development pass; Windows acceptance T028 remains open.
-Phase 18 clean-copy rehearsal and delivery review are prepared, pending final human approval.
+Phase 18 clean-copy rehearsal and delivery review are prepared, approved by the user on 2026-11-08.
 See the final acceptance evidence and handoff notes below.
 
 **Last verified**: 2026-11-08.
@@ -504,7 +504,7 @@ The later integrated walkthrough repeats the combined experience; it does not de
 feature-level feedback, conflict preservation, or verification. Phases 1–14 are approved.
 The user authorized one-shot execution through Phase 17, including intermediate gates.
 T001–T027 and T029–T039 are verified (38 tasks). T028 remains open for Windows;
-T033/T034 in Phase 18 are verified review tasks; final handoff awaits human approval.
+T033/T034 in Phase 18 are verified review tasks; final review is approved; submission remains human-owned.
 
 ## Design handoff
 
@@ -738,6 +738,6 @@ secrets and generated output are omitted; a minimal config/index are confined to
 copy. No original git metadata is modified and no commit is created. Pending documentation
 stays uncommitted and visible as working-tree changes in the candidate.
 
-Phase 18 review work is verified, pending final human approval. Windows T028 is still
+Phase 18 review work is verified, approved by the user on 2026-11-08. Windows T028 is still
 unavailable and FR-013/SC-005 remain partially verified. Preparing a review candidate does
 not upload, merge, commit, submit, or waive the platform gap.

@@ -8,6 +8,11 @@ This register captures assumptions and proposed choices identified so far in the
 in the assignment and explicit human decisions are not open assumptions. Resolve affected
 items through human review before treating them as approved requirements or architecture.
 
+For the grouped final-app review of all A001–A017/P001–P077 selections, later UI/workflow
+decisions, and decided versus unspecified non-functional requirements, see the
+[user decision inventory](decision-inventory.md). It summarizes existing approvals without
+introducing new requirements or numerical load/availability targets.
+
 ## Product Assumptions
 
 **Confirmed product clarification (2026-11-07)**: Public readers open articles published
@@ -174,7 +179,7 @@ normalization/uniqueness/immutability, competing-create, and browser checks pass
 + 143 integration cases, typechecks/build) and were approved by the user. On 2026-11-08
 the user authorized one-shot execution through Phase 17. Integrated browser acceptance,
 Linux-client Docker startup/persistence, macOS host development, and final audit/docs pass.
-Windows T028 remains unverified. Phase 18 review is prepared pending final human approval; no new product assumption or
+Windows T028 remains unverified. Phase 18 review is prepared approved by the user on 2026-11-08; no new product assumption or
 architecture decision is introduced; mocks alone cannot replace the required PostgreSQL evidence. See [quickstart](quickstart.md).
 
 The user selected feature-by-feature delivery: each feature phase combines its API, UI,
