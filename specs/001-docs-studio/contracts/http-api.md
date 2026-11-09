@@ -22,6 +22,9 @@ protection, empty 204, and unchanged article/audits/counter/public state.
 Phase 13 verifies shared rejection behavior and observed independent-connection contention:
 same-revision writes produce one success/one stale conflict; publish/delete and restore/delete
 follow both serialized orders without partial state. The route/body/error contracts are unchanged.
+Phase 14 verifies normalized slug boundaries/formats, cross-state collisions and rejected
+slug edits, immutable lifecycle lookup, and observed competing inserts. Exact conflicts
+return SLUG_CONFLICT without suffixing; validation and error contracts are unchanged.
 
 Authority: [specification](../spec.md) and [plan](../plan.md) P025–P033. The
 [data model](../data-model.md) owns storage; this contract owns wire representations.

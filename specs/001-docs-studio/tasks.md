@@ -1,8 +1,8 @@
 # Tasks: Northbeam Docs Studio
 
 **Feature**: `001-docs-studio` · **Created**: 2026-11-07
-**Status**: Phases 1–12 approved. Phase 13 concurrency/rejection evidence is verified, pending human approval.
-T035 retains the user-approved Write/Preview tabbed design. Phase 14 and later work have not started.
+**Status**: Phases 1–13 approved. Phase 14 slug lifecycle audit (T021) is verified, pending human approval.
+T035 retains the user-approved Write/Preview tabbed design. Phase 15 and later work have not started.
 **Input**: [specification](spec.md), [plan](plan.md), [research](research.md),
 [data model](data-model.md), [HTTP contract](contracts/http-api.md),
 [UI/service contract](contracts/ui-and-services.md), [quickstart](quickstart.md),
@@ -610,9 +610,9 @@ Two-tab browser verification also passes for Save/Publish/Unpublish/Restore: sta
 preserves in-flight local input and full SQL/public state, no automatic write retry occurs,
 reload cancel/confirm works, and explicit resubmission succeeds. No runtime exceptions
 or hydration warnings occurred. Disposable resources were removed; normal data was preserved.
-Build/Nuxt/test typechecks pass. Phase 14 has not started.
+Build/Nuxt/test typechecks pass. The user subsequently approved Phase 13 and authorized Phase 14.
 
-**Phase approval**: Pending human review. Demonstrate this phase, present verification results, and wait for explicit human approval before starting the next phase.
+**Phase approval**: Approved by the user on 2026-11-07 by requesting the next phase. Phase 14 is authorized; later phases retain their review gates.
 
 ## Phase 14: US11 — Slug lifecycle audit (P1)
 
@@ -620,7 +620,29 @@ Build/Nuxt/test typechecks pass. Phase 14 has not started.
 **Dependencies**: Lifecycle features approved.
 **Independent test**: Test normalized duplicate creates across all statuses and contention; confirm UI collision feedback and fixed slug across save/publish/unpublish/restore. Extend earlier tests rather than introducing slug validation late.
 
-- [ ] T021 [US11] Extend the existing cases in `tests/unit/articles-validation.test.ts` and `tests/integration/articles.test.ts` for normalized collisions against draft/published/unpublished articles, rejected leading/trailing/repeated hyphens or invalid characters, and accepted 1/100-character boundaries. Coordinate concurrent creates whose slugs normalize identically and assert exactly one 201 and one 409 SLUG_CONFLICT with no suffix/extra article. Verify the stored slug survives every lifecycle action and save rejects a slug field. Reuse `server/validation/articles.ts` and the named constraint mapping in `server/utils/api-errors.ts`; fix only uncovered defects.
+- [x] T021 [US11] Extend the existing cases in `tests/unit/articles-validation.test.ts` and `tests/integration/articles.test.ts` for normalized collisions against draft/published/unpublished articles, rejected leading/trailing/repeated hyphens or invalid characters, and accepted 1/100-character boundaries. Coordinate concurrent creates whose slugs normalize identically and assert exactly one 201 and one 409 SLUG_CONFLICT with no suffix/extra article. Verify the stored slug survives every lifecycle action and save rejects a slug field. Reuse `server/validation/articles.ts` and the named constraint mapping in `server/utils/api-errors.ts`; fix only uncovered defects.
+
+**T021 evidence**: Extended existing unit/HTTP cases rather than adding a duplicate suite.
+One- and 100-character slugs normalize before validation/storage; empty/whitespace,
+leading/trailing/repeated hyphens, underscore/non-ASCII/slash, and 101-character inputs
+are rejected. Existing collision cases now cover draft/published/unpublished articles,
+plain and trim/lowercase duplicates, and rejected slug edits, comparing complete SQL/
+audit/history/public state. Lifecycle/restore cases verify the stored slug and writer lookup
+remain fixed through Save/Publish/republish/Unpublish/Restore and server restart.
+
+The existing competing-create case now pauses the first uncommitted insert in a test-only
+AFTER INSERT advisory-lock fixture and observes the second backend blocked on the first.
+Three distinct PIDs prove overlap; after release exactly one request returns 201 and one
+409 SLUG_CONFLICT, with one unsuffixed row and no snapshots. Cleanup settles requests,
+releases locks, and drops fixture trigger/function before later cases.
+
+Chrome/SQL checks passed collision feedback/input retention in all three states, recovery
+with a new slug, one/100-character creation/redirect/lookup/save, fixed SQL/URL/display
+through the lifecycle and reload, and the maximum slug at 390px. No runtime or hydration
+errors occurred. Build, Nuxt/test typechecks, and the full suite pass: 99 unit + 143 real
+PostgreSQL/HTTP cases (242 total). No application/API/schema/migration/dependency or
+architecture change was needed. Disposable resources were removed; normal data was preserved.
+Phase 15 has not started.
 
 **Phase approval**: Pending human review. Demonstrate this phase, present verification results, and wait for explicit human approval before starting the next phase.
 
@@ -674,8 +696,8 @@ Build/Nuxt/test typechecks pass. Phase 14 has not started.
 Execute the phases above in order, with explicit human approval at every boundary.
 Task IDs are stable references rather than a numeric execution sequence. UI tasks moved
 into their owning story retain their original ID; newly split UI tasks are T036–T039.
-T001–T020, T022–T025, and T035–T039 are complete with evidence above (29 tasks).
-Phases 1–12 are approved; Phase 13 awaits human approval.
+T001–T025 and T035–T039 are complete with evidence above (30 tasks).
+Phases 1–13 are approved; Phase 14 awaits human approval.
 Later phase approvals and tasks remain pending.
 
 ```text

@@ -1,15 +1,15 @@
 # Quickstart and Verification Guide
 
 **Date**: 2026-11-07
-**Status**: Phases 1–12 approved. Phase 13 concurrency/rejection evidence is verified,
-pending human approval. Phase 14 and later work have not started.
+**Status**: Phases 1–13 approved. Phase 14 slug lifecycle audit is verified,
+pending human approval. Phase 15 and later work have not started.
 
 ## Current commands and evidence
 
 With Node 24.22.2 and pnpm 12.18.0: `pnpm install --frozen-lockfile`, `pnpm dev`,
 `pnpm run test:unit`, `pnpm run test:integration`, `pnpm test`, `pnpm exec nuxt typecheck`,
-and `pnpm run build` are available. Full verification passes 98 database-free unit cases
-and 131 real PostgreSQL/HTTP integration cases (229 total), plus typecheck and production build.
+and `pnpm run build` are available. Full verification passes 99 database-free unit cases
+and 143 real PostgreSQL/HTTP integration cases (242 total), plus typecheck and production build.
 Docker startup builds the application, applies migrations, and serves the writer feature.
 See [README.md](../../README.md) for prerequisites, configuration, and cleanup procedures.
 
@@ -495,16 +495,16 @@ Implementation follows [tasks.md](tasks.md): build each feature's API and UI tog
 run its existing/new meaningful checks and browser walkthrough, then present the results
 for human phase approval. Do not wait until all APIs exist to exercise writer screens.
 The later integrated walkthrough repeats the combined experience; it does not defer
-feature-level feedback, conflict preservation, or verification. Phases 1–12 are approved.
-T001–T020, T022–T025, and T035–T039 are verified and checked (29 tasks).
-Phase 13 awaits human approval; later tasks remain unchecked.
+feature-level feedback, conflict preservation, or verification. Phases 1–13 are approved.
+T001–T025 and T035–T039 are verified and checked (30 tasks).
+Phase 14 awaits human approval; later tasks remain unchecked.
 
 ## Design handoff
 
 Review [plan.md](plan.md), [data-model.md](data-model.md), and [contracts](contracts/http-api.md).
 Analysis and the spec-first checkpoint were verified before the authorized Phase 1
 implementation. The [tabbed design](ui-design.md) and Phase 4 create/list/open are approved;
-review Phase 13 concurrency evidence before starting Phase 14 slug lifecycle audit. AI creates no commits. Full application behavior and
+review Phase 14 slug lifecycle evidence before starting Phase 15 integrated interface acceptance. AI creates no commits. Full application behavior and
 Windows/Linux host support remain unverified.
 
 ## Writer slug URLs — Phase 12 review change
@@ -571,5 +571,42 @@ There were no runtime exceptions or hydration warnings.
 `pnpm test` pass. Final suite: 98 unit + 131 real PostgreSQL/HTTP cases (229 total).
 The pinned-type deprecation audit checked 47 files/nine Vue scripts with no findings.
 All test-runner resources and the separate Phase 13 browser-check project/volume were
-removed; existing application resources/data were preserved. The phase awaits human review;
-Phase 14 has not started. Windows/Linux host execution remains unverified.
+removed; existing application resources/data were preserved. The user subsequently approved
+Phase 13 and authorized Phase 14. Windows/Linux host execution remains unverified.
+
+
+## Phase 14: slug lifecycle verification
+
+Verified on 2026-11-07, macOS arm64 with PostgreSQL 18.6 in isolated Linux containers.
+T021 extends existing tests; slug validation and lifecycle behavior needed no application fix.
+
+| Evidence | Result |
+| --- | --- |
+| One/100-character slugs with uppercase and outer spaces | Normalize before length validation; exact lowercase value is stored and accessible through writer lookup |
+| Empty/whitespace, leading/trailing/repeated hyphens, underscore/non-ASCII/slash, 101 characters | 400 VALIDATION_ERROR without article creation |
+| Exact and normalized duplicates against draft/published/unpublished articles | 409 SLUG_CONFLICT; complete SQL/audit/history/public state unchanged; no suffix or extra row |
+| Save supplying a slug field in every publication state | 400 VALIDATION_ERROR; original slug/state and lookup preserved |
+| Save/Publish/republish/Unpublish/Restore/server restart | Stored slug remains fixed; original writer lookup resolves the same article |
+| Observed competing creates with normalized-identical slugs | Exactly one 201 and one 409 SLUG_CONFLICT; one unsuffixed article and no snapshots |
+
+The competing-create fixture pauses the first uncommitted row in an AFTER INSERT trigger
+on a test-only advisory lock. The second HTTP backend is observed blocked on that first
+transaction's unique-index entry. Three distinct backend PIDs establish real overlap.
+Release permits the first creation to commit and the duplicate to fail; cleanup settles
+requests, releases locks, and removes the trigger/function before later cases. No application
+hooks or schema changes were added.
+
+Production Chrome/SQL checks verify collision field messages and retained title/slug input
+in all three states, then successful recovery with a new slug. One/100-character slugs
+normalize and redirect to their writer editor; load/save work. The slug is displayed as
+fixed without an editable input, and SQL, lookup, URL, and display remain stable across
+Save/Publish/republish/Unpublish/Restore/reload. The maximum-length slug fits a 390px viewport.
+No runtime exceptions or hydration warnings occurred.
+
+`pnpm exec nuxt typecheck`, explicit strict unit/integration-test typecheck, `pnpm build`,
+and `pnpm test` pass: 99 unit + 143 real PostgreSQL/HTTP cases (242 total).
+The pinned-type deprecation audit checked 47 source files/nine Vue scripts with no findings.
+Test-runner and separate Phase 14 browser-verification resources were removed; normal data was preserved.
+No production code, API, migration, dependency, or architecture change was needed.
+Phase 14 awaits human review; Phase 15 has not started. Windows/Linux host execution remains
+unverified.

@@ -17,6 +17,9 @@ Phase 13 verifies stale Save/Publish/Unpublish/Restore in two Chrome tabs: input
 while the 409 response is paused survives, reload cancel/confirm works, and explicit
 resubmission succeeds without automatic write retries. Components and service contracts
 are unchanged; no runtime or hydration errors occurred.
+Phase 14 verifies collision field feedback and preserved title/slug input in all publication
+states, successful recovery, boundary-length writer URLs, and fixed slug display through
+the lifecycle. A 100-character slug fits the 390px layout; no component change was needed.
 
 Use the approved [HTTP contract](http-api.md), [data model](../data-model.md), and
 [plan](../plan.md). These interfaces derive from the selected thin-handler, function,

@@ -3,8 +3,8 @@
 An article-publishing application for writing on any topic. Public readers see articles
 explicitly published by writers.
 
-Phases 1–12 are approved. Phase 13 verifies stale-write rejection and coordinated
-lifecycle races and awaits human review. Final acceptance remains in later phases of
+Phases 1–13 are approved. Phase 14 verifies slug uniqueness and immutability
+throughout the article lifecycle and awaits human review. Final acceptance remains in later phases of
 [tasks.md](specs/001-docs-studio/tasks.md).
 
 ## Run with Docker
@@ -214,7 +214,7 @@ Reviewers are not required to execute tests.
 
 Verified on macOS arm64 on 2026-11-07:
 
-- 98 unit tests for title/create/save/publish validation and safe Markdown; 131 real PostgreSQL/HTTP integration tests (229 total).
+- 99 unit tests for title/create/save/publish validation and safe Markdown; 143 real PostgreSQL/HTTP integration tests (242 total).
 - Writer slug links, direct reloads, slug `new` versus creation, and restart reopening;
   Chrome also verified existing editor actions, article-to-article navigation, and failed
   lookup Retry without runtime exceptions or hydration warnings.
@@ -223,6 +223,10 @@ Verified on macOS arm64 on 2026-11-07:
   restore/delete in both orders. Rejections preserve SQL/audit/history/public state.
 - Two-tab stale Save/Publish/Unpublish/Restore checks preserve in-flight local edits;
   reload cancel/confirm and explicit resubmission work without automatic write retries.
+- Slug checks cover one/100-character boundaries, invalid formats, normalized collisions
+  and rejected slug edits in all publication states, and an observed competing-insert
+  race with one creation and one conflict. Browser checks confirm field feedback, input
+  retention, fixed URLs across lifecycle actions, and a 100-character slug at 390px.
 - Save normalization, stale/no-op revisions, publication/snapshot preservation, transaction
   rollback/recovery, and draft persistence after restart.
 - Real Chrome editor checks: unsaved preview, keyboard tabs, validation, two-tab stale saves,
@@ -318,8 +322,8 @@ The approved Phase 3 [UI design](specs/001-docs-studio/ui-design.md) contains fi
 wireframes and a Deloitte-inspired black/white/green visual theme. The editor uses
 Write/Preview tabs in one panel at every width,
 with history planned below. A top-header Public / Writer switch links the two portals.
-Switching tabs preserves local edits without saving or publishing. Phases 1–12 are approved;
-Phase 13 concurrency/rejection checks are verified and await human review.
+Switching tabs preserves local edits without saving or publishing. Phases 1–13 are approved;
+Phase 14 slug lifecycle checks are verified and await human review.
 
 For visual review, open [the offline design preview](specs/001-docs-studio/design-preview/index.html)
 in a browser. It shows only the approved tabbed editor across all five screens, mobile sizing, and feedback

@@ -156,6 +156,11 @@ preserve ownership, current references, dates, counters, audits, snapshots, and 
 in both serialized orders. No schema or migration change was needed; full evidence is in
 [quickstart.md](quickstart.md).
 
+Phase 14 additionally verifies normalized one/100-character slugs, exact/normalized
+collisions and rejected slug edits in all publication states, stable stored slugs and
+writer lookup throughout lifecycle actions/restart, and a competing-insert uniqueness
+race with one unsuffixed row. No schema or migration change was required.
+
 Phase 2 verification proves schema defaults/nullability, unique/status/ownership/reference
 constraints, update-rejecting triggers, migration application/idempotence, and reset/journal
 isolation against PostgreSQL 18.6. Lifecycle atomicity, rollback, races, and complete

@@ -1,15 +1,15 @@
 # Research: Northbeam Docs Studio
 
 **Date**: 2026-11-07
-**Status**: Research consolidated. The Phase 13 application passes build/typecheck,
-98 unit tests, and 131 PostgreSQL/HTTP cases on macOS arm64 with Linux containers.
+**Status**: Research consolidated. The Phase 14 application passes build/typecheck,
+99 unit tests, and 143 PostgreSQL/HTTP cases on macOS arm64 with Linux containers.
 Production Docker migrations/startup, restart idempotence, failure/interrupt cleanup, and
-overlap rejection were verified. Phases 1–12 are approved; [tabbed UI design](ui-design.md) is selected.
+overlap rejection were verified. Phases 1–13 are approved; [tabbed UI design](ui-design.md) is selected.
 Writer create/list/open, draft saving/restart persistence, safe Markdown preview, and
 two-tab save conflict/reload behavior are verified. Publish API atomicity and rollback/crash
 recovery and the writer Publish UI are verified. Phase 7 is approved. Phase 8 is approved. Phase 9 is approved. Phase 10 is approved. Phase 11 is approved. Phase 12 deletion and writer slug URLs are approved. Phase 13 coordinated lifecycle races
-and two-tab rejection/reload checks pass; human phase approval is pending. Later acceptance
-audits and Windows/Linux host execution remain future verification.
+and two-tab rejection/reload checks are approved. Phase 14 slug lifecycle checks pass;
+human phase approval is pending. Later acceptance audits and Windows/Linux host execution remain future verification.
 
 Public content is writer-published articles on any topic. Generic article wording is a
 confirmed product clarification, with no change to lifecycle behavior or architecture.
@@ -325,4 +325,24 @@ Four two-tab Chrome cases preserve input typed while stale responses are paused,
 automatic write retry or SQL/public mutation, and verify reload cancel/confirm followed by
 explicit resubmission. No runtime/hydration errors occurred. Full suite: 98 unit + 131
 PostgreSQL/HTTP cases; build and typechecks pass. No production or architectural change was
-needed. Phase 13 awaits human approval; later phases remain unstarted.
+needed. The user subsequently approved Phase 13 and authorized Phase 14.
+
+
+## Phase 14 slug evidence
+
+Existing unit and HTTP cases now cover normalized one/100-character boundaries, malformed
+slug formats, exact/normalized collision rejection in every publication state, and rejected
+slug edits. Complete SQL/audit/history/public comparisons prove rejections make no changes.
+Existing lifecycle/restore/restart cases verify the original stored slug and writer lookup.
+
+The competing-create case now pauses the first uncommitted row after insertion using the
+existing test-only advisory-lock pattern and observes a second backend waiting on that
+transaction's uniqueness enforcement. Three distinct PIDs prove overlap. Exactly one 201
+and one 409 SLUG_CONFLICT leave one unsuffixed article; requests, locks, and fixture DDL
+are cleaned before later tests. No new test framework or application hook was introduced.
+
+Chrome/SQL confirms collision messages/input retention across states, recovery with a new
+slug, boundary-length creation/redirect/load/save, fixed slug SQL/URLs/display throughout
+lifecycle actions and reload, and the 100-character slug at 390px. No runtime/hydration
+errors occurred. Build/typechecks and 99 unit + 143 PostgreSQL/HTTP cases pass (242 total).
+No production or architecture change was needed. Phase 14 awaits human approval.

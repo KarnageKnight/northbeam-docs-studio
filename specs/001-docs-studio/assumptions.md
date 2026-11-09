@@ -158,7 +158,7 @@ on 2026-11-07, retaining history below and lifecycle feedback, then explicitly a
 Deloitte-inspired black/white/green visual theme with tabs on 2026-11-07. Only the approved design is retained; the design adds no routes, dependencies, or architecture changes. The validation app used a temporary port-3300 mapping
 because port 3000 was occupied; the committed default remains loopback 3000. Temporary
 validation/test resources were removed, preserving the existing development database.
-Phases 1–12 are approved. Phase 6 publication API, rollback, and crash recovery are verified
+Phases 1–13 are approved. Phase 6 publication API, rollback, and crash recovery are verified
 (98 unit + 93 PostgreSQL/HTTP tests and typecheck/build); the writer Publish control passed
 real Chrome/SQL validation, including stale and delayed responses. Phase 6 is approved. Phase 7 public-list API/SSR checks pass (98 unit + 96 integration
 tests) and browser checks pass; Phase 7 is approved. Phase 8 detail API is verified
@@ -169,8 +169,10 @@ Phase 10 is approved. Phase 11 Restore APIs/browser pass (98 unit + 112 integrat
 phase is approved. Phase 12 deletion APIs/browser pass (98 unit + 118 integration cases);
 Phase 12 and writer slug URLs were subsequently approved. Phase 13 shared rejection,
 independent-connection races, and two-tab conflict/reload checks pass (98 unit + 131
-integration cases, typechecks/build) and await human approval. No new product assumption
-or architecture decision is introduced. Remaining acceptance audits and Windows/Linux
+integration cases, typechecks/build) and were approved by the user. Phase 14 slug
+normalization/uniqueness/immutability, competing-create, and browser checks pass (99 unit
++ 143 integration cases, typechecks/build) and await human approval. No new product
+assumption or architecture decision is introduced. Remaining acceptance audits and Windows/Linux
 host execution remain future work; mocks alone cannot replace the required PostgreSQL evidence. See [quickstart](quickstart.md).
 
 The user selected feature-by-feature delivery: each feature phase combines its API, UI,

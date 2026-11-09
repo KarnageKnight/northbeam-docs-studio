@@ -70,16 +70,22 @@ describe('create a draft through HTTP', () => {
     expect((await pool.query('SELECT * FROM article_versions')).rows).toEqual([])
   })
 
-  it('preserves title/body and normalizes tag order in storage', async () => {
-    const response = await createDraft({ ...input, body: '  # Words\n', tags: [' Ideas ', '', 'life', 'IDEAS'] })
+  it.each([1, 100])('preserves content and normalizes a %i-character slug and tag order in storage', async (length) => {
+    const slug = 'a'.repeat(length)
+    const response = await createDraft({ ...input, slug: ` ${slug.toUpperCase()} `, body: '  # Words\n', tags: [' Ideas ', '', 'life', 'IDEAS'] })
     expect(response.status).toBe(201)
     const article = await response.json()
     expect(article.draft).toEqual({ title: input.title, body: '  # Words\n', tags: ['ideas', 'life'] })
-    expect((await pool.query('SELECT draft_body, draft_tags FROM articles')).rows[0])
-      .toEqual({ draft_body: '  # Words\n', draft_tags: ['ideas', 'life'] })
+    expect(article.slug).toBe(slug)
+    expect((await pool.query('SELECT slug, draft_body, draft_tags FROM articles')).rows[0])
+      .toEqual({ slug, draft_body: '  # Words\n', draft_tags: ['ideas', 'life'] })
+    const loaded = await fetch(`${writerUrl}/by-slug/${slug}`)
+    expect(loaded.status).toBe(200)
+    expect((await loaded.json()).id).toBe(article.id)
   })
 
-  it.each([null, [], { title: ' ' }, { title: 1 }, { slug: 'two words' }, { body: false }, { tags: [1] }, { tags: ['a b'] }, { extra: true }])(
+  it.each([null, [], { title: ' ' }, { title: 1 }, { slug: 'two words' }, { slug: '' }, { slug: '   ' }, { slug: '-slug' }, { slug: 'slug-' },
+    { slug: 'two--words' }, { slug: 'a_b' }, { slug: 'café' }, { slug: 'a/b' }, { slug: 'x'.repeat(101) }, { body: false }, { tags: [1] }, { tags: ['a b'] }, { extra: true }])(
     'rejects invalid JSON values without creating rows (case %#)', async (fields) => {
       const body = fields && !Array.isArray(fields) ? { ...input, ...fields } : fields
       const response = await createDraft(body)
@@ -96,23 +102,66 @@ describe('create a draft through HTTP', () => {
     expect((await pool.query('SELECT * FROM articles')).rows).toEqual([])
   })
 
-  it('reports field errors and rejects a normalized slug collision without changing the first draft', async () => {
+  it.each(['draft', 'published', 'unpublished'])('reports field errors and rejects normalized collisions and slug edits without changing %s state', async (state) => {
     const invalid = await createDraft({ ...input, title: '' })
     expect((await invalid.json()).data.fieldErrors.title).toBeInstanceOf(Array)
-    const first = await (await createDraft()).json()
-    const before = (await pool.query('SELECT * FROM articles')).rows
-    const collision = await createDraft({ title: 'Other', slug: 'FINDING-INSPIRATION' })
-    expect(collision.status).toBe(409)
-    expect((await collision.json()).data.code).toBe('SLUG_CONFLICT')
-    expect((await pool.query('SELECT * FROM articles')).rows).toEqual(before)
-    expect(first.slug).toBe('finding-inspiration')
+    let first = await (await createDraft({ ...input, body: 'Saved article words' })).json()
+    if (state !== 'draft') first = await (await publish(first.id, { expectedRevision: 0 })).json()
+    if (state === 'unpublished') first = await (await unpublish(first.id, { expectedRevision: 1 })).json()
+    const before = await readState()
+    expect(before.articles[0].status).toBe(state)
+    for (const slug of [first.slug, '  FINDING-INSPIRATION  ']) {
+      const collision = await createDraft({ title: 'Other', slug })
+      expect(collision.status).toBe(409)
+      expect((await collision.json()).data.code).toBe('SLUG_CONFLICT')
+      expect(await readState()).toEqual(before)
+    }
+    const rename = await save(first.id, { ...first.draft, slug: 'renamed-article', expectedRevision: first.revision })
+    expect(rename.status).toBe(400)
+    expect((await rename.json()).data.code).toBe('VALIDATION_ERROR')
+    expect(await readState()).toEqual(before)
+    expect(before.articles.map(article => article.slug)).toEqual(['finding-inspiration'])
+    const loaded = await fetch(`${writerUrl}/by-slug/finding-inspiration`)
+    expect(loaded.status).toBe(200)
+    expect(await loaded.json()).toEqual(first)
   })
 
-  it('lets the unique constraint resolve competing creates with the same normalized slug', async () => {
-    const responses = await Promise.all([createDraft(), createDraft({ ...input, slug: 'finding-inspiration' })])
-    expect(responses.map(r => r.status).sort()).toEqual([201, 409])
-    expect((await pool.query('SELECT * FROM articles')).rows).toHaveLength(1)
-    expect((await pool.query('SELECT * FROM article_versions')).rows).toEqual([])
+  it('lets the unique constraint resolve observed competing creates with the same normalized slug', async () => {
+    const controller = await pool.connect()
+    const requests: Promise<Response>[] = []
+    try {
+      const { rows: [{ pid }] } = await controller.query('SELECT pg_backend_pid() AS pid')
+      await controller.query('SELECT pg_advisory_lock(73106002)')
+      await pool.query(`CREATE FUNCTION pause_test_create() RETURNS trigger LANGUAGE plpgsql AS $$
+        BEGIN PERFORM pg_advisory_xact_lock(73106002); RETURN NEW; END; $$;
+        CREATE TRIGGER pause_test_create AFTER INSERT ON articles FOR EACH ROW EXECUTE FUNCTION pause_test_create()`)
+      requests.push(createDraft())
+      const firstPid = await waitForBlockedQuery(pid)
+      requests.push(createDraft({ ...input, title: 'Competing title', slug: 'FINDING-INSPIRATION' }))
+      const secondPid = await waitForBlockedQuery(firstPid)
+      expect(new Set([pid, firstPid, secondPid]).size).toBe(3)
+      expect((await pool.query('SELECT * FROM articles')).rows).toEqual([])
+      await controller.query('SELECT pg_advisory_unlock(73106002)')
+      const [created, collision] = await Promise.all(requests)
+      expect(created.status).toBe(201)
+      const article = await created.json()
+      expect(article.slug).toBe('finding-inspiration')
+      expect(collision.status).toBe(409)
+      expect((await collision.json()).data.code).toBe('SLUG_CONFLICT')
+      expect((await pool.query('SELECT id, slug, draft_title FROM articles')).rows)
+        .toEqual([{ id: article.id, slug: 'finding-inspiration', draft_title: input.title }])
+      expect((await pool.query('SELECT * FROM article_versions')).rows).toEqual([])
+    }
+    finally {
+      try {
+        await controller.query('SELECT pg_advisory_unlock_all()')
+        await Promise.allSettled(requests)
+      }
+      finally {
+        controller.release()
+        await pool.query('DROP TRIGGER IF EXISTS pause_test_create ON articles; DROP FUNCTION IF EXISTS pause_test_create()')
+      }
+    }
   })
 
   it('keeps unexpected database failures generic in the production response', async () => {
@@ -778,15 +827,25 @@ describe('read-only version history', () => {
 describe('restore snapshot into draft', () => {
   it.each(['published', 'unpublished'])('restores old/current/identical content while preserving %s publication and all history', async (state) => {
     const article = await (await createDraft({ ...input, body: '# Original snapshot', tags: ['original'] })).json()
+    async function expectStableSlug() {
+      expect((await pool.query('SELECT slug FROM articles WHERE id=$1', [article.id])).rows).toEqual([{ slug: article.slug }])
+      const loaded = await fetch(`${writerUrl}/by-slug/${article.slug}`)
+      expect(loaded.status).toBe(200)
+      expect((await loaded.json()).id).toBe(article.id)
+    }
     const publish = (revision: number) => fetch(`${writerUrl}/${article.id}/publish`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ expectedRevision: revision }) })
     const first = await (await publish(0)).json()
+    await expectStableSlug()
     const secondDraft = { title: 'Second saved title', body: '# Second snapshot', tags: ['second'] }
     expect((await fetch(`${writerUrl}/${article.id}/draft`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...secondDraft, expectedRevision: 1 }) })).status).toBe(200)
+    await expectStableSlug()
     const second = await (await publish(2)).json()
+    await expectStableSlug()
     let revision = 3
     if (state === 'unpublished') {
       expect((await unpublish(article.id, { expectedRevision: revision })).status).toBe(200)
       revision++
+      await expectStableSlug()
     }
     const before = (await pool.query('SELECT * FROM articles')).rows[0]
     const snapshots = (await pool.query('SELECT * FROM article_versions ORDER BY version_number')).rows
@@ -800,6 +859,7 @@ describe('restore snapshot into draft', () => {
       expect(response.status).toBe(200)
       revision++
       last = await response.json()
+      await expectStableSlug()
       expect(last).toEqual({ ...second, status: state, revision, draft })
       const row = (await pool.query('SELECT * FROM articles')).rows[0]
       expect(row).toEqual({ ...before, draft_title: draft.title, draft_body: draft.body, draft_tags: draft.tags, revision, updated_at: expect.any(Date) })
@@ -812,6 +872,7 @@ describe('restore snapshot into draft', () => {
       expect(await currentPublic.json()).toEqual(publicBody)
     }
     await restartApp()
+    await expectStableSlug()
     expect(await (await fetch(`${writerUrl}/${article.id}`)).json()).toEqual(last)
     expect((await pool.query('SELECT * FROM article_versions ORDER BY version_number')).rows).toEqual(snapshots)
   })
