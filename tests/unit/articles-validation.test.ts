@@ -51,9 +51,10 @@ describe('article creation', () => {
     },
   )
 
-  it('accepts exact slug/body/tag limits after normalization', () => {
+  it.each([1, 100])('accepts exact content limits with a normalized %i-character slug', (length) => {
     const tags = Array.from({ length: 10 }, (_, i) => `${i}${'a'.repeat(29)}`)
-    expect(createArticleSchema.parse({ ...valid, slug: 'a'.repeat(100), body: '😀'.repeat(100000), tags }).tags).toEqual(tags)
+    expect(createArticleSchema.parse({ ...valid, slug: ` ${'A'.repeat(length)} `, body: '😀'.repeat(100000), tags }))
+      .toMatchObject({ slug: 'a'.repeat(length), tags })
     expect(createArticleSchema.parse({ ...valid, tags: [...tags, ...tags, ' '] }).tags).toEqual(tags)
   })
 

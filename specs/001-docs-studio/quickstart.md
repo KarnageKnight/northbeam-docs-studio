@@ -1,15 +1,20 @@
 # Quickstart and Verification Guide
 
 **Date**: 2026-11-07
-**Status**: Phases 1–12 approved. Phase 13 concurrency/rejection evidence is verified,
-pending human approval. Phase 14 and later work have not started.
+**Status**: Phases 1–14 approved. The user authorized execution through Phase 17 on
+2026-11-08. Integrated acceptance and final audit/documentation are verified. Linux-client
+Docker acceptance and macOS host development pass; Windows acceptance T028 remains open.
+Phase 18 clean-copy rehearsal and delivery review are prepared, approved by the user on 2026-11-08.
+See the final acceptance evidence and handoff notes below.
+
+**Last verified**: 2026-11-08.
 
 ## Current commands and evidence
 
 With Node 24.22.2 and pnpm 12.18.0: `pnpm install --frozen-lockfile`, `pnpm dev`,
 `pnpm run test:unit`, `pnpm run test:integration`, `pnpm test`, `pnpm exec nuxt typecheck`,
-and `pnpm run build` are available. Full verification passes 98 database-free unit cases
-and 131 real PostgreSQL/HTTP integration cases (229 total), plus typecheck and production build.
+and `pnpm run build` are available. Full verification passes 99 database-free unit cases
+and 143 real PostgreSQL/HTTP integration cases (242 total), plus typecheck and production build.
 Docker startup builds the application, applies migrations, and serves the writer feature.
 See [README.md](../../README.md) for prerequisites, configuration, and cleanup procedures.
 
@@ -20,7 +25,8 @@ after built-server restart. Chrome walkthrough passed create/list/open/reload, v
 collision/input retention, failed submission, missing draft, and responsive 320/390/1440px
 screens with no runtime exceptions/hydration warnings. The separate validation app used
 port 3300; normal settings and existing development resources were preserved.
-Windows/Linux host workflows and later lifecycle behavior remain unverified.
+This paragraph records the earlier foundation checkpoint. Current platform and complete
+lifecycle verification are recorded in the final acceptance section below.
 
 ## Reviewer startup
 
@@ -191,8 +197,8 @@ process with the same test database and verifies stored state through HTTP.
 
 ## Required automated evidence
 
-The table below is the target for subsequent feature phases. It does not claim those
-lifecycle/API behaviors are already implemented or tested. Current evidence is listed above.
+This table summarizes the lifecycle test targets. The final FR/SC evidence map below
+records their implemented verification and the remaining Windows platform gap.
 
 | Requirements | Scenarios / expected outcomes |
 | --- | --- |
@@ -495,16 +501,17 @@ Implementation follows [tasks.md](tasks.md): build each feature's API and UI tog
 run its existing/new meaningful checks and browser walkthrough, then present the results
 for human phase approval. Do not wait until all APIs exist to exercise writer screens.
 The later integrated walkthrough repeats the combined experience; it does not defer
-feature-level feedback, conflict preservation, or verification. Phases 1–12 are approved.
-T001–T020, T022–T025, and T035–T039 are verified and checked (29 tasks).
-Phase 13 awaits human approval; later tasks remain unchecked.
+feature-level feedback, conflict preservation, or verification. Phases 1–14 are approved.
+The user authorized one-shot execution through Phase 17, including intermediate gates.
+T001–T027 and T029–T039 are verified (38 tasks). T028 remains open for Windows;
+T033/T034 in Phase 18 are verified review tasks; final review is approved; submission remains human-owned.
 
 ## Design handoff
 
 Review [plan.md](plan.md), [data-model.md](data-model.md), and [contracts](contracts/http-api.md).
 Analysis and the spec-first checkpoint were verified before the authorized Phase 1
 implementation. The [tabbed design](ui-design.md) and Phase 4 create/list/open are approved;
-review Phase 13 concurrency evidence before starting Phase 14 slug lifecycle audit. AI creates no commits. Full application behavior and
+the user subsequently authorized integrated acceptance and execution through Phase 17. AI creates no commits. Full application behavior and
 Windows/Linux host support remain unverified.
 
 ## Writer slug URLs — Phase 12 review change
@@ -571,5 +578,166 @@ There were no runtime exceptions or hydration warnings.
 `pnpm test` pass. Final suite: 98 unit + 131 real PostgreSQL/HTTP cases (229 total).
 The pinned-type deprecation audit checked 47 files/nine Vue scripts with no findings.
 All test-runner resources and the separate Phase 13 browser-check project/volume were
-removed; existing application resources/data were preserved. The phase awaits human review;
-Phase 14 has not started. Windows/Linux host execution remains unverified.
+removed; existing application resources/data were preserved. The user subsequently approved
+Phase 13 and authorized Phase 14. Windows/Linux host execution remains unverified.
+
+
+## Phase 14: slug lifecycle verification
+
+Verified on 2026-11-07, macOS arm64 with PostgreSQL 18.6 in isolated Linux containers.
+T021 extends existing tests; slug validation and lifecycle behavior needed no application fix.
+
+| Evidence | Result |
+| --- | --- |
+| One/100-character slugs with uppercase and outer spaces | Normalize before length validation; exact lowercase value is stored and accessible through writer lookup |
+| Empty/whitespace, leading/trailing/repeated hyphens, underscore/non-ASCII/slash, 101 characters | 400 VALIDATION_ERROR without article creation |
+| Exact and normalized duplicates against draft/published/unpublished articles | 409 SLUG_CONFLICT; complete SQL/audit/history/public state unchanged; no suffix or extra row |
+| Save supplying a slug field in every publication state | 400 VALIDATION_ERROR; original slug/state and lookup preserved |
+| Save/Publish/republish/Unpublish/Restore/server restart | Stored slug remains fixed; original writer lookup resolves the same article |
+| Observed competing creates with normalized-identical slugs | Exactly one 201 and one 409 SLUG_CONFLICT; one unsuffixed article and no snapshots |
+
+The competing-create fixture pauses the first uncommitted row in an AFTER INSERT trigger
+on a test-only advisory lock. The second HTTP backend is observed blocked on that first
+transaction's unique-index entry. Three distinct backend PIDs establish real overlap.
+Release permits the first creation to commit and the duplicate to fail; cleanup settles
+requests, releases locks, and removes the trigger/function before later cases. No application
+hooks or schema changes were added.
+
+Production Chrome/SQL checks verify collision field messages and retained title/slug input
+in all three states, then successful recovery with a new slug. One/100-character slugs
+normalize and redirect to their writer editor; load/save work. The slug is displayed as
+fixed without an editable input, and SQL, lookup, URL, and display remain stable across
+Save/Publish/republish/Unpublish/Restore/reload. The maximum-length slug fits a 390px viewport.
+No runtime exceptions or hydration warnings occurred.
+
+`pnpm exec nuxt typecheck`, explicit strict unit/integration-test typecheck, `pnpm build`,
+and `pnpm test` pass: 99 unit + 143 real PostgreSQL/HTTP cases (242 total).
+The pinned-type deprecation audit checked 47 source files/nine Vue scripts with no findings.
+Test-runner and separate Phase 14 browser-verification resources were removed; normal data was preserved.
+No production code, API, migration, dependency, or architecture change was needed.
+The user subsequently approved Phase 14 and authorized execution through Phase 17. Windows/Linux host execution remains
+unverified.
+
+
+## Final acceptance and evidence audit — November 8, 2026
+
+The user authorized Phases 15–17 together, including intermediate review gates. No
+application defect was found, so this run changed documentation/status only. The pinned-type
+deprecation audit checked 47 source files/nine Vue scripts with no findings. All 242
+existing tests pass (99 unit, 143 real PostgreSQL/HTTP), with no skipped cases. Nuxt
+and strict test-source typechecks and the production build pass. `test:unit` also passes
+with DATABASE_URL unset and DOCKER_HOST pointing to a nonexistent socket, demonstrating
+that it requires neither a database nor a working Docker connection. The integration run
+provisioned/migrated/reset its dedicated project and removed its containers/network/volume.
+Earlier failure/interruption/overlap probes remain recorded above; normal app data was preserved.
+
+### Requirement evidence map
+
+Test names below are in [articles.test.ts](../../tests/integration/articles.test.ts),
+[database.test.ts](../../tests/integration/database.test.ts),
+[articles-validation.test.ts](../../tests/unit/articles-validation.test.ts), and
+[markdown.test.ts](../../tests/unit/markdown.test.ts). The earlier phase sections retain
+the detailed API/SQL/browser results; the integrated acceptance below repeats the combined UI.
+
+| Requirement | Evidence | Result |
+| --- | --- | --- |
+| FR-001 | Creation/default/normalization/invalid-input HTTP cases; title/body/tag Unicode/length/type unit cases; UI creation | Verified |
+| FR-002 | Complete-save/restart/no-op/stale/rollback cases; draft/live isolation; all editor fields | Verified |
+| FR-003 | Atomic publish/republish, blank saved content, numbered immutable snapshots, first-date and counter assertions; post-insert failure/SIGKILL rollback | Verified |
+| FR-004 | Unpublish retained state, invalid-state/stale ordering, rollback/recovery/restart; public exclusion/404 and later republish | Verified |
+| FR-005 | Newest-number history, exact owned detail, empty/missing/wrong-owner cases and unchanged SQL; UI inspection | Verified |
+| FR-006 | Old/current/last/identical restore, revision-before-target, rollback, non-destructive publication/history checks; dirty confirmation | Verified |
+| FR-007 | Eligible/protected deletion in both publication states, owned targets, empty 204, rollback, deleted-number non-reuse and delete races | Verified |
+| FR-008 | Shared rejection matrix, safe revisions, no-op advancement; five coordinated same-revision overlaps and both delete-race orders; four two-tab UI conflicts | Verified |
+| FR-009 | Exact anonymous live-only list, draft/private field exclusion, rendering and restart cases; chooser/list navigation | Verified |
+| FR-010 | Published-only detail and identical missing/draft/unpublished 404; safe shared Markdown unit/HTTP/browser checks | Verified |
+| FR-011 | One/100-character boundaries, invalid formats, normalized collisions and rejected edits in all states, observed competing inserts, immutable lookup through lifecycle/restart | Verified |
+| FR-012 | Integrated Chrome writer/public walkthrough and four two-tab recovery checks; controls at 320/390/1440px | Verified |
+| FR-013 | Clean-copy Linux-client default startup/migrations/failure/restart and macOS Docker-free dev checks below | Partial: Windows T028 unverified |
+| FR-014 | Full developer test command, typechecks/build, exact coverage audit and final README setup/model/rationale/tradeoffs/limits/demo | Verified with platform gap disclosed |
+| SC-001 | Integrated journey performs every writer action via UI, without direct database edits | Verified |
+| SC-002 | Live-only projection/visibility cases plus integrated save-without-publish and unpublish 404 | Verified |
+| SC-003 | Database immutability/reference constraints; lifecycle/rollback/date/restore/deletion assertions | Verified |
+| SC-004 | Observed independent backend locks/PIDs and exact one-success/one-stale results; local text retained in UI | Verified |
+| SC-005 | Linux-client one-command startup and full named-volume state preservation; Windows runtime absent | Partial: Windows T028 unverified |
+| SC-006 | Final README includes commands, model/rationale, actual scope tradeoffs, limits, and reviewer demo; tests optional for reviewers | Verified |
+
+### Integrated browser acceptance — T026
+
+Fresh production Chrome/SQL checks cover chooser → Writer → create/open, title/body/tags,
+Write/Preview, escaped raw HTML/rejected unsafe links, explicit Save/Publish, public list/
+detail and navigation, and saved-draft isolation until republish. History inspection,
+restore cancel/confirm with dirty local text, draft-only restoration, delete cancel/confirm,
+unpublish preserving local text while removing public access, republish preserving the
+first date, version-number non-reuse, and missing writer/public pages pass. At 320/390/1440px,
+controls fit without horizontal overflow and editor actions retain 44px targets.
+
+Four repeated two-tab cases cover Save/Publish/Unpublish/Restore: the first tab changes the
+saved revision; the second receives 409 while more text is typed into its local buffer.
+The buffer survives, SQL/public state remains unchanged, no automatic write retry occurs,
+Cancel reload keeps text, Confirm reload fetches saved content/revision, and explicit
+resubmission succeeds. No runtime exceptions or hydration warnings occurred. No UI fix was needed.
+
+### Platform acceptance — T027–T029
+
+| Environment | Actual checks | Status |
+| --- | --- | --- |
+| Linux arm64 Docker CLI container, Docker Desktop Linux daemon on macOS | Clean source copy and documented Compose startup with default loopback port 3000/private DB; two migrations before serving; normal down/up preserves full article/version/audit/revision/counter/reference/date/journal/public state; failed migration prevents serving; recovery preserves data | T027 verified within this environment; standalone native Linux host not separately exercised |
+| Windows PowerShell with Linux containers | No Windows OS/PowerShell environment available | T028 remains unchecked; startup, tests/signals/paths/cleanup and restart persistence still require execution |
+| macOS arm64, host Node 24.22.2/pnpm 12.18.0 and local PostgreSQL 18.6/UTF8 | Clean-copy frozen install, migration CLI, `pnpm dev` on loopback, Unicode writer/public data, actual browser HMR without reload, and exact SQL/public persistence after Nuxt restart | T029 verified; Windows host-dev example remains unexecuted |
+
+The Linux check used an isolated project, not the normal app. The database volume survived
+normal down/up and retained exactly two migration journal rows. A deliberately unreachable
+migration connection caused a nonzero app exit with no Listening message/HTTP serving;
+restoring the URL recovered the same state. Temporary projects/volumes were then removed.
+
+The host check built PostgreSQL 18.6 into a temporary directory and used a temporary UTF8
+database on loopback port 55438; it did not use Docker for the database or dev server.
+Only the temporary source copy was edited for the HMR marker, then restored byte-for-byte.
+The dev and PostgreSQL processes were stopped after verification. Existing Postgres.app
+and application data were untouched. PowerShell environment-assignment syntax is documented;
+syntax review is not a substitute for a Windows execution result.
+
+### Audit and handoff boundary — T030–T032
+
+The audit found no missing automated lifecycle assertion requiring another test. Existing
+cases were retained; the final suite/build/typechecks pass. README now describes actual
+behavior, trusted concurrent sessions, safe Markdown, model/transaction rationale, real
+scope tradeoffs, commands, a reviewer demo, and precise platform limits. Artifact status,
+paths, pins, projections, field limits, error ordering, and test/startup instructions were
+reconciled without changing architecture or requirements.
+
+Phases 15 and 17 work are verified under the one-shot authorization. Phase 16 remains
+partially verified because T028 is unavailable; FR-013/SC-005 cannot be called fully verified.
+Phase 18 rehearsal/submission review (T033/T034) was subsequently authorized and verified;
+final handoff/submission remains human-owned. No git commands, AI commits,
+submission, CI/deployment changes, or stretch features were introduced.
+
+
+## Phase 18: delivery rehearsal and history review — November 8, 2026
+
+T033 used a fresh source copy retaining every tracked HEAD file, the locked manifests,
+reviewed migrations, and SDD artifacts. Local environment files/tooling/dependencies,
+generated output, database storage, and the original Word brief were excluded. Default-port
+production Compose build/start passed. The full README demo and four two-tab conflict
+checks passed again without runtime/hydration errors. Rehearsed runtime/config/test files
+match the workspace byte-for-byte (59 files); no application fixes were needed. The unchanged
+source retains the final 242-test/typecheck/build evidence above. Disposable containers,
+network, and volume were removed; normal resources were preserved.
+
+T034 reviewed the Word brief, implementation/contracts, requirements map, setup/demo,
+tradeoffs, limits, and SDD history. Reading refs and raw objects without git commands found
+44 reachable commits at HEAD `32ba2436d67c192ddfc4c8d5bbdca909b712c586` on
+`adding-validation-tests`. Checkpoint `c1249f9ad1f329aea765e5702a97633ab9aa6a6d` contains
+spec/plan/tasks/constitution and no application code; it precedes first application commit
+`c9edadd3e940ee6c59f8e9e1a3ed939c0748f840`. Existing object identities/history are preserved.
+
+[handoff.md](handoff.md) records a local review ZIP with source, required artifacts, existing
+reachable history, and a file manifest/archive checksum. Local git config/remotes/hooks,
+secrets and generated output are omitted; a minimal config/index are confined to the review
+copy. No original git metadata is modified and no commit is created. Pending documentation
+stays uncommitted and visible as working-tree changes in the candidate.
+
+Phase 18 review work is verified, approved by the user on 2026-11-08. Windows T028 is still
+unavailable and FR-013/SC-005 remain partially verified. Preparing a review candidate does
+not upload, merge, commit, submit, or waive the platform gap.

@@ -1,15 +1,13 @@
 # Research: Northbeam Docs Studio
 
 **Date**: 2026-11-07
-**Status**: Research consolidated. The Phase 13 application passes build/typecheck,
-98 unit tests, and 131 PostgreSQL/HTTP cases on macOS arm64 with Linux containers.
-Production Docker migrations/startup, restart idempotence, failure/interrupt cleanup, and
-overlap rejection were verified. Phases 1–12 are approved; [tabbed UI design](ui-design.md) is selected.
-Writer create/list/open, draft saving/restart persistence, safe Markdown preview, and
-two-tab save conflict/reload behavior are verified. Publish API atomicity and rollback/crash
-recovery and the writer Publish UI are verified. Phase 7 is approved. Phase 8 is approved. Phase 9 is approved. Phase 10 is approved. Phase 11 is approved. Phase 12 deletion and writer slug URLs are approved. Phase 13 coordinated lifecycle races
-and two-tab rejection/reload checks pass; human phase approval is pending. Later acceptance
-audits and Windows/Linux host execution remain future verification.
+**Status**: Research consolidated; final verification on 2026-11-08 passes Nuxt/strict test
+typechecks, production build, 99 unit and 143 PostgreSQL/HTTP cases. Phases 1–14 are approved;
+the user authorized execution through Phase 17. Integrated browser acceptance, clean-copy
+Linux-client Docker startup/persistence/failure recovery, and Docker-free macOS development
+with local PostgreSQL 18.6/HMR/restart are verified. Windows T028 remains open; a standalone
+native Linux host was not separately exercised. Audit/documentation work through Phase 17
+is verified with this gap disclosed. Phase 18 review is prepared, approved by the user on 2026-11-08.
 
 Public content is writer-published articles on any topic. Generic article wording is a
 confirmed product clarification, with no change to lifecycle behavior or architecture.
@@ -325,4 +323,56 @@ Four two-tab Chrome cases preserve input typed while stale responses are paused,
 automatic write retry or SQL/public mutation, and verify reload cancel/confirm followed by
 explicit resubmission. No runtime/hydration errors occurred. Full suite: 98 unit + 131
 PostgreSQL/HTTP cases; build and typechecks pass. No production or architectural change was
-needed. Phase 13 awaits human approval; later phases remain unstarted.
+needed. The user subsequently approved Phase 13 and authorized Phase 14.
+
+
+## Phase 14 slug evidence
+
+Existing unit and HTTP cases now cover normalized one/100-character boundaries, malformed
+slug formats, exact/normalized collision rejection in every publication state, and rejected
+slug edits. Complete SQL/audit/history/public comparisons prove rejections make no changes.
+Existing lifecycle/restore/restart cases verify the original stored slug and writer lookup.
+
+The competing-create case now pauses the first uncommitted row after insertion using the
+existing test-only advisory-lock pattern and observes a second backend waiting on that
+transaction's uniqueness enforcement. Three distinct PIDs prove overlap. Exactly one 201
+and one 409 SLUG_CONFLICT leave one unsuffixed article; requests, locks, and fixture DDL
+are cleaned before later tests. No new test framework or application hook was introduced.
+
+Chrome/SQL confirms collision messages/input retention across states, recovery with a new
+slug, boundary-length creation/redirect/load/save, fixed slug SQL/URLs/display throughout
+lifecycle actions and reload, and the 100-character slug at 390px. No runtime/hydration
+errors occurred. Build/typechecks and 99 unit + 143 PostgreSQL/HTTP cases pass (242 total).
+No production or architecture change was needed. The user subsequently approved Phase 14
+and authorized execution through Phase 17.
+
+
+## Final acceptance audit — November 8, 2026
+
+The integrated writer/public Chrome journey and four two-tab recovery cases pass without
+runtime/hydration errors. The final FR/SC map in [quickstart.md](quickstart.md) links every
+requirement to existing unit/HTTP/SQL/browser evidence; no additional assertion or production
+fix was required. Unit tests also pass with no DATABASE_URL and an unusable Docker socket.
+
+A clean copy run from a Linux arm64 Docker CLI container verified default startup, migration
+ordering/idempotence, private DB/loopback app, full named-volume state preservation, and
+failed-migration non-serving/recovery. This used Docker Desktop’s Linux daemon on macOS;
+a standalone native Linux host was not separately exercised. Docker-free macOS development
+used pinned Node/pnpm and local PostgreSQL 18.6/UTF8, proving locked install, migrations,
+Unicode data, in-page HMR, and SQL/public persistence after Nuxt restart.
+
+Windows T028 cannot be verified in the available environment and remains unchecked.
+FR-013/SC-005 are therefore partial. The user’s one-shot authorization permits completion
+of independent audit/docs through Phase 17, not a claim that unavailable checks passed.
+Temporary services were stopped/removed and normal resources preserved. No application,
+architecture, dependency, schema, API, or Markdown policy change was introduced.
+
+
+## Delivery review evidence
+
+On November 8, 2026 a fresh source copy passed production startup/build and the full demo
+plus two-tab recovery, with matching runtime/config/test source and no application changes.
+Repository-object audit confirms a complete spec/plan/tasks/constitution checkpoint before
+first application code. A review ZIP preserves reachable history without local config/hooks
+or secrets; its manifest/checksum and [handoff notes](handoff.md) support human review.
+Windows T028 remains open; final review approval was recorded on 2026-11-08; no submission or commit occurred.

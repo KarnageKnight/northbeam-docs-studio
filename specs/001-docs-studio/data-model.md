@@ -23,6 +23,10 @@ now uses an article-first transaction without changing article/audit/counter/pub
 retained references remain protected after unpublish. Rollback, restart, unavailable deleted
 targets, and later publication without number reuse are verified.
 
+Final acceptance (2026-11-08) also verifies exact SQL/public state through clean-copy
+Linux-client Compose down/up and macOS host dev-server restart with local PostgreSQL 18.6.
+No model/migration change was needed. Windows persistence remains open under T028.
+
 Authority: [spec.md](spec.md), [plan.md](plan.md) P006–P075, and approved
 [assumptions](assumptions.md). API projections are defined in [the HTTP contract](contracts/http-api.md).
 
@@ -156,8 +160,13 @@ preserve ownership, current references, dates, counters, audits, snapshots, and 
 in both serialized orders. No schema or migration change was needed; full evidence is in
 [quickstart.md](quickstart.md).
 
+Phase 14 additionally verifies normalized one/100-character slugs, exact/normalized
+collisions and rejected slug edits in all publication states, stable stored slugs and
+writer lookup throughout lifecycle actions/restart, and a competing-insert uniqueness
+race with one unsuffixed row. No schema or migration change was required.
+
 Phase 2 verification proves schema defaults/nullability, unique/status/ownership/reference
 constraints, update-rejecting triggers, migration application/idempotence, and reset/journal
-isolation against PostgreSQL 18.6. Lifecycle atomicity, rollback, races, and complete
-application restart persistence remain requirements for their feature tasks. See
+isolation against PostgreSQL 18.6. Subsequent feature tests verify lifecycle atomicity, rollback, races, and application
+restart persistence; final platform scope and Windows limitations are recorded below. See
 [quickstart.md](quickstart.md) for the current evidence and platform limits.

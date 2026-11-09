@@ -17,6 +17,13 @@ Phase 13 verifies stale Save/Publish/Unpublish/Restore in two Chrome tabs: input
 while the 409 response is paused survives, reload cancel/confirm works, and explicit
 resubmission succeeds without automatic write retries. Components and service contracts
 are unchanged; no runtime or hydration errors occurred.
+Phase 14 verifies collision field feedback and preserved title/slug input in all publication
+states, successful recovery, boundary-length writer URLs, and fixed slug display through
+the lifecycle. A 100-character slug fits the 390px layout; no component change was needed.
+
+Final integrated acceptance (2026-11-08) verifies the combined writer/public journey and
+four two-tab rejection/reload cases. Existing component/composable boundaries and browser
+paths are unchanged. No runtime/hydration errors or application defects were found.
 
 Use the approved [HTTP contract](http-api.md), [data model](../data-model.md), and
 [plan](../plan.md). These interfaces derive from the selected thin-handler, function,
@@ -43,7 +50,7 @@ expose only implemented actions; the tables below describe the final combined in
 not an instruction to scaffold every action in advance. Public list/detail are separate
 API-and-page slices, reusing the renderer first introduced for editor preview.
 
-| URL | Planned source | Responsibility |
+| URL | Source | Responsibility |
 | --- | --- | --- |
 | `/` | `app/pages/index.vue` | Published list and navigation |
 | `/articles/:slug` | `app/pages/articles/[slug].vue` | Published article; unavailable content shows 404 |
@@ -103,7 +110,7 @@ authoritative saved values; compute dirty state from the content difference.
 
 ## Request boundary
 
-Planned handlers live under `server/api/writer/articles/` and `server/api/public/articles/`,
+Handlers live under `server/api/writer/articles/` and `server/api/public/articles/`,
 using Nuxt's method suffixes and bracketed parameter directories for the approved routes.
 
 Handlers read path/body, apply `server/validation/articles.ts`, call the corresponding
