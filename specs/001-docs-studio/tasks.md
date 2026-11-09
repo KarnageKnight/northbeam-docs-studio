@@ -1,8 +1,9 @@
 # Tasks: Northbeam Docs Studio
 
 **Feature**: `001-docs-studio` · **Created**: 2026-11-07
-**Status**: Phases 1–13 approved. Phase 14 slug lifecycle audit (T021) is verified, pending human approval.
-T035 retains the user-approved Write/Preview tabbed design. Phase 15 and later work have not started.
+**Status**: Phases 1–14 approved. The user authorized one-shot execution through Phase 17
+on 2026-11-08, including intermediate phase gates. Phase 15 and Phase 17 work is verified;
+Phase 16 is partially verified with Windows T028 open. Phase 18 is unstarted.
 **Input**: [specification](spec.md), [plan](plan.md), [research](research.md),
 [data model](data-model.md), [HTTP contract](contracts/http-api.md),
 [UI/service contract](contracts/ui-and-services.md), [quickstart](quickstart.md),
@@ -642,9 +643,9 @@ through the lifecycle and reload, and the maximum slug at 390px. No runtime or h
 errors occurred. Build, Nuxt/test typechecks, and the full suite pass: 99 unit + 143 real
 PostgreSQL/HTTP cases (242 total). No application/API/schema/migration/dependency or
 architecture change was needed. Disposable resources were removed; normal data was preserved.
-Phase 15 has not started.
+The user subsequently authorized one-shot execution through Phase 17 on 2026-11-08.
 
-**Phase approval**: Pending human review. Demonstrate this phase, present verification results, and wait for explicit human approval before starting the next phase.
+**Phase approval**: Approved by the user on 2026-11-08. One-shot execution through Phase 17 is authorized; unavailable checks remain open and Phase 18 retains its gate.
 
 ## Phase 15: US12 — Integrated interface acceptance (P1)
 
@@ -652,9 +653,11 @@ Phase 15 has not started.
 **Dependencies**: All feature slices and concurrency/slug checks approved.
 **Independent test**: Walk through all writer/public flows and feedback including shared Markdown, history actions, unsaved edits, and two-tab conflicts; fix observed integration defects only, with passing existing checks.
 
-- [ ] T026 [US12] Complete the integrated writer/public walkthrough and record results in `quickstart.md` and `README.md`, fixing only observed UI defects in `app/pages/writer/articles/`, `app/composables/useArticleEditor.ts`, or `app/components/`. Cover create/open, all fields, shared safe preview, separate save/publication actions, history inspect/restore/delete, visible success/failure, missing resources, and two-tab conflict preservation/reload/resubmit. Check public output remains unchanged until explicit publish. Run the existing full suite/typecheck/build; no new browser automation dependency or unrelated visual redesign.
+- [x] T026 [US12] Complete the integrated writer/public walkthrough and record results in `quickstart.md` and `README.md`, fixing only observed UI defects in `app/pages/writer/articles/`, `app/composables/useArticleEditor.ts`, or `app/components/`. Cover create/open, all fields, shared safe preview, separate save/publication actions, history inspect/restore/delete, visible success/failure, missing resources, and two-tab conflict preservation/reload/resubmit. Check public output remains unchanged until explicit publish. Run the existing full suite/typecheck/build; no new browser automation dependency or unrelated visual redesign.
 
-**Phase approval**: Pending human review. Demonstrate this phase, present verification results, and wait for explicit human approval before starting the next phase.
+**Evidence (2026-11-08)**: Fresh production Chrome walkthrough passed chooser, UI creation/open, all fields, safe Write/Preview, separate Save/Publish, public list/detail, draft/live isolation, history inspection, restore/delete cancel/confirm, unsaved text, unpublish/public 404, republish/date preservation, non-reused numbers, missing pages, and 320/390/1440px controls. Four two-tab checks repeated stale Save/Publish/Unpublish/Restore with in-flight local input, unchanged SQL/public state, reload cancel/confirm, and explicit resubmission. No runtime/hydration errors or UI defects. Typechecks/build/full 242-test suite pass.
+
+**Phase progression**: Authorized by the user’s 2026-11-08 one-shot instruction through Phase 17; no additional gate requested.
 
 ## Phase 16: US13 — Local startup and persistence acceptance (P1)
 
@@ -662,11 +665,17 @@ Phase 15 has not started.
 **Dependencies**: Feature/interface phases approved; startup infrastructure already exists.
 **Independent test**: Fresh Docker startup and normal restart preserve state on Linux/Windows PowerShell, and configured local PostgreSQL plus pnpm dev works without Docker; record unavailable platforms honestly and leave required unverified tasks open.
 
-- [ ] T027 [US13] Exercise `docker compose up --build` from a clean temporary copy on Linux using `Dockerfile`, `compose.yaml`, and instructions in `README.md`/`quickstart.md`. Verify default startup, private DB/loopback app access, migrations before serving, failed-migration startup behavior, and repeat startup without schema duplication. Create representative draft/history/publication data through HTTP, perform normal service down/up without volume deletion, and prove content/reference/date/counters/audit data persist. Record real environment/results and make minimal configuration/documentation fixes; preserve existing application data.
-- [ ] T028 [US13] Repeat the clean-copy reviewer startup and restart-persistence scenarios in Windows PowerShell with Linux containers, exercising `Dockerfile`, `compose.yaml`, `scripts/test-integration.mjs`, and `README.md`/`quickstart.md`. Verify the identical startup command, migration ordering, path/signal/cleanup behavior, full test command, and named-volume retention. Record actual Windows results; if no Windows environment is available, leave this task unchecked and record the gap rather than claiming support is verified.
-- [ ] T029 [US13] Verify P077's Docker-free host development instructions in `README.md` and `quickstart.md` against `package.json`, `drizzle.config.ts`, and `server/db/client.ts`: locally running pinned PostgreSQL, locked install, POSIX/PowerShell DATABASE_URL examples, `pnpm exec drizzle-kit migrate`, then `pnpm dev`. Confirm UI/API, hot reload, local-only access, and persistence after dev-server restart; the URL must target the reachable host DB rather than Compose's private hostname. Record exercised platforms and any unavailable platform separately; integration tests retain their isolated Docker setup.
+- [x] T027 [US13] Exercise `docker compose up --build` from a clean temporary copy on Linux using `Dockerfile`, `compose.yaml`, and instructions in `README.md`/`quickstart.md`. Verify default startup, private DB/loopback app access, migrations before serving, failed-migration startup behavior, and repeat startup without schema duplication. Create representative draft/history/publication data through HTTP, perform normal service down/up without volume deletion, and prove content/reference/date/counters/audit data persist. Record real environment/results and make minimal configuration/documentation fixes; preserve existing application data.
+**T027 evidence (2026-11-08)**: Clean temporary copy, Linux arm64 Docker CLI container and Docker Desktop Linux daemon on macOS. Default port 3000, private DB, two migrations before serving, full SQL/draft/history/public/audit/counter persistence after down/up, migration idempotence, failed-migration no-serving and recovery passed. Native Linux host was not separately exercised.
 
-**Phase approval**: Pending human review. Demonstrate this phase, present verification results, and wait for explicit human approval before starting the next phase.
+- [ ] T028 [US13] Repeat the clean-copy reviewer startup and restart-persistence scenarios in Windows PowerShell with Linux containers, exercising `Dockerfile`, `compose.yaml`, `scripts/test-integration.mjs`, and `README.md`/`quickstart.md`. Verify the identical startup command, migration ordering, path/signal/cleanup behavior, full test command, and named-volume retention. Record actual Windows results; if no Windows environment is available, leave this task unchecked and record the gap rather than claiming support is verified.
+**T028 availability**: No Windows OS/PowerShell environment is available. This task remains unchecked; Windows startup, signals/paths, tests/cleanup, and persistence must still be executed there. The one-shot authorization permits finishing independent Phase 17 audit/docs with this gap recorded.
+
+- [x] T029 [US13] Verify P077's Docker-free host development instructions in `README.md` and `quickstart.md` against `package.json`, `drizzle.config.ts`, and `server/db/client.ts`: locally running pinned PostgreSQL, locked install, POSIX/PowerShell DATABASE_URL examples, `pnpm exec drizzle-kit migrate`, then `pnpm dev`. Confirm UI/API, hot reload, local-only access, and persistence after dev-server restart; the URL must target the reachable host DB rather than Compose's private hostname. Record exercised platforms and any unavailable platform separately; integration tests retain their isolated Docker setup.
+
+**T029 evidence (2026-11-08)**: Clean temporary source copy, locked install, host Node 24.22.2/pnpm 12.18.0, locally built PostgreSQL 18.6 with a UTF8 database on loopback 55438, migration CLI and `pnpm dev` on loopback 3000 passed. Unicode writer/public data, actual in-page HMR, and exact SQL/public state after Nuxt restart passed. Only the temporary copy was edited for HMR, then restored. Temporary processes stopped. Windows host development remains unexecuted.
+
+**Phase status**: Partial: T027/T029 verified in the recorded environments; T028 remains open. The user authorized progression through Phase 17 in one shot, so independent audit/documentation continues with the platform gap explicit. Full cross-platform acceptance is not claimed.
 
 ## Phase 17: US14 — Verification and reviewer documentation (P1)
 
@@ -674,11 +683,13 @@ Phase 15 has not started.
 **Dependencies**: Feature/interface/platform phases approved for full acceptance.
 **Independent test**: One full test command, separate typecheck/build, complete coverage map, and README prerequisites/configuration/model/rationale/real tradeoff/limitations; reviewers need not execute tests.
 
-- [ ] T030 [US14] Audit FR-001–FR-014 and SC-001–SC-006 against `tests/unit/`, `tests/integration/`, `quickstart.md`, and this task list; extend existing cases only for uncovered acceptance behavior and record an evidence map in `quickstart.md`. Run `pnpm test`, `pnpm exec nuxt typecheck`, and `pnpm run build` against the final state; explicitly verify `test:unit` needs no PostgreSQL/Docker and `test:integration` automatically provisions/migrates/resets/cleans only test resources. A missing required assertion, skipped suite, cleanup failure, or unavailable check remains open.
-- [ ] T031 [US14] Finalize `README.md` from actual implementation/results: Docker and host-dev prerequisites/configuration/startup, test commands, model and lifecycle/concurrency rationale, trusted shared writer access with concurrent sessions, safe Markdown policy, at least one actual time-pressure tradeoff and its future improvement, known omissions/unverified platforms, and the short required-flow demo. Clearly distinguish reviewer startup from developer testing; do not invent completed checks or add production/CI/auth scope.
-- [ ] T032 [US14] Synchronize implemented/verified status across `specs/001-docs-studio/plan.md`, `research.md`, `data-model.md`, `contracts/http-api.md`, `contracts/ui-and-services.md`, `assumptions.md`, `quickstart.md`, `tasks.md`, and `ACTION_PLAN.md`, changing only outdated claims or approved deviations. Ensure runtime projections, field limits, paths, pins, revision/error ordering, startup/test procedures, and recorded evidence agree. Keep unverified tasks unchecked and maintain the original approved requirements; propose any architectural change for human decision before dependent code.
+- [x] T030 [US14] Audit FR-001–FR-014 and SC-001–SC-006 against `tests/unit/`, `tests/integration/`, `quickstart.md`, and this task list; extend existing cases only for uncovered acceptance behavior and record an evidence map in `quickstart.md`. Run `pnpm test`, `pnpm exec nuxt typecheck`, and `pnpm run build` against the final state; explicitly verify `test:unit` needs no PostgreSQL/Docker and `test:integration` automatically provisions/migrates/resets/cleans only test resources. A missing required assertion, skipped suite, cleanup failure, or unavailable check remains open.
+- [x] T031 [US14] Finalize `README.md` from actual implementation/results: Docker and host-dev prerequisites/configuration/startup, test commands, model and lifecycle/concurrency rationale, trusted shared writer access with concurrent sessions, safe Markdown policy, at least one actual time-pressure tradeoff and its future improvement, known omissions/unverified platforms, and the short required-flow demo. Clearly distinguish reviewer startup from developer testing; do not invent completed checks or add production/CI/auth scope.
+- [x] T032 [US14] Synchronize implemented/verified status across `specs/001-docs-studio/plan.md`, `research.md`, `data-model.md`, `contracts/http-api.md`, `contracts/ui-and-services.md`, `assumptions.md`, `quickstart.md`, `tasks.md`, and `ACTION_PLAN.md`, changing only outdated claims or approved deviations. Ensure runtime projections, field limits, paths, pins, revision/error ordering, startup/test procedures, and recorded evidence agree. Keep unverified tasks unchecked and maintain the original approved requirements; propose any architectural change for human decision before dependent code.
 
-**Phase approval**: Pending human review. Demonstrate this phase, present verification results, and wait for explicit human approval before starting the next phase.
+**T030–T032 evidence (2026-11-08)**: Audited every FR-001–FR-014 and SC-001–SC-006 in quickstart’s final evidence map. Existing lifecycle assertions cover the required invariants; no duplicate tests or application fixes were needed. Final `pnpm test`: 99 unit + 143 real PostgreSQL/HTTP cases (242), no skips; Nuxt and strict test-source typechecks/build pass. Unit-only verification passes with DATABASE_URL unset and an unusable Docker socket; integration provisioning/migrations/resets/cleanup removed only owned resources. README now records actual setup, model/rationale, shared concurrent writer access, safe Markdown, tradeoffs, demo, and platform limits. Artifacts and roadmap were synchronized. FR-013/SC-005 remain partially verified solely because Windows T028 is unavailable.
+
+**Phase status**: Audit/documentation work verified under the user’s one-shot authorization. Results await human review; platform T028 remains unchecked. Phase 18 has not started and retains its separate review gate.
 
 ## Phase 18: Final delivery review
 
@@ -693,12 +704,14 @@ Phase 15 has not started.
 
 ## Dependencies and execution order
 
-Execute the phases above in order, with explicit human approval at every boundary.
+Execute the phases above in order. The 2026-11-08 user instruction authorized Phases 15–17
+in one shot, including intermediate gates; preserve the Phase 18 boundary and all unavailable checks.
 Task IDs are stable references rather than a numeric execution sequence. UI tasks moved
 into their owning story retain their original ID; newly split UI tasks are T036–T039.
-T001–T025 and T035–T039 are complete with evidence above (30 tasks).
-Phases 1–13 are approved; Phase 14 awaits human approval.
-Later phase approvals and tasks remain pending.
+T001–T027, T029–T032, and T035–T039 are verified with evidence above (36 tasks).
+Phases 1–14 are approved. Phase 15 and Phase 17 work is verified; Phase 16 is partial
+with Windows T028 open. Phase 18 T033/T034 is unstarted. The user’s one-shot instruction
+authorized this execution without claiming unavailable Windows checks passed.
 
 ```text
 Setup T001–T002 → Foundation T003–T005 → UI design T035

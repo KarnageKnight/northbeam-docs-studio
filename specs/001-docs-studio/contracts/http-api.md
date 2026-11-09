@@ -10,8 +10,7 @@ projection and anonymous access. Phase 8 GET `/api/public/articles/:slug` is imp
 and verified with its exact live-only PublicDetail projection and identical 404 for
 missing/draft-only/unpublished articles. Phase 9 POST `/:articleId/unpublish` is implemented
 and verified: revision precedes state checks, successful unpublish retains history/reference/
-first date/draft/counter, and public list/detail access is removed. Remaining history
-mutation endpoints are targets for later phases. Phase 10 GET version list/detail are
+first date/draft/counter, and public list/detail access is removed. Phase 10 GET version list/detail are
 implemented and verified, including exact fields, newest-number ordering, UUID validation,
 article-before-snapshot absence, wrong-owner protection, and unchanged state on reads.
 Phase 11 Restore is implemented and verified: expectedRevision is checked before snapshot
@@ -25,6 +24,10 @@ follow both serialized orders without partial state. The route/body/error contra
 Phase 14 verifies normalized slug boundaries/formats, cross-state collisions and rejected
 slug edits, immutable lifecycle lookup, and observed competing inserts. Exact conflicts
 return SLUG_CONFLICT without suffixing; validation and error contracts are unchanged.
+
+Final audit (2026-11-08): all route/projection/validation/error/lifecycle contracts below
+match the implemented handlers and 242 passing tests. Integrated browser acceptance also
+passes. Startup portability is separately recorded in quickstart; Windows T028 remains open.
 
 Authority: [specification](../spec.md) and [plan](../plan.md) P025–P033. The
 [data model](../data-model.md) owns storage; this contract owns wire representations.

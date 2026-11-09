@@ -2,13 +2,13 @@
 
 **Feature**: `001-docs-studio` | **Date**: 2026-11-07 | **Spec**: [spec.md](spec.md)
 
-**Status**: Phases 1–13 approved. The user selected the Write/Preview tabbed UI design in
-[ui-design.md](ui-design.md); T035 is complete. Phase 12 snapshot deletion and writer slug routes are implemented, verified, and approved.
-Phase 13 rejection and independent-connection concurrency evidence is verified and approved.
-Phase 14 slug uniqueness/immutability verification is complete, pending human approval;
-Phase 15 and later work have not started. The spec-first checkpoint was verified before
-code without git commands. The feature identifier is `001-docs-studio`; it does not establish
-a git branch name. Individual architecture decisions P001–P077 remain authoritative.
+**Status**: Phases 1–14 approved. The user authorized one-shot execution through Phase 17
+on 2026-11-08, including intermediate gates. Integrated interface acceptance and the final
+audit/documentation are verified. Linux-client Docker acceptance and macOS host development
+pass; Windows T028 remains open, so Phase 16 and FR-013/SC-005 are not fully verified.
+Phase 18 is unstarted. The spec-first checkpoint was verified before code without git
+commands. Feature identifier `001-docs-studio` does not establish a branch name;
+architecture decisions P001–P077 remain authoritative.
 
 ## Summary
 
@@ -116,11 +116,11 @@ execution evidence follows implementation.
 
 | Principle | Planning obligation | Current status |
 | --- | --- | --- |
-| I. Specification before implementation | Complete and review spec, plan, and tasks before code; human records git checkpoint. | Spec, design, tasks, and analysis recorded; the spec-first checkpoint was verified before the authorized Phase 1 implementation. Phases 1–13 approved; Write/Preview tabs selected. |
+| I. Specification before implementation | Complete and review spec, plan, and tasks before code; human records git checkpoint. | Spec, design, tasks, and analysis recorded; the spec-first checkpoint was verified before the authorized Phase 1 implementation. Phases 1–14 approved; execution through Phase 17 authorized; Write/Preview tabs selected. |
 | II. Draft and snapshot isolation | Public reads use live snapshots; immutable history and referenced-snapshot protection. | Data model and contracts specify table separation, immutable-row trigger, owned reference, and retained-reference deletion protection. |
 | III. Atomic lifecycle and concurrency | Transactional publication and revision checks; no partial state or stale overwrites. | Contracts specify article-first locking, revision-before-eligibility ordering, transactional allocation, rollback, and SQL constraints. |
 | IV. Database-backed evidence | Real PostgreSQL lifecycle/failure/race tests; passing build and suite once scaffolded. | Quickstart maps invariants to real HTTP/SQL evidence, independent connections, rollback and restart checks. Build/typecheck, 99 unit cases, and 143 real PostgreSQL/HTTP cases pass, including normalized slug collisions/immutability/boundaries, observed competing inserts and lifecycle contention, both delete-race orders, rollback/crash recovery, restart, and safe rendering. Final acceptance/platform audits remain. |
-| V. Small reviewable changes | Small scoped tasks, verification, explanation, human review, and no AI commits. | Implement one small task at a time; keep subsequent tasks separate unless explicitly requested together. Leave changes for human review and approval. T001–T025/T036–T039 verified; T035 approved; Phases 1–13 approved and Phase 14 review pending. |
+| V. Small reviewable changes | Small scoped tasks, verification, explanation, human review, and no AI commits. | Implement one small task at a time; keep subsequent tasks separate unless explicitly requested together. Leave changes for human review and approval. 36 tasks verified; Windows T028 open; Phase 18 unstarted. One-shot execution through Phase 17 was explicitly authorized; no AI commits. |
 | VI. Human architecture decisions | Present alternatives and record each human selection before dependent work. | P001–P077 record selections and rationale; consolidated artifacts await final human review. |
 | VII. Consistent patterns | Establish approved patterns and reuse them across implementation tasks. | UI/service contract fixes shared validation, handlers/errors, transaction helper, data access, renderer, and local-state patterns. |
 
@@ -154,8 +154,9 @@ Generated design artifacts:
 - [quickstart.md](quickstart.md): verified foundation commands and future feature acceptance procedures.
 
 [tasks.md](tasks.md) contains 39 dependency-ordered tasks across all 14 stories, with
-verification and human review gates. T001–T025 and T035–T039 are verified
-and checked (30 tasks); Phases 1–13 are approved. Phase 14 review is pending; later tasks have not started.
+verification and human review gates. T001–T027, T029–T032, and T035–T039 are verified
+and checked (36 tasks). Windows T028 remains open; Phase 18 T033/T034 is unstarted.
+The user authorized execution through Phase 17 without additional intermediate gates.
 
 ### UI design review before page implementation
 
@@ -2157,7 +2158,7 @@ resources were preserved. The temporary validation project was removed after che
 Port 3000 was already occupied; the validation app used a temporary loopback-3300 override.
 The committed default is loopback 3000. Windows/Linux host execution, lifecycle operations,
 concurrency races, and later feature UI remain unverified/unimplemented. Phases 1–3 are approved;
-Write/Preview tabs are the selected UI design; Phases 1–13 are approved and Phase 14 awaits human review. See [README.md](../../README.md) for current commands.
+Write/Preview tabs are the selected UI design; Phases 1–14 are approved; work through Phase 17 is verified except Windows T028. See [README.md](../../README.md) for current commands.
 
 ## Entry chooser requested during Phase 4 review
 
@@ -2469,4 +2470,26 @@ actions and reload, and the maximum-length slug at 390px, without runtime/hydrat
 Build, Nuxt/test typechecks, and 99 unit + 143 PostgreSQL/HTTP cases pass (242 total).
 No application code, contract, schema, migration, dependency, architecture, or Markdown policy
 change was needed. Disposable resources were removed; normal resources were preserved.
-Phase 14 awaits human review; Phase 15 remains unstarted.
+The user subsequently approved Phase 14 and authorized execution through Phase 17.
+
+
+## Phases 15–17 final verification — November 8, 2026
+
+T026 passed integrated production Chrome acceptance and repeated four-action two-tab
+conflict/reload/resubmit checks, with no runtime/hydration errors or application defects.
+T027 passed clean-copy default startup from a Linux arm64 Docker CLI container using the
+Docker Desktop Linux daemon: private database, loopback app, migrations before serving,
+failed-migration non-serving/recovery, and full named-volume SQL/public persistence through
+normal down/up. A standalone native Linux host was not separately exercised.
+
+T029 passed Docker-free macOS development with pinned Node/pnpm and local PostgreSQL 18.6:
+locked install/migrations, UTF8 writer/public data, in-page HMR, loopback binding, and exact
+SQL/public state after dev-server restart. Temporary HMR changes were restored and processes
+stopped. T028 remains unchecked because no Windows execution environment is available.
+
+T030–T032 completed the FR/SC evidence map, final developer suite/typechecks/build, README
+and artifact/roadmap reconciliation. Unit tests pass without a DB or working Docker socket;
+the full 242-test suite provisions/migrates/resets/cleans only its own integration resources.
+No new application code, tests, migration, architecture, dependency, or Markdown policy was
+needed. FR-013/SC-005 remain partially verified because Windows runtime acceptance is open.
+The user authorized this run through Phase 17; Phase 18 is outside scope and unstarted.
