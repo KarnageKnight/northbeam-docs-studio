@@ -1,10 +1,12 @@
 <!--
 Sync Impact Report — review-only; remove this comment before committing.
-Version change: 1.4.0 -> 1.5.0 (branch-wide PR descriptions in Markdown against main).
-Modified principle (title unchanged):
-  V. Small, Reviewable Changes Within the Time Budget — PR description scope and format.
-Added principles or sections: none.
+Version change: 2.1.0 -> 2.2.0 (continuous removal of obsolete code).
+Modified sections: Development Workflow and Quality Gates, step 4.
+Minor rationale: adds a task-completion cleanup obligation while preserving existing guarantees.
+Human request: 2026-11-10, prevent codebase growth by removing unnecessary or obsolete code.
+Added principle: IX. Minimal Codebase and Continuous Cleanup.
 Removed sections: none.
+Affected workflow: every task reviews affected code for obsolescence and reports cleanup.
 Template synchronization: dependent templates read this constitution at runtime;
   no template or command files changed.
 Deferred placeholders and follow-up TODOs: none.
@@ -119,6 +121,14 @@ proportional to this application; additional complexity MUST have a documented r
 or correctness rationale. If time becomes constrained, reduce visual polish and record known
 omissions rather than weakening invariants or claiming unfinished work is complete.
 
+For feature 002 only, the human approved deferring feature 001 Windows PowerShell
+acceptance T028 on 2026-11-09 so version-diff implementation may proceed with the
+required application already implemented and its available-platform evidence recorded.
+T028 MUST remain unchecked until executed on Windows. This exception changes the order
+of work only: Windows setup, tests, cleanup, and persistence MUST NOT be reported verified
+without execution evidence. Required platform acceptance remains incomplete. All other
+spec-first, architecture, UI review, task verification, and human-owned commit gates apply.
+
 ### VI. Human Architecture Decisions
 
 All architecture decisions MUST be made by a human. Before a new or changed decision, AI
@@ -148,6 +158,63 @@ Code MUST express its intent through clear names and straightforward structure. 
 be limited to explaining non-obvious rationale, constraints, or tradeoffs that the code cannot
 communicate clearly. Comments MUST NOT narrate obvious operations, repeat the code, or serve
 as a substitute for readable implementation.
+
+### VIII. Detailed Review Explanations for New Files
+
+Whenever AI adds a file, the task or phase review handoff MUST include a detailed,
+file-by-file walkthrough for a human code reviewer. A filename list, change summary,
+or passing-test report alone is insufficient. The walkthrough MUST link to each new
+file and relevant definitions and usage locations, with line references where available.
+
+For each new code file, AI MUST explain:
+
+- Its purpose, the requirement it satisfies, why a separate file is needed, and how its
+  responsibility fits the existing structure.
+- Each function, helper, class, composable, or component: what it does, why it is needed,
+  its inputs and outputs, return values, and side effects. Explain relevant types,
+  component props, emitted events, and public interfaces as well as private helpers.
+- Where it is imported, called, rendered, or otherwise consumed, naming the actual
+  files and call sites. Trace the relevant data/control flow through those connections;
+  if a consumer is planned but not implemented, state that explicitly.
+- Relevant state changes, asynchronous behavior, validation/guards, error handling,
+  cancellation/cleanup, protected invariants, and meaningful tradeoffs or limitations.
+- How it was verified, which tests cover its behavior, what those checks establish,
+  and what remains unverified.
+
+For new tests, documentation, configuration, fixtures, generated files, or evidence
+artifacts, AI MUST explain the applicable structure, cases/settings/data, why the file
+exists, how it is produced or maintained, who or what consumes it, and its validation
+and limitations. Do not invent functions or runtime call sites for non-executable files.
+
+Provide this explanation in the review response unless the human requests a separate
+review document. A concise outcome summary may precede the walkthrough but MUST NOT
+replace it. Source comments MUST still follow Principle VII; the walkthrough belongs in
+the review, rather than repetitive comments throughout the implementation. This makes
+new responsibilities and their integration inspectable before human approval.
+
+### IX. Minimal Codebase and Continuous Cleanup
+
+Every task MUST review the code it touches and its directly affected callers, imports,
+types, tests, configuration, and dependencies for anything made obsolete by the change.
+Code that is no longer needed or relevant MUST be removed in the same task, including
+superseded implementations, unreachable branches, unused helpers or exports, duplicate
+logic, abandoned feature paths, and temporary debugging or probe code. Update affected
+references and documentation so replacements do not leave parallel obsolete paths behind.
+
+AI MUST reuse or simplify existing code before adding another implementation, abstraction,
+file, or dependency. Retained code MUST serve a current requirement or a documented
+correctness or compatibility need; speculative future use is insufficient. Cleanup MUST
+remain within the task's affected scope, without bundling an unrelated repository rewrite.
+The goal is the smallest maintainable implementation, not fewer lines at the expense of
+readability, required behavior, or validation.
+
+Before removal, AI MUST check actual usage, including framework auto-imports, conventions,
+configuration, and runtime entry points; absence of a direct import alone is insufficient.
+Cleanup MUST preserve required test coverage, migrations, lifecycle invariants, and required
+review evidence. Remove dependencies only after confirming no remaining consumer needs them.
+Before marking a task complete, verify the resulting behavior under Principle IV and report
+what was removed or why no cleanup was needed. This prevents completed tasks from steadily
+accumulating dead code and unnecessary maintenance work.
 
 ## Technology and Scope
 
@@ -190,7 +257,8 @@ as a substitute for readable implementation.
    Reuse existing patterns; obtain human approval for architecture or pattern changes and
    update the relevant artifact before continuing dependent implementation. Before marking
    any task complete, satisfy Principle IV's build/test checks and confirm affected documents
-   are current; report unavailable checks explicitly.
+   are current; report unavailable checks explicitly. Apply Principle IX's cleanup review
+   and remove code made obsolete by the task before declaring it complete.
 5. Before delivery, verify the lifecycle tests, type checks, production build, fresh local
    setup, restart persistence, and a browser walkthrough of the required user flows.
 6. Work within the roughly 24 focused hours agreed with the user. Finish development by
@@ -216,4 +284,4 @@ be made explicit and resolved through a documented amendment or a conforming imp
 it cannot silently weaken a required assignment invariant. Temporary amendment-review comments
 MUST be removed before committing the constitution.
 
-**Version**: 1.5.0 | **Ratified**: 2026-11-06 | **Last Amended**: 2026-11-06
+**Version**: 2.2.0 | **Ratified**: 2026-11-06 | **Last Amended**: 2026-11-10

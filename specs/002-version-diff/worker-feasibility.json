@@ -1,0 +1,403 @@
+{
+  "date": "2026-11-10",
+  "scope": "Foundation production Worker computation; not controller or full-size DOM acceptance",
+  "hardware": {
+    "cpu": "Apple M2 Pro",
+    "ramBytes": 17179869184,
+    "osVersion": "macOS 27.0.1"
+  },
+  "toolchain": {
+    "node": "24.22.2",
+    "pnpm": "12.18.0",
+    "nuxt": "4.6.4",
+    "vite": "8.3.5",
+    "diff": "9.0.0"
+  },
+  "sourceSHA256": {
+    "app/utils/articleDiff.ts": "618711a36b2a2a81a0c3f7669e3fa5df65a7b5ce755688bf724af15db1b513a2",
+    "app/workers/articleDiff.worker.ts": "a4d641272523f907821db1c3360fb737c8589b68bd8c5e0dbe82bcbb6c093fb0",
+    "shared/types/article-comparison.ts": "80dcca4ec926ee5c70277b81eb0068e7450b6145a8570ad775ebc68018de71cc",
+    "tests/fixtures/article-comparison.ts": "ff1aa78755a142867243e61d97b4a94c7095516fa04d4d567a8f6fe97b29b7e8"
+  },
+  "probe": "Temporary client-only Nuxt plugin with static Vite module Worker constructor; removed before handoff",
+  "timingScope": "Main-thread observed Worker startup, computation, message transfer, and reconstruction checks; not isolated CPU time or final DOM rendering",
+  "observationWindowMs": 45000,
+  "latencyRequirement": "No fixed threshold; observation window is an experiment bound only",
+  "initial": {
+    "environment": {
+      "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+      "cores": 12,
+      "memoryGiB": 16
+    },
+    "results": [
+      {
+        "fixture": "identical",
+        "baselineSHA256": "96ba2e5f56c189103ab3dad63e67111ee1f58675c1f57e7a351db3ff7b4f71dd",
+        "targetSHA256": "96ba2e5f56c189103ab3dad63e67111ee1f58675c1f57e7a351db3ff7b4f71dd",
+        "status": "complete-exact",
+        "bodyRows": 7693,
+        "inlineSegments": 7693,
+        "unchangedWordsInReplacements": 0,
+        "elapsedMs": 39.69999998807907,
+        "editorPreserved": true,
+        "cancellation": {
+          "handled": true,
+          "workerReleased": true,
+          "messages": 0,
+          "actionMs": 14.400000005960464,
+          "editorPreserved": true
+        }
+      },
+      {
+        "fixture": "sparse",
+        "baselineSHA256": "96ba2e5f56c189103ab3dad63e67111ee1f58675c1f57e7a351db3ff7b4f71dd",
+        "targetSHA256": "3187c75f0509fce915f0830c4ebf4c4c427ad265737e28b939aa9847a2637d7c",
+        "status": "complete-exact",
+        "bodyRows": 7695,
+        "inlineSegments": 7697,
+        "unchangedWordsInReplacements": 2,
+        "elapsedMs": 22,
+        "editorPreserved": true,
+        "cancellation": {
+          "handled": true,
+          "workerReleased": true,
+          "messages": 0,
+          "actionMs": 1.5,
+          "editorPreserved": true
+        }
+      },
+      {
+        "fixture": "long-single-line",
+        "baselineSHA256": "6d1cf22d7cc09b085dfc25ee1a1f3ae0265804c607bc2074ad253bcc82fd81ee",
+        "targetSHA256": "768b54e315c41a8d1ae3a29f677bff3b327e238e98e644dc7d566442f5920f8d",
+        "status": "complete-exact",
+        "bodyRows": 2,
+        "inlineSegments": 2,
+        "unchangedWordsInReplacements": 0,
+        "elapsedMs": 6.899999976158142,
+        "editorPreserved": true,
+        "cancellation": {
+          "handled": true,
+          "workerReleased": true,
+          "messages": 0,
+          "actionMs": 3,
+          "editorPreserved": true
+        }
+      },
+      {
+        "fixture": "repeated-lines",
+        "baselineSHA256": "85e38413b34a2cf7ae2803d4f9da65e65a39c9c2d709850a1ad2781d8f68a218",
+        "targetSHA256": "4f4e05f49026ada68c593ba5db311c15a7abff15867c376bd7871c9ada2019ea",
+        "status": "complete-exact",
+        "bodyRows": 16669,
+        "inlineSegments": 16669,
+        "unchangedWordsInReplacements": 0,
+        "elapsedMs": 36.70000001788139,
+        "editorPreserved": true,
+        "cancellation": {
+          "handled": true,
+          "workerReleased": true,
+          "messages": 0,
+          "actionMs": 3.5,
+          "editorPreserved": true
+        }
+      },
+      {
+        "fixture": "many-short-lines",
+        "baselineSHA256": "705042a2f4267ce89c994543d1f2a0f44df191488ad0420b405f544ca2488920",
+        "targetSHA256": "ac1812dabd29521ce6ba8ae3dd0256acab8c58baba13d45b9ddba3255a9050fe",
+        "status": "observation-window-ended",
+        "observationWindowMs": 45000,
+        "elapsedMs": 45002.5,
+        "editorPreserved": true,
+        "cancellation": {
+          "handled": true,
+          "workerReleased": true,
+          "messages": 0,
+          "actionMs": 3,
+          "editorPreserved": true
+        }
+      },
+      {
+        "fixture": "unequal-replacements",
+        "baselineSHA256": "70f77092fab1e590771c7fc63015646199466cc93673dda505a2af25f21384b7",
+        "targetSHA256": "61082a492851586314ceb3e96ed84879c628d22b5174c27c37a8cf1e0daa5440",
+        "status": "observation-window-ended",
+        "observationWindowMs": 45000,
+        "elapsedMs": 45002.19999998808,
+        "editorPreserved": true,
+        "cancellation": {
+          "handled": true,
+          "workerReleased": true,
+          "messages": 0,
+          "actionMs": 5.199999988079071,
+          "editorPreserved": true
+        }
+      },
+      {
+        "fixture": "unicode",
+        "baselineSHA256": "45c1a48718b045941f428ce71df505120c207255f663b9a9b19806d6065d6e41",
+        "targetSHA256": "d47ffd315af22062c5c37da82d5e8c64ba2fe5187a9866402a4da1b2b3cbdb3e",
+        "status": "observation-window-ended",
+        "observationWindowMs": 45000,
+        "elapsedMs": 45002.30000001192,
+        "editorPreserved": true,
+        "cancellation": {
+          "handled": true,
+          "workerReleased": true,
+          "messages": 0,
+          "actionMs": 5.4000000059604645,
+          "editorPreserved": true
+        }
+      },
+      {
+        "fixture": "whitespace",
+        "baselineSHA256": "e8a3cf1e4e2b9b7bce520a61b4652a4bfd336e78db711d588b3e29821443a5e6",
+        "targetSHA256": "2f5201af47bf33b768ae7a5733d296dbc3d0a46d07b494e91cab5ba0b0cb2187",
+        "status": "observation-window-ended",
+        "observationWindowMs": 45000,
+        "elapsedMs": 45002.59999999404,
+        "editorPreserved": true,
+        "cancellation": {
+          "handled": true,
+          "workerReleased": true,
+          "messages": 0,
+          "actionMs": 4.299999982118607,
+          "editorPreserved": true
+        }
+      },
+      {
+        "fixture": "different-token-dense",
+        "baselineSHA256": "9b27798217a612c56bf6a43a9135787d88b6e67a29adbf0a3beb19ca539021b1",
+        "targetSHA256": "fd89ee2a3ce79168781dd5d1b12d838e9a14a5d176211c3efb0f647559e9b2b4",
+        "status": "observation-window-ended",
+        "observationWindowMs": 45000,
+        "elapsedMs": 45002.20000001788,
+        "editorPreserved": true,
+        "cancellation": {
+          "handled": true,
+          "workerReleased": true,
+          "messages": 0,
+          "actionMs": 3.4000000059604645,
+          "editorPreserved": true
+        }
+      }
+    ],
+    "exceptions": []
+  },
+  "optimized": {
+    "environment": {
+      "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+      "cores": 12,
+      "memoryGiB": 16
+    },
+    "results": [
+      {
+        "fixture": "identical",
+        "baselineSHA256": "96ba2e5f56c189103ab3dad63e67111ee1f58675c1f57e7a351db3ff7b4f71dd",
+        "targetSHA256": "96ba2e5f56c189103ab3dad63e67111ee1f58675c1f57e7a351db3ff7b4f71dd",
+        "status": "complete-exact",
+        "bodyRows": 7693,
+        "inlineSegments": 7693,
+        "unchangedWordsInReplacements": 0,
+        "elapsedMs": 23.5,
+        "editorPreserved": true,
+        "cancellation": {
+          "handled": true,
+          "workerReleased": true,
+          "messages": 0,
+          "actionMs": 8.199999988079071,
+          "editorPreserved": true
+        }
+      },
+      {
+        "fixture": "sparse",
+        "baselineSHA256": "96ba2e5f56c189103ab3dad63e67111ee1f58675c1f57e7a351db3ff7b4f71dd",
+        "targetSHA256": "3187c75f0509fce915f0830c4ebf4c4c427ad265737e28b939aa9847a2637d7c",
+        "status": "complete-exact",
+        "bodyRows": 7695,
+        "inlineSegments": 7697,
+        "unchangedWordsInReplacements": 2,
+        "elapsedMs": 41.099999994039536,
+        "editorPreserved": true,
+        "cancellation": {
+          "handled": true,
+          "workerReleased": true,
+          "messages": 0,
+          "actionMs": 3,
+          "editorPreserved": true
+        }
+      },
+      {
+        "fixture": "long-single-line",
+        "baselineSHA256": "6d1cf22d7cc09b085dfc25ee1a1f3ae0265804c607bc2074ad253bcc82fd81ee",
+        "targetSHA256": "768b54e315c41a8d1ae3a29f677bff3b327e238e98e644dc7d566442f5920f8d",
+        "status": "complete-exact",
+        "bodyRows": 2,
+        "inlineSegments": 2,
+        "unchangedWordsInReplacements": 0,
+        "elapsedMs": 6.799999982118607,
+        "editorPreserved": true,
+        "cancellation": {
+          "handled": true,
+          "workerReleased": true,
+          "messages": 0,
+          "actionMs": 1.4000000059604645,
+          "editorPreserved": true
+        }
+      },
+      {
+        "fixture": "repeated-lines",
+        "baselineSHA256": "85e38413b34a2cf7ae2803d4f9da65e65a39c9c2d709850a1ad2781d8f68a218",
+        "targetSHA256": "4f4e05f49026ada68c593ba5db311c15a7abff15867c376bd7871c9ada2019ea",
+        "status": "complete-exact",
+        "bodyRows": 16669,
+        "inlineSegments": 16669,
+        "unchangedWordsInReplacements": 0,
+        "elapsedMs": 75.7999999821186,
+        "editorPreserved": true,
+        "cancellation": {
+          "handled": true,
+          "workerReleased": true,
+          "messages": 0,
+          "actionMs": 3.300000011920929,
+          "editorPreserved": true
+        }
+      },
+      {
+        "fixture": "many-short-lines",
+        "baselineSHA256": "705042a2f4267ce89c994543d1f2a0f44df191488ad0420b405f544ca2488920",
+        "targetSHA256": "ac1812dabd29521ce6ba8ae3dd0256acab8c58baba13d45b9ddba3255a9050fe",
+        "status": "complete-exact",
+        "bodyRows": 100000,
+        "inlineSegments": 200000,
+        "unchangedWordsInReplacements": 100000,
+        "elapsedMs": 517.2999999821186,
+        "editorPreserved": true,
+        "cancellation": {
+          "handled": true,
+          "workerReleased": true,
+          "messages": 0,
+          "actionMs": 1.0999999940395355,
+          "editorPreserved": true
+        }
+      },
+      {
+        "fixture": "unequal-replacements",
+        "baselineSHA256": "70f77092fab1e590771c7fc63015646199466cc93673dda505a2af25f21384b7",
+        "targetSHA256": "61082a492851586314ceb3e96ed84879c628d22b5174c27c37a8cf1e0daa5440",
+        "status": "complete-exact",
+        "bodyRows": 16234,
+        "inlineSegments": 28897,
+        "unchangedWordsInReplacements": 15747,
+        "elapsedMs": 14042.40000000596,
+        "editorPreserved": true,
+        "cancellation": {
+          "handled": true,
+          "workerReleased": true,
+          "messages": 0,
+          "actionMs": 3.2000000178813934,
+          "editorPreserved": true
+        }
+      },
+      {
+        "fixture": "unicode",
+        "baselineSHA256": "45c1a48718b045941f428ce71df505120c207255f663b9a9b19806d6065d6e41",
+        "targetSHA256": "d47ffd315af22062c5c37da82d5e8c64ba2fe5187a9866402a4da1b2b3cbdb3e",
+        "status": "complete-exact",
+        "bodyRows": 22500,
+        "inlineSegments": 102500,
+        "unchangedWordsInReplacements": 40000,
+        "elapsedMs": 315.5,
+        "editorPreserved": true,
+        "cancellation": {
+          "handled": true,
+          "workerReleased": true,
+          "messages": 0,
+          "actionMs": 2.899999976158142,
+          "editorPreserved": true
+        }
+      },
+      {
+        "fixture": "whitespace",
+        "baselineSHA256": "e8a3cf1e4e2b9b7bce520a61b4652a4bfd336e78db711d588b3e29821443a5e6",
+        "targetSHA256": "2f5201af47bf33b768ae7a5733d296dbc3d0a46d07b494e91cab5ba0b0cb2187",
+        "status": "complete-exact",
+        "bodyRows": 66666,
+        "inlineSegments": 116666,
+        "unchangedWordsInReplacements": 66666,
+        "elapsedMs": 338.09999999403954,
+        "editorPreserved": true,
+        "cancellation": {
+          "handled": true,
+          "workerReleased": true,
+          "messages": 0,
+          "actionMs": 1.199999988079071,
+          "editorPreserved": true
+        }
+      },
+      {
+        "fixture": "different-token-dense",
+        "baselineSHA256": "9b27798217a612c56bf6a43a9135787d88b6e67a29adbf0a3beb19ca539021b1",
+        "targetSHA256": "fd89ee2a3ce79168781dd5d1b12d838e9a14a5d176211c3efb0f647559e9b2b4",
+        "status": "complete-exact",
+        "bodyRows": 2,
+        "inlineSegments": 2,
+        "unchangedWordsInReplacements": 0,
+        "elapsedMs": 211.30000001192093,
+        "editorPreserved": true,
+        "cancellation": {
+          "handled": true,
+          "workerReleased": true,
+          "messages": 0,
+          "actionMs": 1.199999988079071,
+          "editorPreserved": true
+        }
+      }
+    ],
+    "exceptions": []
+  },
+  "maximumMetadataAndControls": {
+    "maximumMetadata": [
+      {
+        "mode": "version-version",
+        "type": "result",
+        "titleExact": true,
+        "bodyExact": true,
+        "addedTags": 10,
+        "removedTags": 10
+      },
+      {
+        "mode": "draft-version",
+        "type": "result",
+        "titleExact": true,
+        "bodyExact": true,
+        "addedTags": 10,
+        "removedTags": 10
+      }
+    ],
+    "controls": [
+      {
+        "action": "close",
+        "messages": 0,
+        "workerReleased": true,
+        "actionMs": 2.300000011920929
+      },
+      {
+        "action": "source",
+        "messages": 0,
+        "workerReleased": true,
+        "actionMs": 6.700000017881393
+      }
+    ],
+    "reopen": true
+  },
+  "limitations": [
+    "Only headless Chrome 157/macOS exercised",
+    "Full article rendering and integrated controller acceptance remain pending",
+    "Post-termination message observations covered 150ms (Cancel) and 200ms (Close/source change)",
+    "No Worker heap or peak-memory measurement; navigator deviceMemory is only a browser-reported hint"
+  ],
+  "productionWorkerAsset": "/_nuxt/articleDiff.worker-DBsBIcJa.js",
+  "baselineCommit": "ba1509ae2b70739e9a71fd44a3e4ee0e54dc692f"
+}

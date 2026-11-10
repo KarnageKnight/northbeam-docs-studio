@@ -166,6 +166,9 @@ importers:
 
   .:
     dependencies:
+      diff:
+        specifier: 9.0.0
+        version: 9.0.0
       drizzle-kit:
         specifier: 0.31.11
         version: 0.31.11

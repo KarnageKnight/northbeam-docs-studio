@@ -110,6 +110,37 @@ and leaves deep links uninterrupted; Escape chooses Public.
 There is one shared trusted writer workspace, with no authentication or user identities.
 Multiple tabs or trusted people can write concurrently; revision checks reject stale changes.
 
+### Compare a saved draft with a version
+
+After publishing a version, edit and explicitly Save the draft. In Version history, choose
+**Compare versions**, select the baseline version, then **Compare**. The read-only panel
+shows title and Markdown source in one continuous diff, with line numbers, changed words,
+original newline labels, and tag membership changes. Current and last-published snapshots
+remain eligible after Unpublish. Identical sources explicitly show “No differences”.
+
+Unsaved edits, pending writes, or conflicts block a new draft comparison. Comparison never
+saves or reloads automatically. Later typing preserves the displayed saved-revision capture;
+Save and **Refresh comparison** to include it. Cancel, Close, and source changes preserve
+editor input. Version sources are fetched afresh, so a deleted source fails without substitution.
+To compare history without saving unrelated edits, choose **Two versions**, select the
+baseline and target, then **Compare**. Any retained pair is allowed, including the same
+version. **Reverse** swaps roles and starts a fresh comparison. Historical comparison
+preserves unsaved or conflicted draft fields; an active lifecycle write must finish first.
+Deleting a selected snapshot in another tab is recognized on the next comparison attempt.
+
+The engine runs in a cancellable browser Worker. The complete article appends automatically
+in rendering batches, with no pagination, collapsed context, or truncation. A real tradeoff:
+the tested 100,000-row output took about 40–50 seconds to finish rendering on the recorded
+M2 Pro/Chrome environment; Cancel and Close remained usable during rendering. These are
+observations, not latency guarantees. Further DOM optimization could reduce this cost while
+preserving the full single-scroll design. The [validation guide](specs/002-version-diff/quickstart.md)
+records all nine maximum-size browser fixtures in both historical directions, source identities, actual timings, and
+coverage limits. Both modes passed keyboard-only acceptance using Tab, Enter, and native
+collapsed-select typeahead followed by Tab in Chrome 157 on macOS. Other browsers and
+Windows remain unverified; this is not formal accessibility certification. Final validation
+passed 315 tests, Nuxt typecheck and build, development/production Worker checks, and
+Compose app/database restart persistence.
+
 ## Verify during development
 
 Reviewers are not required to run tests. Developers use the pinned Node/pnpm toolchain;

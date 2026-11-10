@@ -17,14 +17,14 @@ defineProps<{
   deleteConfirmation: VersionSummary | null
 }>()
 const emit = defineEmits<{ refresh: []; inspect: [versionId: string]; restore: [versionId: string]; confirmRestore: []; cancelRestore: [];
-  delete: [versionId: string]; confirmDelete: []; cancelDelete: [] }>()
+  delete: [versionId: string]; confirmDelete: []; cancelDelete: []; compare: [] }>()
 </script>
 
 <template>
   <section class="surface article-history" aria-labelledby="history-heading">
     <header class="history-heading">
       <div><h2 id="history-heading">Version history</h2><p class="hint">Published snapshots · newest first</p></div>
-      <button type="button" class="button" :disabled="loading || writePending" @click="emit('refresh')">Refresh history</button>
+      <div class="confirmation-actions"><button id="compare-entry" type="button" class="button" :disabled="loading" @click="emit('compare')">Compare versions</button><button type="button" class="button" :disabled="loading || writePending" @click="emit('refresh')">Refresh history</button></div>
     </header>
     <p v-if="loading" role="status">Loading history…</p>
     <div v-else-if="failed" class="notice error history-list-error" role="alert">

@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-08
 
-**Status**: Draft — stretch feature specified; not implemented or verified.
+**Status**: Feature 002 complete through convergence cleanup (T001–T028), 2026-11-10, within recorded Chrome/macOS coverage. Original Windows T028 remains unverified. See final acceptance in [quickstart](quickstart.md) and [evidence](historical-comparison-evidence.json).
 
 **Input**: User description: "A diff view between the draft and a past version, or between two versions. This is a stretch goal."
 
@@ -16,6 +16,10 @@
 - Q: How much detail should text differences show? → A: Show added, removed, and unchanged lines, with additional word-level highlighting within changed lines in titles and Markdown source bodies.
 - Q: Should comparison support articles up to the existing 100,000-code-point body limit? → A: Support the full existing content limits for both sources without truncating differences or imposing a smaller comparison-only limit.
 - Q: How should we decide whether the UI stays responsive during large comparisons? → A: Record the test environment and timings; verify controls operate during computation, cancellation stops the pending attempt without late results, and all completed output remains reachable. No fixed timing limit is adopted.
+
+### Session 2026-11-10
+
+- Q: How should the article diff be presented? → A: One continuous GitHub-style unified diff, with every line visible in one scroll. No pagination or collapsed unchanged sections. Title changes remain in the same diff surface; tag membership changes remain a summary.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -148,7 +152,7 @@ Requirement IDs below are local to `002-version-diff`.
   tag comparison MUST ignore ordering when membership is identical.
 - **FR-010**: Comparison MUST display source content safely as text without executing HTML
   or scripts or activating unsafe link destinations.
-- **FR-011**: Source selection and comparison exit MUST be keyboard operable, with readable
+- **FR-011**: The entire article MUST appear in one continuous unified diff with all lines visible in one scroll, without pagination or collapsed unchanged sections. Source selection and comparison exit MUST be keyboard operable, with readable
   source labels and textual or symbolic change indicators.
 - **FR-012**: Both comparison modes MUST support the full existing per-source content limits:
   titles of 200 Unicode code points, Markdown bodies of 100,000 Unicode code points, and
@@ -193,7 +197,7 @@ Requirement IDs below are local to `002-version-diff`.
   differences are available without truncation or a size-based rejection. During a separate pending-comparison
   attempt, Cancel/Close and source selection take effect before the original computation
   completes, preserve local edits, and prevent late results from cancelled work. In the
-  completion attempt, all output ranges remain keyboard reachable. Record environment,
+  completion attempt, the entire output remains keyboard reachable in one continuous scroll. Record environment,
   actions, and timings without requiring an unapproved fixed duration.
 
 ## Assumptions
@@ -203,8 +207,8 @@ Requirement IDs below are local to `002-version-diff`.
 - "Draft" means saved draft content; writers must explicitly save unsaved changes before
   opening or refreshing draft comparison. Confirmed by the user on 2026-11-09.
 - Markdown source comparison includes line-level differences and word-level highlighting
-  within changed lines, confirmed by the user on 2026-11-09. Rendered comparison and a
-  particular split or unified layout are not required.
+  within changed lines, confirmed by the user on 2026-11-09. Rendered comparison and the
+  unified continuous layout was selected on 2026-11-10.
 - Tag ordering has no comparison significance; text whitespace does.
 - Comparison supports the full existing content limits without truncation, confirmed by
   the user on 2026-11-09. No numerical comparison-time budget has been agreed.
@@ -214,3 +218,49 @@ Requirement IDs below are local to `002-version-diff`.
   requirements, not approved architecture choices.
   Technical design and any new dependency decisions belong in planning.
 
+
+## Implementation evidence — US1, 2026-11-10
+
+Saved-draft/version comparison is integrated with explicit-save guards, captured revision,
+fresh owned source reads, exact line/word/tag output, cancellation/error isolation, and
+one complete continuous article diff. Nine maximum-size production-editor fixtures passed
+exact DOM reconstruction and keyboard final-line reachability. Source reads changed no
+SQL/public state; all editor fields survived the exercised reads/computation/rendering/
+close/error paths. The complete automated suite passes 300 cases, plus typecheck/build.
+[Evidence and limits](draft-comparison-evidence.json) and [walkthrough](quickstart.md).
+
+FR-001 and the draft-mode portions of FR-003–FR-012/SC-001–SC-006 have recorded evidence;
+FR-002 and version/version portions await US2. This is not a claim that every both-mode
+success criterion is complete. Normal collapsed-picker keyboard coverage remains a
+T025/manual gap; no formal accessibility or untested-browser certification is claimed.
+Large output is complete but can be slow: 100,000 rows took about 40.5s to render on the
+recorded environment, with cancellation and source/close controls still processing.
+US1 MVP is presented for review; historical pairing/reversal is not yet implemented.
+
+
+## Phase 4 implementation evidence — 2026-11-10
+
+T018–T023 implement arbitrary retained-version pairs, same-source identity, fresh reads,
+and role reversal. Historical capture permits unrelated dirty/conflicted draft fields;
+active lifecycle writes block attempts. Selection/mode/reversal invalidate obsolete reads,
+Workers, and output. Saved-draft guards remain strict. No comparison writes or backend
+changes were introduced. The inline, complete single-scroll design remains in place.
+
+[Historical evidence](historical-comparison-evidence.json) records nine maximum-size
+fixtures in both directions (18 completed comparisons), exact DOM/source and word-detail
+checks, preserved fields, SQL/public immutability, pending-work cancellation, and keyboard
+final-row access. Five additional controls interrupted real 100,000-row rendering without
+late rows. The largest output took about 49–50s to append in this run; timings are observations,
+not guarantees. Current-source saved-draft regression also reconstructed all 100,000 rows.
+315 tests (171 unit + 144 PostgreSQL/HTTP), Nuxt typecheck, and production build passed.
+Normal native popup-picker keyboard coverage, final T024–T027, and Windows T028 remain
+pending. Earlier sections and US1 evidence retain their original checkpoint provenance.
+
+
+## Final acceptance — 2026-11-10
+
+Both stories and final T024–T027 acceptance are complete within recorded Chrome/macOS
+coverage. FR-001–FR-012 and SC-001–SC-006 have evidence mapped in quickstart's final
+reconciliation. Native collapsed-selector keyboard acceptance now passes with typeahead/Tab;
+earlier gaps remain accurate records of those earlier runs. No requirement, content limit,
+architecture or lifecycle behavior changed during Phase 5. Windows T028 remains unverified.

@@ -129,4 +129,37 @@
   .portal-choice { @apply grid min-h-11 w-full gap-1 rounded-lg border border-[#cdd3c8] bg-paper p-4 text-left; }
   .portal-choice:hover { @apply border-link bg-[#f0f7e4]; }
   .portal-choice span { @apply text-sm text-[#61695e]; }
+  .article-comparison { @apply mt-7 min-w-0 p-5 sm:p-7; }
+  .comparison-heading { @apply flex flex-wrap items-start justify-between gap-4; }
+  .comparison-heading h2 { @apply mb-2; }
+  .comparison-selectors { @apply mt-5 grid min-w-0 gap-4 sm:grid-cols-3; }
+  .comparison-selectors .field { @apply mb-0 min-w-0; }
+  .comparison-selectors select { @apply min-h-11 w-full min-w-0 rounded-md border border-[#cdd3c8] bg-white px-3 py-3 text-sm; }
+  .comparison-label { @apply text-sm font-semibold text-[#30372e]; }
+  .comparison-saved { @apply min-h-11 rounded-md border border-[#cdd3c8] bg-paper px-3 py-3 text-sm; }
+  .comparison-selectors + .hint { @apply mt-3; }
+  .comparison-status { @apply my-4; }
+  .comparison-capture { @apply mb-4 text-sm font-semibold; overflow-wrap: anywhere; }
+  .comparison-legend { @apply mb-4 flex flex-wrap gap-2 text-xs; }
+  .comparison-legend > span, .comparison-tags li { @apply rounded bg-paper px-2 py-1; }
+  .comparison-source-view { @apply w-full min-w-0 rounded-md border border-[#dfe4da]; }
+  .comparison-diff { @apply w-full border-collapse text-left; table-layout: fixed; }
+  .comparison-diff caption { @apply bg-paper px-4 py-3 text-left text-sm font-semibold; }
+  .comparison-diff thead { @apply bg-paper text-xs; }
+  .comparison-diff th { @apply py-2; }
+  .comparison-diff .comparison-field { @apply border-y border-[#dfe4da] bg-white px-3 text-xs font-normal text-[#61695e]; }
+  .comparison-number { @apply w-10 bg-[#f3f6ee] px-1 text-right align-top font-mono text-[10px] leading-6 text-[#61695e] sm:w-14; }
+  .comparison-cue { @apply w-5 text-center align-top font-mono text-xs leading-6; }
+  .comparison-text { @apply min-w-0 px-2 align-top font-mono text-xs leading-6 sm:px-3 sm:text-sm; }
+  .comparison-source { white-space: pre-wrap; overflow-wrap: anywhere; tab-size: 4; }
+  .comparison-newline { @apply block text-[10px] leading-4 text-[#61695e]; }
+  .comparison-line.removed { @apply bg-[#fff0ee]; }
+  .comparison-line.added { @apply bg-[#edf8e4]; }
+  .article-comparison del { @apply bg-[#f6cbc6]; text-decoration-thickness: 2px; }
+  .article-comparison ins { @apply bg-[#cbe6aa] underline; text-decoration-thickness: 2px; }
+  .comparison-empty { @apply px-3 py-4 text-sm text-[#61695e]; }
+  .comparison-tags { @apply mt-5; }
+  .comparison-tags h3 { @apply mb-2 text-sm font-semibold; }
+  .comparison-tags ul { @apply flex flex-wrap gap-2 text-xs; overflow-wrap: anywhere; }
+  .comparison-bottom-close { @apply mt-5; }
 }

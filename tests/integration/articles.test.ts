@@ -796,6 +796,43 @@ describe('read-only version history', () => {
     expect(await (await fetch(versionsUrl(article.id))).json()).toEqual([{ id: newId, versionNumber: 2 }, { id: oldId, versionNumber: 1 }])
   })
 
+  it('reads complete maximum-size sources and recognizes deletion on reread without changing stored or public state', async () => {
+    const firstContent = {
+      title: '😀'.repeat(200), body: `${'😀'.repeat(99996)}\r\n\n\t`,
+      tags: Array.from({ length: 10 }, (_, index) => `${index}${'a'.repeat(29)}`),
+    }
+    const secondContent = {
+      title: '😃'.repeat(200), body: `${'a'.repeat(99996)}\r\n\n\t`,
+      tags: Array.from({ length: 10 }, (_, index) => `${index}${'b'.repeat(29)}`),
+    }
+    const article = await (await createDraft({ ...firstContent, slug: 'maximum-history' })).json()
+    const firstResponse = await publish(article.id, { expectedRevision: 0 })
+    expect(firstResponse.status).toBe(200)
+    const first = await firstResponse.json()
+    expect((await save(article.id, { ...secondContent, expectedRevision: 1 })).status).toBe(200)
+    const secondResponse = await publish(article.id, { expectedRevision: 2 })
+    expect(secondResponse.status).toBe(200)
+    const second = await secondResponse.json()
+    const beforeReads = await readState()
+    for (const [id, versionNumber, content] of [
+      [first.currentPublishedVersionId, 1, firstContent],
+      [second.currentPublishedVersionId, 2, secondContent],
+    ] as const) {
+      const response = await fetch(`${versionsUrl(article.id)}/${id}`)
+      expect(response.status).toBe(200)
+      expect(await response.json()).toEqual({ id, versionNumber, ...content })
+    }
+    expect(await readState()).toEqual(beforeReads)
+    expect((await deleteVersion(article.id, first.currentPublishedVersionId)).status).toBe(204)
+    const afterExplicitDeletion = await readState()
+    const deleted = await fetch(`${versionsUrl(article.id)}/${first.currentPublishedVersionId}`)
+    expect(deleted.status).toBe(404)
+    expect((await deleted.json()).data.code).toBe('SNAPSHOT_NOT_FOUND')
+    expect(await (await fetch(`${versionsUrl(article.id)}/${second.currentPublishedVersionId}`)).json())
+      .toEqual({ id: second.currentPublishedVersionId, versionNumber: 2, ...secondContent })
+    expect(await readState()).toEqual(afterExplicitDeletion)
+  })
+
   it('validates both IDs before lookup and distinguishes missing articles from missing or wrong-owner snapshots', async () => {
     const article = await (await createDraft()).json()
     const other = await (await createDraft({ ...input, slug: 'other-history', body: 'Other private body' })).json()

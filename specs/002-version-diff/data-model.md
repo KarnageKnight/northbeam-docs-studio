@@ -1,6 +1,26 @@
-# Version Diff: Proposed Data Model
+# Version Diff: Data Model
 
-**Date**: 2026-11-09 | **Status**: Design selected through option A on 2026-11-09; not implemented. See [plan](plan.md).
+**Date**: 2026-11-09 | **Status**: Feature 002 complete through convergence cleanup (T001–T028), 2026-11-10, within recorded Chrome/macOS coverage. Original Windows T028 remains unverified. See final acceptance in [quickstart](quickstart.md) and [evidence](historical-comparison-evidence.json).
+
+## Shared type contract (T004)
+
+`shared/types/article-comparison.ts` defines readonly source selections and captures,
+exact line/inline changes, tag deltas, mode-specific requests/results, Worker messages,
+request generations and comparison status. Existing article/version
+identity and revision types are reused. Version selections use the version UUID; their
+version number and label are display metadata. Saved draft sources carry the literal label
+`Saved draft` and captured revision, with no versionId.
+
+Mode literals are `draft-version` (version baseline, saved draft target) and
+`version-version` (both sources are versions). Request IDs are monotonically increasing
+numbers local to an editor; every Worker response also includes articleId. Line numbers
+are one-based, with null on a side where the line does not exist. Exact text retains its
+original line ending; inline segments describe portions of that text. The human-selected continuous diff has no paged presentation range.
+
+Readonly typing prevents direct mutation through the contract; it does not copy or freeze
+runtime values. Later tasks must copy captures, enforce same-article UUID ownership and
+content limits and reject obsolete generations. These types
+alone do not establish those runtime guarantees or full-limit feasibility.
 
 ## Persistence
 
@@ -18,7 +38,6 @@ Reuse Article, WriterArticle, VersionSummary, and VersionDetail from shared/type
 | Inline segment | kind and exact text for word/whitespace changes within replacement blocks; no HTML. |
 | Tag delta | added/removed/unchanged normalized memberships, ignoring order. |
 | Result | requestId, source identities/labels, title/body changes, tag delta, identical flag. |
-| Presentation range | current reachable output portion and total; complete result remains available. |
 
 Captures are not real-time views. Draft source is the editor's most recent successful fetched/saved response; show captured revision. Existing explicit reload loads remote changes without comparison replacing local input. Snapshot sources are freshly read per attempt; deletion after a successful GET need not be observed until the next attempt.
 
@@ -38,3 +57,49 @@ Version/version comparison permits unrelated unsaved/conflicted draft state. An 
 ## Validation and failure
 
 Each source supports title 200 and body 100,000 Unicode code points, 10 tags of 30 code points. UTF-16 length is not code-point length. Missing/wrong-owner/deleted source invalidates the whole attempted comparison; no substitution or stale prior output labeled as current. No stored state changes on reads, computation, failure, refresh, reversal, or close.
+
+## Presentation amendment — 2026-11-10
+
+The human replaced paged output with a single continuous article diff showing every line.
+The now-unused ComparisonPresentationRange type was removed. T004's earlier range evidence
+is historical; no pagination or collapsed unchanged context is required by the current model.
+
+## US1 runtime contract — 2026-11-10
+
+useArticleComparison now copies saved draft content/revision, reads owned versions anew,
+and owns fetching/computing/ready/error state independently of editor lifecycle state.
+Synchronous dirty/pending/conflict/revision/article watches invalidate pending captures;
+selection/close/unmount abort reads, terminate the Worker, clear output, and invalidate
+generations. Ready output retains its original saved label/revision during later typing.
+Worker output is held in a shallow ref and checked against generation/article/source IDs.
+The panel appends all body rows automatically, yielding between 1,000-row batches, and
+cancels queued batches on source change/Cancel/Close/unmount. No presentation range,
+pagination, hidden context, or persisted comparison record is introduced. US2 is pending.
+
+
+## Phase 4 implementation evidence — 2026-11-10
+
+T018–T023 implement arbitrary retained-version pairs, same-source identity, fresh reads,
+and role reversal. Historical capture permits unrelated dirty/conflicted draft fields;
+active lifecycle writes block attempts. Selection/mode/reversal invalidate obsolete reads,
+Workers, and output. Saved-draft guards remain strict. No comparison writes or backend
+changes were introduced. The inline, complete single-scroll design remains in place.
+
+[Historical evidence](historical-comparison-evidence.json) records nine maximum-size
+fixtures in both directions (18 completed comparisons), exact DOM/source and word-detail
+checks, preserved fields, SQL/public immutability, pending-work cancellation, and keyboard
+final-row access. Five additional controls interrupted real 100,000-row rendering without
+late rows. The largest output took about 49–50s to append in this run; timings are observations,
+not guarantees. Current-source saved-draft regression also reconstructed all 100,000 rows.
+315 tests (171 unit + 144 PostgreSQL/HTTP), Nuxt typecheck, and production build passed.
+Normal native popup-picker keyboard coverage, final T024–T027, and Windows T028 remain
+pending. Earlier sections and US1 evidence retain their original checkpoint provenance.
+
+
+## Final acceptance — 2026-11-10
+
+Final cross-mode production/development checks preserve copied sources, mode-specific
+revision/UUID validation, and stale-attempt cleanup. Read-only comparison leaves exact SQL
+and public projections unchanged. Explicit lifecycle regression actions were checked
+separately, and app/database restart preserved all stored rows and writer/public projections.
+No persisted comparison entity, schema or mutation was added.
