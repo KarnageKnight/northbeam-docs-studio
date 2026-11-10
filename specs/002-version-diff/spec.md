@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-08
 
-**Status**: Feature 002 complete through Phase 5 (T001–T027), 2026-11-10, within recorded Chrome/macOS coverage. Original Windows T028 remains unverified. See final acceptance in [quickstart](quickstart.md) and [evidence](historical-comparison-evidence.json).
+**Status**: Feature 002 complete through convergence cleanup (T001–T028), 2026-11-10, within recorded Chrome/macOS coverage. Original Windows T028 remains unverified. See final acceptance in [quickstart](quickstart.md) and [evidence](historical-comparison-evidence.json).
 
 **Input**: User description: "A diff view between the draft and a past version, or between two versions. This is a stretch goal."
 

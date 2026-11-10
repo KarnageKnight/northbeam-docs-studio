@@ -1,6 +1,6 @@
 # Version Diff: Research
 
-**Date**: 2026-11-09 | **Status**: Feature 002 complete through Phase 5 (T001–T027), 2026-11-10, within recorded Chrome/macOS coverage. Original Windows T028 remains unverified. See final acceptance in [quickstart](quickstart.md) and [evidence](historical-comparison-evidence.json).
+**Date**: 2026-11-09 | **Status**: Feature 002 complete through convergence cleanup (T001–T028), 2026-11-10, within recorded Chrome/macOS coverage. Original Windows T028 remains unverified. See final acceptance in [quickstart](quickstart.md) and [evidence](historical-comparison-evidence.json).
 
 ## R1 — Computation boundary and engine
 

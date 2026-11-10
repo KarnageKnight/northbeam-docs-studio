@@ -1,6 +1,6 @@
 # Version Diff: Interface Contracts
 
-**Date**: 2026-11-09 | **Status**: Both-mode orchestration, production/development Worker behavior, full-size output and final acceptance verified within recorded Chrome/macOS coverage through T027. See [validation](../quickstart.md).
+**Date**: 2026-11-09 | **Status**: Both-mode orchestration, production/development Worker behavior, full-size output and final acceptance verified within recorded Chrome/macOS coverage through T028 (unused type aliases removed; runtime contract unchanged). See [validation](../quickstart.md).
 Authority: [spec](../spec.md), [plan](../plan.md), [model](../data-model.md).
 
 ## Existing HTTP interfaces

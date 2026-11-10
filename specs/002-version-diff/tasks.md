@@ -2,7 +2,7 @@
 
 **Input**: Design artifacts in `specs/002-version-diff/`.
 **Created**: 2026-11-09.
-**Status**: Feature 002 complete through Phase 5 (T001–T027), 2026-11-10, within recorded Chrome/macOS coverage. Original Windows T028 remains unverified. See final acceptance in [quickstart](quickstart.md) and [evidence](historical-comparison-evidence.json).
+**Status**: Feature 002 complete through convergence cleanup (T001–T028), 2026-11-10, within recorded Chrome/macOS coverage. Original Windows T028 remains unverified. See final acceptance in [quickstart](quickstart.md) and [evidence](historical-comparison-evidence.json).
 **Prerequisites**: [spec](spec.md), [plan](plan.md), [research](research.md), [data model](data-model.md), [contract](contracts/comparison.md), [validation guide](quickstart.md).
 **Architecture**: Option A selected: existing writer GETs, browser Worker with exact `diff@9.0.0`, local comparison state, unified inline panel, complete continuous output.
 **Tests**: Included because the specification defines independent test/acceptance scenarios and Constitution IV requires meaningful automated and real-database evidence.
@@ -254,3 +254,31 @@ passed; runtime Compose startup and exact restart persistence passed; owned serv
 volume were removed. Requirement/evidence mapping is in quickstart. Prior phase evidence
 is preserved, no new repository files or application changes were needed, and this phase's
 changes remain uncommitted. Original Windows T028 remains unchecked and unverified.
+
+
+## Phase 6: Convergence
+
+**Assessment (2026-11-10)**: Checked FR-001–FR-012, SC-001–SC-006, all 11 story
+acceptance scenarios, 10 edge cases, 27 existing tasks, 10 plan decisions and all nine
+constitution principles. Final source/configuration hashes match the recorded acceptance
+results. A fresh unit run passed all 171 cases; prior full-suite/typecheck/build/browser
+results remain applicable to unchanged source. No functional gap was found. One cleanup
+finding follows the newly added Constitution IX; its CRITICAL priority reflects the
+workflow's constitution-MUST classification, not a runtime failure.
+
+- [X] T028 CRITICAL — Remove the unused `ComparisonSourceSelection` and `ComparisonSource` union aliases from `shared/types/article-comparison.ts` per Constitution IX: Minimal Codebase and Continuous Cleanup (contradicts; F1). Both names occur only at their definitions and Nuxt-generated export declarations, with no application/test consumer. Recheck framework/configuration and source usage before removal; retain the concrete selection/source interfaces used by captures, requests and results. Regenerate Nuxt declarations, run `pnpm exec nuxt typecheck`, `pnpm run build` and the complete `pnpm test` suite without adding tests that merely mirror alias removal. Update affected feature status and record evidence applicability for this type-only cleanup while preserving historical measurements; no runtime algorithm, Worker, rendering or lifecycle change is required.
+
+**Handoff**: T028 is implemented; rerun `$speckit-converge` for reassessment. This is
+feature 002's local cleanup task T028; feature 001's separate Windows T028 remains
+unverified under its existing approved deferral. The assessment itself changed no application
+files or earlier task markers. Implementation subsequently removed only the unused aliases.
+
+
+**T028 completion (2026-11-10)**: Removed both unused union aliases; concrete interfaces
+and all runtime code remain unchanged. Regenerated Nuxt declarations contain neither name.
+The type module emits identical JavaScript before/after cleanup; the other 15 recorded
+source/configuration hashes match. `pnpm exec nuxt typecheck`, `pnpm run build`, and
+`pnpm test` passed (171 unit + 144 real PostgreSQL/HTTP = 315, no skips); test resources
+were cleaned up. Historical browser measurements are preserved and remain applicable to
+unchanged runtime behavior; no new browser run is claimed. See quickstart and the evidence
+artifact's `convergenceCleanup` record. No new repository file or test was added.

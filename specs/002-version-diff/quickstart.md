@@ -1,6 +1,6 @@
 # Version Diff: Validation Guide
 
-**Date**: 2026-11-09 | **Status**: Feature 002 complete through Phase 5 (T001–T027), 2026-11-10, within recorded Chrome/macOS coverage. Original Windows T028 remains unverified. See final acceptance in [quickstart](quickstart.md) and [evidence](historical-comparison-evidence.json).
+**Date**: 2026-11-09 | **Status**: Feature 002 complete through convergence cleanup (T001–T028), 2026-11-10, within recorded Chrome/macOS coverage. Original Windows T028 remains unverified. See final acceptance in [quickstart](quickstart.md) and [evidence](historical-comparison-evidence.json).
 Option A architecture was selected on 2026-11-09; see [plan](plan.md). Both comparison modes and reversal controls are implemented.
 Original Windows acceptance T028 remains unverified.
 
@@ -645,3 +645,27 @@ screen-reader session; roughly 40–50s complete render for 100,000 rows on the 
 main-thread memory hints are not peak/Worker memory. No latency SLA, smaller size cap,
 truncation, pagination or collapsed context was introduced. Changes remain uncommitted for
 human review; no submission or deployment was performed.
+
+
+## T028 convergence cleanup — 2026-11-10
+
+Removed unused `ComparisonSourceSelection` and `ComparisonSource` union aliases from
+`shared/types/article-comparison.ts` under Constitution IX. Application/test/configuration
+usage was checked, including Nuxt-generated exports; the concrete source interfaces remain
+in use and were retained. Regenerated Nuxt declarations no longer export the removed names.
+No dependency, runtime behavior, test coverage or public API behavior changed; no new file
+or implementation-mirroring test was added.
+
+`pnpm exec nuxt typecheck`, `pnpm run build`, and `pnpm test` passed: 171 unit + 144 real
+PostgreSQL/HTTP cases (315 total), no skips. The integration runner removed its dedicated
+containers/network/volume. Logs: `/private/tmp/northbeam-002-t028-{typecheck,build,tests}.log`.
+
+The shared type file's source hash changed, while the other 15 final-acceptance source/config
+hashes match. TypeScript emits identical JavaScript for the type module before and after
+cleanup. Earlier source hashes and measurements are preserved in the evidence artifact;
+its `convergenceCleanup` record captures the new type hash and passing checks. The full-size,
+keyboard and dev/prod Worker browser evidence remains applicable to unchanged runtime code;
+no browser rerun or new timings are claimed for this type-only cleanup.
+
+All 28 feature tasks are complete. Feature 001's separate Windows T028 remains unverified.
+No extension hooks are registered; changes remain uncommitted for review.

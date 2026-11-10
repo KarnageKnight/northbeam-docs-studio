@@ -18,8 +18,6 @@ export interface VersionSelection {
   readonly versionId: VersionDetail['id']
 }
 
-export type ComparisonSourceSelection = SavedDraftSelection | VersionSelection
-
 export interface SavedDraftSource extends SavedDraftSelection {
   readonly revision: WriterArticle['revision']
   readonly label: 'Saved draft'
@@ -29,8 +27,6 @@ export interface VersionSource extends VersionSelection {
   readonly versionNumber: VersionDetail['versionNumber']
   readonly label: string
 }
-
-export type ComparisonSource = SavedDraftSource | VersionSource
 
 export interface CapturedSavedDraft extends SavedDraftSource, ComparisonContent {}
 
