@@ -1,7 +1,7 @@
 # Tasks: Idempotent Publish
 
 **Input**: `specs/003-idempotent-publish/{spec.md,plan.md,research.md,data-model.md,contracts/publish.md,quickstart.md}`.
-**Status**: Generated 2026-11-10. T001–T004 completed after explicit human governance decisions and baseline alignment; T005 onward remain pending. No 003 application behavior is implemented or verified.
+**Status**: Generated 2026-11-10. T001–T005 completed after explicit human governance decisions and baseline alignment; T006 onward remain pending. No 003 application behavior is implemented or verified.
 **Design**: Human-selected option B: existing locked transaction, exact saved-content equality, unchanged WriterArticle response, client-inferred feedback. No schema, endpoint, dependency, hash, or whole-history deduplication changes.
 **Tests**: Required by the feature acceptance scenarios and Constitution IV. Extend existing real-PostgreSQL/HTTP coverage; inspect existing tests before adding cases.
 
@@ -31,15 +31,14 @@ passed; isolated Docker/PostgreSQL integration tests: 144 passed; Nuxt typecheck
 production build passed. The initial sandboxed integration attempt could not access Docker;
 the authorized Docker run passed and removed its disposable container, volume, and network.
 These checks verify the unchanged application baseline, not the future 003 behavior.
-No new files or obsolete application code were introduced. T005 still requires the human
-git checkpoint including this reconciliation before application code.
+No new files or obsolete application code were introduced. The subsequent T005 checkpoint is recorded in [plan.md](plan.md#spec-first-checkpoint).
 
 
 ## Phase 2: Foundational prerequisites
 
 **Goal**: Establish the human spec-first checkpoint and safe fixture migration before behavioral changes.
 
-- [ ] T005 Check consistency of `specs/003-idempotent-publish/spec.md`, `plan.md`, and `tasks.md` with the amended constitution; resolve findings and verify the human has recorded these artifacts and approval in git before code. Record checkpoint status in `specs/003-idempotent-publish/plan.md`; AI must not create the commit.
+- [x] T005 Check consistency of `specs/003-idempotent-publish/spec.md`, `plan.md`, and `tasks.md` with the amended constitution; resolve findings and verify the human has recorded these artifacts and approval in git before code. Record checkpoint status in `specs/003-idempotent-publish/plan.md`; AI must not create the commit.
 - [ ] T006 Inspect and adapt history-generating fixtures in `tests/integration/articles.test.ts` to Save genuinely differing content before an intended new snapshot and use returned revisions; retain all immutability, restore/delete, public-isolation, first-date, ownership, and rollback assertions, including 002 source-read coverage. Ensure snapshot-insert failpoints still enter a changed-content branch. Verify these preparatory changes against existing behavior before changing Publish.
 
 **Checkpoint**: All Phase 1–2 tasks precede user-story implementation. Existing schema and generic transaction helper remain sufficient.

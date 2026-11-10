@@ -50,7 +50,7 @@
 
 ## R6 — Baseline and governance
 
-**Approved decision (2026-11-10)**: The human approved the replacement text in plan.md#governance-alignment and constitution 3.0.0, a major increment from 2.2.0 because unconditional Publish snapshot creation is redefined. Baseline reconciliation completed in T004; the human git checkpoint remains required before code.
+**Approved decision (2026-11-10)**: The human approved the replacement text in plan.md#governance-alignment and constitution 3.0.0, a major increment from 2.2.0 because unconditional Publish snapshot creation is redefined. Baseline reconciliation completed in T004; the human git checkpoint is recorded in [plan.md](plan.md#spec-first-checkpoint).
 
 **Rationale**: Confirmed product decisions do not justify falsely reporting that the existing constitution already permits them. Preserve baseline approval/evidence history, explicitly mark superseded active rules, and update current contracts/test fixtures.
 
