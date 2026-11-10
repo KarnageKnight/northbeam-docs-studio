@@ -135,7 +135,11 @@ M2 Pro/Chrome environment; Cancel and Close remained usable during rendering. Th
 observations, not latency guarantees. Further DOM optimization could reduce this cost while
 preserving the full single-scroll design. The [validation guide](specs/002-version-diff/quickstart.md)
 records all nine maximum-size browser fixtures in both historical directions, source identities, actual timings, and
-coverage limits, including the remaining native popup-picker keyboard check.
+coverage limits. Both modes passed keyboard-only acceptance using Tab, Enter, and native
+collapsed-select typeahead followed by Tab in Chrome 157 on macOS. Other browsers and
+Windows remain unverified; this is not formal accessibility certification. Final validation
+passed 315 tests, Nuxt typecheck and build, development/production Worker checks, and
+Compose app/database restart persistence.
 
 ## Verify during development
 

@@ -1,12 +1,12 @@
 <!--
 Sync Impact Report — review-only; remove this comment before committing.
-Version change: 2.0.0 -> 2.1.0 (detailed review walkthroughs for new files).
-Modified principles: none.
-Minor rationale: adds a review obligation without removing existing governance requirements.
-Human request: 2026-11-10, explain every new file's functions, necessity, and usage in detail.
-Added principle: VIII. Detailed Review Explanations for New Files.
+Version change: 2.1.0 -> 2.2.0 (continuous removal of obsolete code).
+Modified sections: Development Workflow and Quality Gates, step 4.
+Minor rationale: adds a task-completion cleanup obligation while preserving existing guarantees.
+Human request: 2026-11-10, prevent codebase growth by removing unnecessary or obsolete code.
+Added principle: IX. Minimal Codebase and Continuous Cleanup.
 Removed sections: none.
-Affected workflow: task/phase review handoffs must include the new-file walkthrough.
+Affected workflow: every task reviews affected code for obsolescence and reports cleanup.
 Template synchronization: dependent templates read this constitution at runtime;
   no template or command files changed.
 Deferred placeholders and follow-up TODOs: none.
@@ -192,6 +192,30 @@ replace it. Source comments MUST still follow Principle VII; the walkthrough bel
 the review, rather than repetitive comments throughout the implementation. This makes
 new responsibilities and their integration inspectable before human approval.
 
+### IX. Minimal Codebase and Continuous Cleanup
+
+Every task MUST review the code it touches and its directly affected callers, imports,
+types, tests, configuration, and dependencies for anything made obsolete by the change.
+Code that is no longer needed or relevant MUST be removed in the same task, including
+superseded implementations, unreachable branches, unused helpers or exports, duplicate
+logic, abandoned feature paths, and temporary debugging or probe code. Update affected
+references and documentation so replacements do not leave parallel obsolete paths behind.
+
+AI MUST reuse or simplify existing code before adding another implementation, abstraction,
+file, or dependency. Retained code MUST serve a current requirement or a documented
+correctness or compatibility need; speculative future use is insufficient. Cleanup MUST
+remain within the task's affected scope, without bundling an unrelated repository rewrite.
+The goal is the smallest maintainable implementation, not fewer lines at the expense of
+readability, required behavior, or validation.
+
+Before removal, AI MUST check actual usage, including framework auto-imports, conventions,
+configuration, and runtime entry points; absence of a direct import alone is insufficient.
+Cleanup MUST preserve required test coverage, migrations, lifecycle invariants, and required
+review evidence. Remove dependencies only after confirming no remaining consumer needs them.
+Before marking a task complete, verify the resulting behavior under Principle IV and report
+what was removed or why no cleanup was needed. This prevents completed tasks from steadily
+accumulating dead code and unnecessary maintenance work.
+
 ## Technology and Scope
 
 - The application MUST use Nuxt, Vue, and PostgreSQL. Supporting libraries, compatible
@@ -233,7 +257,8 @@ new responsibilities and their integration inspectable before human approval.
    Reuse existing patterns; obtain human approval for architecture or pattern changes and
    update the relevant artifact before continuing dependent implementation. Before marking
    any task complete, satisfy Principle IV's build/test checks and confirm affected documents
-   are current; report unavailable checks explicitly.
+   are current; report unavailable checks explicitly. Apply Principle IX's cleanup review
+   and remove code made obsolete by the task before declaring it complete.
 5. Before delivery, verify the lifecycle tests, type checks, production build, fresh local
    setup, restart persistence, and a browser walkthrough of the required user flows.
 6. Work within the roughly 24 focused hours agreed with the user. Finish development by
@@ -259,4 +284,4 @@ be made explicit and resolved through a documented amendment or a conforming imp
 it cannot silently weaken a required assignment invariant. Temporary amendment-review comments
 MUST be removed before committing the constitution.
 
-**Version**: 2.1.0 | **Ratified**: 2026-11-06 | **Last Amended**: 2026-11-10
+**Version**: 2.2.0 | **Ratified**: 2026-11-06 | **Last Amended**: 2026-11-10

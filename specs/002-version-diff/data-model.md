@@ -1,6 +1,6 @@
-# Version Diff: Proposed Data Model
+# Version Diff: Data Model
 
-**Date**: 2026-11-09 | **Status**: Design selected through option A on 2026-11-09; T004 shared types implemented on 2026-11-10. Exact text/tag computation and Worker result projection are implemented in T006–T009; US1 editor capture/state transitions are implemented and verified in T011–T016; historical capture/reversal are implemented and verified in T018–T022. See [plan](plan.md).
+**Date**: 2026-11-09 | **Status**: Feature 002 complete through Phase 5 (T001–T027), 2026-11-10, within recorded Chrome/macOS coverage. Original Windows T028 remains unverified. See final acceptance in [quickstart](quickstart.md) and [evidence](historical-comparison-evidence.json).
 
 ## Shared type contract (T004)
 
@@ -94,3 +94,12 @@ not guarantees. Current-source saved-draft regression also reconstructed all 100
 315 tests (171 unit + 144 PostgreSQL/HTTP), Nuxt typecheck, and production build passed.
 Normal native popup-picker keyboard coverage, final T024–T027, and Windows T028 remain
 pending. Earlier sections and US1 evidence retain their original checkpoint provenance.
+
+
+## Final acceptance — 2026-11-10
+
+Final cross-mode production/development checks preserve copied sources, mode-specific
+revision/UUID validation, and stale-attempt cleanup. Read-only comparison leaves exact SQL
+and public projections unchanged. Explicit lifecycle regression actions were checked
+separately, and app/database restart preserved all stored rows and writer/public projections.
+No persisted comparison entity, schema or mutation was added.

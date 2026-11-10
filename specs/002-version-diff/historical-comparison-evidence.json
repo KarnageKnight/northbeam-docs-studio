@@ -1031,5 +1031,305 @@
     "100000-row output remains complete but measured about 49–50 seconds to render in this run. No caps, truncation, pagination, or collapsed context were added.",
     "Late-message observation windows are 200ms, or 800ms for controlled delays; render-stop checks observe 300ms.",
     "Final T024–T027 cross-mode/evidence/accessibility/development-worker checks and original Windows T028 remain pending."
-  ]
+  ],
+  "finalAcceptance": {
+    "date": "2026-11-10",
+    "tasks": [
+      "T024",
+      "T025",
+      "T026",
+      "T027"
+    ],
+    "sourceCommit": "2d3b517cc407810bf086c664d431c65f07733cb5",
+    "runtimeSourceChangedDuringPhase5": false,
+    "sourceSHA256": {
+      "app/composables/useArticleComparison.ts": "3431ab5c067963f34b06dfa014d0bfd8d450527abb79935c8554fde804ada572",
+      "app/components/ArticleComparison.vue": "b79765a2cb6be9bdde1c427d2d1f9be4c6f6e2dbefb7991adfae08d9dce63300",
+      "app/pages/writer/articles/[slug]/edit.vue": "71c78a6760aec630896c24c6db9e099c9c66a4d7e703330916c288125840a51e",
+      "app/assets/css/main.css": "28e2bf00c1840204b4d5ffc260b3c378f1a541b2ecf49750fdd9ddbec78f34c5",
+      "app/utils/articleDiff.ts": "618711a36b2a2a81a0c3f7669e3fa5df65a7b5ce755688bf724af15db1b513a2",
+      "app/workers/articleDiff.worker.ts": "a4d641272523f907821db1c3360fb737c8589b68bd8c5e0dbe82bcbb6c093fb0",
+      "shared/types/article-comparison.ts": "80dcca4ec926ee5c70277b81eb0068e7450b6145a8570ad775ebc68018de71cc",
+      "tests/unit/article-comparison.test.ts": "d5c566c1d0e31c7f67c93489ebaa80edb245cf0f24d0af245e6d45ac36271a29",
+      "tests/integration/articles.test.ts": "8bbeb47e31ba665d2ba9942d41da33a89d2b83da3925a9b772c4ef8c2a0e1de6",
+      "tests/fixtures/article-comparison.ts": "ff1aa78755a142867243e61d97b4a94c7095516fa04d4d567a8f6fe97b29b7e8",
+      "nuxt.config.ts": "3e75d7b9736326aff4d076e6f5e725b1bd4969f45f63373d5e840dcce0ef23cd",
+      "vitest.config.ts": "00e67b32f8bb26c2c2ae923ea8e3e27114b6c0f2ece8c8dadc2814e7843adcec",
+      "package.json": "2426bf25cb18e7b5aca31977c90574cd512d69d26e6bce24c17f28a744b5c419",
+      "pnpm-lock.yaml": "68c0eac9404581c7b3b816746f0777d8e3452998373c06fec8edd50c7336b5b4",
+      "Dockerfile": "91b54f09b7ed43069cee954b034e5cad5098643c64bc45544ccb1b88e5e8104b",
+      "compose.yaml": "d41cb46fb551a09f73a48c3e3d5fef7a7e9cffee97bd5d5b67ae2c0b9409a2e1"
+    },
+    "evidenceApplicability": {
+      "historicalMatrix": "All nine recorded source/test hashes match the final workspace. Reuse all nine fixtures/eighteen directions plus the current-source 100000-row saved-draft regression and real render-control checks without inventing new timings.",
+      "originalSavedDraftMatrix": "Retain the Phase 3 nine-fixture artifact as historical. Engine, Worker and CSS hashes still match. Phase 4 changed controller, selectors/caption and editor wiring, but not the row/word renderer or automatic batching. Review of that diff, preserved draft-mode controller tests, Phase 4 current-source full many-short-lines draft regression, and Phase 5 cross-mode walkthrough justify reusing original rendering measurements. This does not relabel the Phase 3 controller hash as current."
+    },
+    "productionBrowser": {
+      "date": "2026-11-10",
+      "checks": [
+        "Keyboard-only saved-draft comparison: Tab entry, native collapsed baseline typeahead/Tab, Compare Enter; exact sources, saved revision label, live ready announcement",
+        "Keyboard-only historical mode, baseline/target selection and Reverse using unchanged size=0 native selects; exact reversed source and tags; unrelated edits preserved",
+        "HTML/script/image/data-link/javascript-link source stays escaped inactive text; symbolic line cues, screen-reader kind text, ins/del word cues and tag words identify changes without color; AX control labels present",
+        "320/390/1440px no overflow, labeled selects, all comparison controls >=44px, keyboard focus outline >=2px; End reaches final source row and Tab/Enter bottom Close returns entry focus",
+        "Cross-mode close/reopen returns strict draft guard without losing any local field; all comparison operations leave exact SQL/public state unchanged and send no mutation",
+        "Existing UI regression: Write/Preview arrow tabs, explicit Save with draft/public isolation, safe snapshot inspection, Restore without publication, Publish, Unpublish/public404/list exclusion, eligible Delete, writer/public navigation",
+        "Final actual 100000-code-point unequal-replacement Worker: Cancel, Close/reopen, native collapsed mode switch during real computation terminate Worker without late output or lost edits; no delay or DB changes"
+      ],
+      "layouts": [
+        {
+          "viewport": 320,
+          "pageWidth": 305,
+          "controls": [
+            {
+              "label": "comparison-close",
+              "height": 44,
+              "width": 154.9375
+            },
+            {
+              "label": "comparison-mode",
+              "height": 45,
+              "width": 223
+            },
+            {
+              "label": "comparison-baseline",
+              "height": 45,
+              "width": 223
+            },
+            {
+              "label": "comparison-target",
+              "height": 45,
+              "width": 223
+            },
+            {
+              "label": "comparison-run",
+              "height": 44,
+              "width": 169.28125
+            },
+            {
+              "label": "comparison-reverse",
+              "height": 44,
+              "width": 145.09375
+            },
+            {
+              "label": "Close comparison",
+              "height": 44,
+              "width": 154.9375
+            }
+          ],
+          "focus": {
+            "visible": true,
+            "style": "solid",
+            "width": "2px"
+          },
+          "labels": true
+        },
+        {
+          "viewport": 390,
+          "pageWidth": 375,
+          "controls": [
+            {
+              "label": "comparison-close",
+              "height": 44,
+              "width": 154.9375
+            },
+            {
+              "label": "comparison-mode",
+              "height": 45,
+              "width": 293
+            },
+            {
+              "label": "comparison-baseline",
+              "height": 45,
+              "width": 293
+            },
+            {
+              "label": "comparison-target",
+              "height": 45,
+              "width": 293
+            },
+            {
+              "label": "comparison-run",
+              "height": 44,
+              "width": 169.28125
+            },
+            {
+              "label": "comparison-reverse",
+              "height": 44,
+              "width": 145.09375
+            },
+            {
+              "label": "Close comparison",
+              "height": 44,
+              "width": 154.9375
+            }
+          ],
+          "focus": {
+            "visible": true,
+            "style": "solid",
+            "width": "2px"
+          },
+          "labels": true
+        },
+        {
+          "viewport": 1440,
+          "pageWidth": 1425,
+          "controls": [
+            {
+              "label": "comparison-close",
+              "height": 44,
+              "width": 154.9375
+            },
+            {
+              "label": "comparison-mode",
+              "height": 45,
+              "width": 332.65625
+            },
+            {
+              "label": "comparison-baseline",
+              "height": 45,
+              "width": 332.671875
+            },
+            {
+              "label": "comparison-target",
+              "height": 45,
+              "width": 332.65625
+            },
+            {
+              "label": "comparison-run",
+              "height": 44,
+              "width": 169.28125
+            },
+            {
+              "label": "comparison-reverse",
+              "height": 44,
+              "width": 145.09375
+            },
+            {
+              "label": "Close comparison",
+              "height": 44,
+              "width": 154.9375
+            }
+          ],
+          "focus": {
+            "visible": true,
+            "style": "solid",
+            "width": "2px"
+          },
+          "labels": true
+        }
+      ],
+      "pending": [
+        {
+          "action": "cancel",
+          "syntheticDelay": false,
+          "preserved": true,
+          "noLateOutput": true,
+          "workerTerminated": true
+        },
+        {
+          "action": "close",
+          "syntheticDelay": false,
+          "preserved": true,
+          "noLateOutput": true,
+          "workerTerminated": true
+        },
+        {
+          "action": "mode",
+          "syntheticDelay": false,
+          "preserved": true,
+          "noLateOutput": true,
+          "workerTerminated": true
+        }
+      ],
+      "exceptions": [],
+      "hydrationWarnings": [],
+      "keyboardMethod": "Native Tab/Enter and typeahead followed by Tab on unchanged collapsed selects (size=0); no injected change or resized listbox for comparison acceptance",
+      "environment": {
+        "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+        "cores": 12,
+        "memoryGiB": 16
+      }
+    },
+    "publicDetailBrowser": {
+      "publishedDetailNavigable": true,
+      "publicTitleComesFromSnapshot": true,
+      "embeddedHTMLInert": true,
+      "unsafeLinksInactive": true,
+      "exceptions": [],
+      "hydrationWarnings": []
+    },
+    "developmentBrowser": {
+      "checks": [
+        "Real Vite development Worker loads after interaction and completes exact saved-draft comparison",
+        "Historical pair and reversal complete in development; Close clears output; no source-record changes or comparison writes",
+        "Actual pending maximum-body development Worker Cancel/retry and SPA route unmount terminate both Workers with no obsolete rendered output (no synthetic delay)"
+      ],
+      "workerUrls": [
+        "http://127.0.0.1:3316/_nuxt/workers/articleDiff.worker.ts?worker_file&type=module",
+        "http://127.0.0.1:3316/_nuxt/workers/articleDiff.worker.ts?worker_file&type=module",
+        "http://127.0.0.1:3316/_nuxt/workers/articleDiff.worker.ts?worker_file&type=module"
+      ],
+      "exceptions": [],
+      "hydrationWarnings": [],
+      "origin": "http://127.0.0.1:3316",
+      "mode": "Nuxt development with Vite module Worker",
+      "consoleWarnings": [
+        "Timer '[nuxt-app] page:loading:start' already exists",
+        "Timer '[nuxt-app] page:finish' already exists",
+        "Timer '[nuxt-app] page:loading:end' already exists",
+        "Timer '[nuxt-app] link:prefetch' already exists",
+        "Timer '[nuxt-app] link:prefetch\u0000' already exists",
+        "Timer '[nuxt-app] link:prefetch\u0000\u0000' already exists",
+        "Timer '[nuxt-app] link:prefetch\u0000\u0000\u0000' already exists"
+      ]
+    },
+    "environment": {
+      "productionImage": "sha256:71c8ece95f108af08f57aa0fdab0cab3bac3be02001ec618b4c9535061222c38",
+      "composeStartup": "Existing runtime Dockerfile applies migrations and starts app; isolated project and loopback-port overrides only",
+      "restartPersistence": {
+        "databaseAndAppRestarted": true,
+        "exactSQLStatePreserved": true,
+        "writerListPreserved": true,
+        "publicListPreserved": true
+      },
+      "cleanup": {
+        "dedicatedContainersNetworkVolumeRemoved": true,
+        "developmentServerStopped": true,
+        "log": "/private/tmp/northbeam-002-t026-cleanup.log"
+      }
+    },
+    "automatedChecks": {
+      "unit": 171,
+      "integration": 144,
+      "total": 315,
+      "skipped": 0,
+      "nuxtTypecheck": "passed",
+      "productionBuild": "passed",
+      "commands": [
+        "pnpm exec nuxt typecheck",
+        "pnpm run build",
+        "pnpm test"
+      ],
+      "logs": [
+        "/private/tmp/northbeam-002-t026-typecheck.log",
+        "/private/tmp/northbeam-002-t026-build.log",
+        "/private/tmp/northbeam-002-t026-tests.log"
+      ]
+    },
+    "probeCorrections": [
+      "Temporary production probe initially used slug in a UUID-only writer route and /articles instead of root for the public list; corrected to the documented routes.",
+      "Public content assertions after explicit Save compare lists sorted by slug because lifecycle writes may change list ordering; read-only comparison SQL assertions remain exact.",
+      "Native textarea values normalize CRLF to LF. Restore UI assertion now accounts for browser normalization and separately asserts the API retains exact original CRLF body.",
+      "Temporary development probe corrected embedded newline escaping and reconstructed typed result rows instead of expecting raw body properties on result identity metadata.",
+      "Public-detail probe selector corrected to existing .markdown-content. No application source changes were needed. Failed attempts were not counted as passes; accepted results are from completed reruns."
+    ],
+    "limitations": [
+      "Headless Chrome 157 on macOS 27.0.1 / Apple M2 Pro / 16 GiB; no formal accessibility certification or unexecuted browser/platform claim.",
+      "Normal collapsed selectors passed native typeahead plus Tab with size=0; earlier CDP arrow/popup strategies still did not commit. No blanket claim that all native popup interaction strategies were verified.",
+      "Nuxt development emits duplicate console timer-label warnings during routing/prefetch. Recorded consoleWarnings contain these; no runtime exceptions or hydration mismatch was observed in accepted runs.",
+      "Full 100000-row output measured about 40–50 seconds across recorded runs; all rows/word detail retained and controls remain usable. No fixed latency SLA or exhaustive adversarial-input bound.",
+      "Memory values remain approximate main-thread completion hints. Older synthetic transport delays remain explicitly flagged; final production/development pending checks use real work without artificial delay.",
+      "Original feature 001 Windows PowerShell T028 remains unverified under the existing approved deferral."
+    ]
+  }
 }

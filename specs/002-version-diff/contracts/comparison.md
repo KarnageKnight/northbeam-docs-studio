@@ -1,6 +1,6 @@
 # Version Diff: Interface Contracts
 
-**Date**: 2026-11-09 | **Status**: Design selected through option A on 2026-11-09; shared TypeScript contracts implemented in T004 on 2026-11-10. T006–T009 implement the pure engine and Worker protocol, including a real production-browser smoke check. T010 verifies optimized full-limit production Worker computation on the recorded fixtures. US1 controller/HTTP orchestration and full-size single-scroll DOM acceptance passed T011–T016 within recorded coverage. US2 orchestration/controls and full-size DOM checks passed T018–T022 within recorded coverage; final T024–T027 remain pending.
+**Date**: 2026-11-09 | **Status**: Both-mode orchestration, production/development Worker behavior, full-size output and final acceptance verified within recorded Chrome/macOS coverage through T027. See [validation](../quickstart.md).
 Authority: [spec](../spec.md), [plan](../plan.md), [model](../data-model.md).
 
 ## Existing HTTP interfaces
@@ -80,7 +80,7 @@ active lifecycle writes block attempts. Selection/mode/reversal invalidate obsol
 Workers, and output. Saved-draft guards remain strict. No comparison writes or backend
 changes were introduced. The inline, complete single-scroll design remains in place.
 
-[Historical evidence](historical-comparison-evidence.json) records nine maximum-size
+[Historical evidence](../historical-comparison-evidence.json) records nine maximum-size
 fixtures in both directions (18 completed comparisons), exact DOM/source and word-detail
 checks, preserved fields, SQL/public immutability, pending-work cancellation, and keyboard
 final-row access. Five additional controls interrupted real 100,000-row rendering without
@@ -89,3 +89,13 @@ not guarantees. Current-source saved-draft regression also reconstructed all 100
 315 tests (171 unit + 144 PostgreSQL/HTTP), Nuxt typecheck, and production build passed.
 Normal native popup-picker keyboard coverage, final T024–T027, and Windows T028 remain
 pending. Earlier sections and US1 evidence retain their original checkpoint provenance.
+
+
+## Final acceptance — 2026-11-10
+
+Both-mode capture/result validation and cancellation are implemented. Native keyboard
+selection/reversal/exit, escaped inert source rendering, symbolic and word cues, live status,
+focus return and responsive targets passed in recorded Chrome/macOS coverage. Dev and prod
+Workers complete both modes; real pending Workers terminate on cancellation, mode switch,
+Close/reopen and route unmount. Existing owned GET/read-only contracts remain unchanged.
+See [final acceptance](../quickstart.md) and [evidence](../historical-comparison-evidence.json).

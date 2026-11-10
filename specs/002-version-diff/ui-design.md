@@ -140,3 +140,14 @@ not guarantees. Current-source saved-draft regression also reconstructed all 100
 315 tests (171 unit + 144 PostgreSQL/HTTP), Nuxt typecheck, and production build passed.
 Normal native popup-picker keyboard coverage, final T024–T027, and Windows T028 remain
 pending. Earlier sections and US1 evidence retain their original checkpoint provenance.
+
+
+## Final acceptance — 2026-11-10
+
+The approved inline continuous diff is retained. Final acceptance passes at 320/390/1440px:
+no page overflow, labeled native selectors, comparison controls at least 44px in both axes,
+visible keyboard outline, non-color line/word/tag cues, final-line reachability and Close
+focus return. Both modes were completed using keyboard navigation and normal collapsed
+select typeahead/Tab, without listbox resizing or injected change events for those checks.
+The 390px screenshot was visually inspected. This is recorded Chrome/macOS evidence, not
+formal accessibility certification. No modal or design change was introduced.

@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-08
 
-**Status**: US1 and US2 implemented and verified on 2026-11-10 within recorded browser coverage. Final cross-mode/accessibility acceptance (T024–T027) remains pending.
+**Status**: Feature 002 complete through Phase 5 (T001–T027), 2026-11-10, within recorded Chrome/macOS coverage. Original Windows T028 remains unverified. See final acceptance in [quickstart](quickstart.md) and [evidence](historical-comparison-evidence.json).
 
 **Input**: User description: "A diff view between the draft and a past version, or between two versions. This is a stretch goal."
 
@@ -255,3 +255,12 @@ not guarantees. Current-source saved-draft regression also reconstructed all 100
 315 tests (171 unit + 144 PostgreSQL/HTTP), Nuxt typecheck, and production build passed.
 Normal native popup-picker keyboard coverage, final T024–T027, and Windows T028 remain
 pending. Earlier sections and US1 evidence retain their original checkpoint provenance.
+
+
+## Final acceptance — 2026-11-10
+
+Both stories and final T024–T027 acceptance are complete within recorded Chrome/macOS
+coverage. FR-001–FR-012 and SC-001–SC-006 have evidence mapped in quickstart's final
+reconciliation. Native collapsed-selector keyboard acceptance now passes with typeahead/Tab;
+earlier gaps remain accurate records of those earlier runs. No requirement, content limit,
+architecture or lifecycle behavior changed during Phase 5. Windows T028 remains unverified.

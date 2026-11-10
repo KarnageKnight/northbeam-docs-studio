@@ -1,7 +1,7 @@
 # Version Diff: Validation Guide
 
-**Date**: 2026-11-09 | **Status**: Phases 1–3 complete on 2026-11-10. Saved-draft comparison MVP verified within recorded browser coverage; US2 and final acceptance remain pending.
-Option A architecture was selected on 2026-11-09; see [plan](plan.md). Saved-draft controls are implemented; historical pair/reversal controls remain pending.
+**Date**: 2026-11-09 | **Status**: Feature 002 complete through Phase 5 (T001–T027), 2026-11-10, within recorded Chrome/macOS coverage. Original Windows T028 remains unverified. See final acceptance in [quickstart](quickstart.md) and [evidence](historical-comparison-evidence.json).
+Option A architecture was selected on 2026-11-09; see [plan](plan.md). Both comparison modes and reversal controls are implemented.
 Original Windows acceptance T028 remains unverified.
 
 ## Phase 1 evidence — 2026-11-10
@@ -101,7 +101,7 @@ use `pnpm install --frozen-lockfile` with the pinned toolchain for a fresh check
 docker compose up --build
 ```
 
-Open http://127.0.0.1:3000, choose Writer, and prepare two distinct retained versions plus a different saved draft. The saved-draft steps are implemented and verified as recorded below; version/version steps remain planned.
+Open http://127.0.0.1:3000, choose Writer, and prepare two distinct retained versions plus a different saved draft. Both comparison modes are implemented and verified as recorded below.
 
 ## Completion commands after implementation
 
@@ -533,3 +533,115 @@ Cleanup: the dedicated `northbeam002-browser` containers, network, and test volu
 removed successfully after acceptance. Log: `/private/tmp/northbeam-002-t022-cleanup.log`.
 Final artifact validation confirmed nine source hashes, nine fixtures/eighteen directions,
 five real-render controls, task markers, and clean whitespace. No extension hooks registered.
+
+
+## Phase 5 final acceptance — 2026-11-10
+
+T024–T027 are complete within the coverage below. Earlier dated sections are original
+checkpoint records, not current pending status. No application/test/configuration changes
+were necessary in this phase. The human committed Phase 4 as `2d3b517`; this phase leaves
+only reviewable documentation/evidence changes uncommitted. Feature 003 is untouched.
+
+### T024: final source and full-size evidence applicability
+
+All nine hashes in historical-comparison-evidence.json match final runtime/test source.
+Reuse its nine maximum-source fixtures in both directions (18 complete historical runs),
+current-source 100,000-row draft regression and five real pending-render action checks.
+Original US1 nine-fixture evidence remains historical: engine, Worker and CSS hashes match;
+review of Phase 4 confirms selectors/caption/controller/wiring changed but body/word row
+rendering and automatic batching did not. Existing draft-mode controller tests, the current-
+source full many-short-lines draft regression, and final both-mode browser walkthrough
+cover the changed orchestration. No old controller hash is relabeled as current, and no
+new timings are claimed for reused runs. All article lines/word detail remain available.
+
+A new production-runtime walkthrough passed seven groups: keyboard-only saved-draft and
+historical selection/reversal; source safety and semantic change cues; responsive layout/
+focus/exit; dirty input preservation with strict draft guard on mode return; existing
+editor/history/public lifecycle flows; and Cancel/Close/reopen/mode switch during actual
+100,000-code-point unequal-replacement computation. Final pending tests used no artificial
+delay and observed no late output after 300ms. Comparison-only operations preserved exact
+SQL state, public content and all local fields and sent no mutation. Explicit lifecycle
+setup/regression writes were outside those read-only assertions.
+
+### T025: keyboard, safety and existing UI regression
+
+Both modes completed through native Tab/Enter and collapsed-select label typeahead followed
+by Tab. Select size remained zero; no presentation change or injected change event was used
+for these comparison keyboard paths. This resolves the earlier coverage gap for that method
+in Chrome 157/macOS. Earlier arrow/popup driving attempts remain unsuccessful; no claim
+is made about every native popup strategy or other browsers. Native End reaches the last
+completed source row; Tab/Enter activates bottom Close and returns focus to Compare versions.
+
+At 320/390/1440px, no page overflow occurred. All visible comparison buttons/selects measured
+at least 44px in both dimensions; labels were associated, the accessibility tree named the
+controls, and keyboard focus had a visible outline of at least 2px. Textual/symbolic line and
+tag cues plus ins/del word styling identify changes without color. Ready live status was
+verified. Inline HTML/script/image markup and javascript/data links remained inert text.
+The 390px screenshot was visually inspected. These checks are not formal WCAG certification
+or a screen-reader session.
+
+Existing browser flows passed: Write/Preview arrow tabs, explicit Save with public-content
+isolation, safe version inspection, Restore without publishing, Publish, Unpublish with
+public 404/list exclusion, eligible snapshot deletion, writer/public navigation. A separate
+published detail page rendered the live snapshot title with inert HTML and unsafe links.
+
+### T026: final commands, Worker bundles, startup and persistence
+
+Pinned Node 24.22.2 / pnpm 12.18.0 were used, as in prior phases.
+
+| Check | Result |
+|---|---|
+| `pnpm exec nuxt typecheck` | Passed |
+| `pnpm run build` | Passed |
+| `pnpm test` | Passed: 171 unit + 144 real PostgreSQL/HTTP = 315; no skips |
+| Production runtime Worker | Both modes/reversal, actual pending Cancel/Close/mode cleanup passed |
+| Vite development Worker | Both modes/reversal, actual pending Cancel/retry and SPA route-unmount termination passed |
+| Existing Compose runtime startup | Build, PostgreSQL readiness, migration and app start passed in isolated `northbeam002-final` |
+| App and database restart | Exact SQL dump plus writer/public projections preserved |
+| Cleanup | Dedicated containers, network and volume removed; temporary dev server stopped |
+
+Production image: `sha256:71c8ece95f108af08f57aa0fdab0cab3bac3be02001ec618b4c9535061222c38`.
+Only temporary project/loopback-port overrides were used, at 3314 (production), 3316 (host
+dev) and 55434 (isolated DB); repository Compose/Docker configuration is unchanged. Normal
+app data was untouched. Accepted production/development/public checks reported zero runtime
+exceptions or hydration mismatches. Development emitted duplicate Nuxt console timer-label
+warnings during route/prefetch activity; these remain recorded rather than described as a
+warning-free run. Test-suite intentional failure-injection error logs are expected cases.
+
+Command logs: `/private/tmp/northbeam-002-t026-{typecheck,build,tests,dev,persistence,cleanup}.log`.
+Browser logs: `/private/tmp/northbeam-002-t024-browser-accepted.log`,
+`/private/tmp/northbeam-002-t026-dev-browser-final.log`, and
+`/private/tmp/northbeam-002-t025-public-final.log`. Probe scripts/screenshots and raw results
+are temporary; durable results are appended under `finalAcceptance` in
+[historical-comparison-evidence.json](historical-comparison-evidence.json), preserving its
+previous observations. Temporary probe errors (routes, list ordering after lifecycle writes,
+textarea CRLF normalization, result-row reconstruction, and public CSS selector) were fixed
+without app changes and rerun successfully; failed attempts are not counted as passes.
+
+### T027: requirement reconciliation and handoff
+
+| Requirements | Verified evidence |
+|---|---|
+| FR-001, FR-004, SC-001 | US1 capture/Save/conflict cases and browser evidence; final native keyboard saved-draft path; historical path preserves unrelated edits |
+| FR-002 | US2 arbitrary/same/identical pairs, fresh reversal reads, final keyboard historical pair/reversal |
+| FR-003, FR-005, FR-009, SC-002 | Engine reconstruction/word/reversal/empty/identity/Unicode/whitespace/tag tests, both story DOM matrices and final semantic cue checks |
+| FR-006, SC-003 | Controller cancellation/generation cases, exact SQL/public snapshots, preserved editor fields, zero comparison writes, final real pending cleanup |
+| FR-007 | Published/unpublished source-read integration cases and both story browser access; public isolation, unpublish and restart regression |
+| FR-008, SC-004 | HTTP missing/wrong-owner/deleted source tests and browser next-attempt deletion failure with no replacement or lost edits |
+| FR-010 | Escaped inactive source/unsafe-link checks; public/history safe Markdown regression |
+| FR-011, SC-005 | Both modes completed through native keyboard controls; source labels, symbolic/textual/word cues, one continuous diff, final-line reachability and focus return |
+| FR-012, SC-006 | Applicable US1 nine-fixture and US2 eighteen-direction max-size DOM evidence, exact words/text/tags, real pending compute/render controls and cancellation |
+
+The final branch change set was reviewed against existing patterns and selected option A:
+local transient state, owned existing reads, client-only Worker, escaped continuous output;
+no schema/endpoint/lifecycle/publication changes. No architecture/dependency change or new
+repository file was needed. Checklist remains 16/16 checked. No before/after extension hooks
+are registered. Diff whitespace, evidence hashes, task markers and local documentation links
+are validated at handoff. All T001–T027 are checked; original feature 001 Windows T028 remains
+unchecked under the approved deferral.
+
+Remaining limits: tested Chrome 157/macOS only, no formal accessibility certification or
+screen-reader session; roughly 40–50s complete render for 100,000 rows on the recorded M2 Pro;
+main-thread memory hints are not peak/Worker memory. No latency SLA, smaller size cap,
+truncation, pagination or collapsed context was introduced. Changes remain uncommitted for
+human review; no submission or deployment was performed.

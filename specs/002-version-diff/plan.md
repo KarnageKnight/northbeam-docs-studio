@@ -2,7 +2,7 @@
 
 **Branch**: `002-version-diff` | **Date**: 2026-11-09 | **Spec**: [spec.md](spec.md)
 
-**Status**: Phases 1–4 complete on 2026-11-10. Both modes are integrated and browser-verified within recorded coverage; presented for review. Final T024–T027 remain pending. See [tasks](tasks.md), [validation](quickstart.md), [US1 evidence](draft-comparison-evidence.json), and [US2 evidence](historical-comparison-evidence.json).
+**Status**: Feature 002 complete through Phase 5 (T001–T027), 2026-11-10, within recorded Chrome/macOS coverage. Original Windows T028 remains unverified. See final acceptance in [quickstart](quickstart.md) and [evidence](historical-comparison-evidence.json).
 
 ## Summary
 
@@ -212,3 +212,15 @@ not guarantees. Current-source saved-draft regression also reconstructed all 100
 315 tests (171 unit + 144 PostgreSQL/HTTP), Nuxt typecheck, and production build passed.
 Normal native popup-picker keyboard coverage, final T024–T027, and Windows T028 remain
 pending. Earlier sections and US1 evidence retain their original checkpoint provenance.
+
+
+## Final acceptance — 2026-11-10
+
+Final source is human commit 2d3b517 plus this documentation/evidence handoff; Phase 5
+changed no application, test, build or deployment source. T024 reused applicable full-size
+evidence after hash and renderer-diff review; T025 completed native keyboard/safety/layout
+and existing UI regressions; T026 passed 315 tests/typecheck/build, actual dev/prod Workers,
+Compose startup and app/database restart persistence. T027 reconciled all requirements.
+Temporary services/volume were removed. No architecture or dependency change, new repository
+file, agent commit, or feature 003 edit. Original Windows T028 remains unverified.
+Constitution 2.1.0 Principle VIII applies to any new files; this phase introduced none.

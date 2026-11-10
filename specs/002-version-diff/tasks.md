@@ -2,7 +2,7 @@
 
 **Input**: Design artifacts in `specs/002-version-diff/`.
 **Created**: 2026-11-09.
-**Status**: Phases 1–4 (T001–T023) complete. Both comparison modes are integrated and verified within recorded browser coverage; presented for review. Final T024–T027 remain pending.
+**Status**: Feature 002 complete through Phase 5 (T001–T027), 2026-11-10, within recorded Chrome/macOS coverage. Original Windows T028 remains unverified. See final acceptance in [quickstart](quickstart.md) and [evidence](historical-comparison-evidence.json).
 **Prerequisites**: [spec](spec.md), [plan](plan.md), [research](research.md), [data model](data-model.md), [contract](contracts/comparison.md), [validation guide](quickstart.md).
 **Architecture**: Option A selected: existing writer GETs, browser Worker with exact `diff@9.0.0`, local comparison state, unified inline panel, complete continuous output.
 **Tests**: Included because the specification defines independent test/acceptance scenarios and Constitution IV requires meaningful automated and real-database evidence.
@@ -136,10 +136,10 @@ review before US2. No agent commits or Phase 4 implementation.
 
 **Purpose**: Verify the final integrated feature, including rendering limits and existing lifecycle behavior.
 
-- [ ] T024 Perform the final integrated cross-mode regression against `app/components/ArticleComparison.vue` and the production Worker, following `specs/002-version-diff/quickstart.md`: review T016/T022 full-size evidence against the final source, switch modes/roles, cancel and reopen, and check preserved edits and complete output. Reuse unchanged-source story evidence; rerun affected full-size fixtures when later engine, Worker, controller, renderer, or build changes invalidate it. Record final source/build and evidence applicability; do not defer a missing story-level size check until this task or claim success with unapproved caps, omitted words, truncation, or fabricated timing guarantees. Apply the observable responsiveness acceptance procedure in `specs/002-version-diff/quickstart.md`: record environment/fixture/timings, actions processed during pending computation, cancellation/late-result cleanup, and complete keyboard-reachable continuous output, without a fixed timing threshold; report unexecuted checks as pending.
-- [ ] T025 Verify escaped HTML/script/unsafe-link source text, non-color change identification, labeled controls, visible focus, 44px targets, announcements, close focus return, and no page overflow at 320/390/1440px in `app/components/ArticleComparison.vue` and `app/assets/css/main.css`; regress existing editor/history/public flows and record actual browser coverage in `specs/002-version-diff/quickstart.md`. Do not claim formal WCAG certification or untested browser support.
-- [ ] T026 Run `pnpm test`, `pnpm exec nuxt typecheck`, and `pnpm run build` against the final source; verify development and production Worker loading, cleanup, and existing Compose startup using `package.json`, `vitest.config.ts`, and `compose.yaml` without unrelated configuration changes. Record actual commands, suite counts/results, runtime/hydration issues, and remaining platform gaps in `specs/002-version-diff/quickstart.md`.
-- [ ] T027 Complete requirement/evidence reconciliation and handoff in `specs/002-version-diff/spec.md`, `plan.md`, `contracts/comparison.md`, `research.md`, `quickstart.md`, `tasks.md`, and `README.md`; preserve historical evidence, confirm all FR-001–FR-012/SC-001–SC-006 outcomes, review the full change set, and leave changes uncommitted for human review. Record unresolved issues explicitly rather than declaring them verified.
+- [X] T024 Perform the final integrated cross-mode regression against `app/components/ArticleComparison.vue` and the production Worker, following `specs/002-version-diff/quickstart.md`: review T016/T022 full-size evidence against the final source, switch modes/roles, cancel and reopen, and check preserved edits and complete output. Reuse unchanged-source story evidence; rerun affected full-size fixtures when later engine, Worker, controller, renderer, or build changes invalidate it. Record final source/build and evidence applicability; do not defer a missing story-level size check until this task or claim success with unapproved caps, omitted words, truncation, or fabricated timing guarantees. Apply the observable responsiveness acceptance procedure in `specs/002-version-diff/quickstart.md`: record environment/fixture/timings, actions processed during pending computation, cancellation/late-result cleanup, and complete keyboard-reachable continuous output, without a fixed timing threshold; report unexecuted checks as pending.
+- [X] T025 Verify escaped HTML/script/unsafe-link source text, non-color change identification, labeled controls, visible focus, 44px targets, announcements, close focus return, and no page overflow at 320/390/1440px in `app/components/ArticleComparison.vue` and `app/assets/css/main.css`; regress existing editor/history/public flows and record actual browser coverage in `specs/002-version-diff/quickstart.md`. Do not claim formal WCAG certification or untested browser support.
+- [X] T026 Run `pnpm test`, `pnpm exec nuxt typecheck`, and `pnpm run build` against the final source; verify development and production Worker loading, cleanup, and existing Compose startup using `package.json`, `vitest.config.ts`, and `compose.yaml` without unrelated configuration changes. Record actual commands, suite counts/results, runtime/hydration issues, and remaining platform gaps in `specs/002-version-diff/quickstart.md`.
+- [X] T027 Complete requirement/evidence reconciliation and handoff in `specs/002-version-diff/spec.md`, `plan.md`, `contracts/comparison.md`, `research.md`, `quickstart.md`, `tasks.md`, and `README.md`; preserve historical evidence, confirm all FR-001–FR-012/SC-001–SC-006 outcomes, review the full change set, and leave changes uncommitted for human review. Record unresolved issues explicitly rather than declaring them verified.
 
 ## Dependencies and execution order
 
@@ -195,7 +195,7 @@ These are scheduling opportunities only; no additional agents are requested or l
 ## Generation summary
 
 27 tasks: setup 3, foundation 7, US1 7, US2 6, final acceptance 4.
-T001–T023 are complete; T024–T027 are pending. Story labels: US1 T011–T017; US2 T018–T023.
+T001–T027 are complete within recorded platform coverage; original Windows T028 remains unverified. Story labels: US1 T011–T017; US2 T018–T023.
 Parallel markers: T004, T005, T014, T020, subject to the dependency explanations above.
 
 ## Analysis remediation decisions
@@ -243,3 +243,14 @@ not guarantees. Current-source saved-draft regression also reconstructed all 100
 315 tests (171 unit + 144 PostgreSQL/HTTP), Nuxt typecheck, and production build passed.
 Normal native popup-picker keyboard coverage, final T024–T027, and Windows T028 remain
 pending. Earlier sections and US1 evidence retain their original checkpoint provenance.
+
+
+## Final acceptance — 2026-11-10
+
+T024–T027 are complete. Final accepted browser runs cover both-mode keyboard/source safety,
+three layout widths, real pending computation cleanup, existing editor/history/public flows,
+and development Worker loading/unmount cleanup. Final 315-case suite, typecheck and build
+passed; runtime Compose startup and exact restart persistence passed; owned services and
+volume were removed. Requirement/evidence mapping is in quickstart. Prior phase evidence
+is preserved, no new repository files or application changes were needed, and this phase's
+changes remain uncommitted. Original Windows T028 remains unchecked and unverified.

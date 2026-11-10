@@ -1,6 +1,6 @@
 # Version Diff: Research
 
-**Date**: 2026-11-09 | **Status**: Research completed; option A selected by the user on 2026-11-09. Selected dependency installed on 2026-11-10; engine/Worker implemented and all 9 full-limit production computation fixtures verified after the human-selected optimization. Revised UI visual review approved on 2026-11-10; both stories passed recorded DOM/controller acceptance in Phases 3–4. Final T024–T027 remain pending.
+**Date**: 2026-11-09 | **Status**: Feature 002 complete through Phase 5 (T001–T027), 2026-11-10, within recorded Chrome/macOS coverage. Original Windows T028 remains unverified. See final acceptance in [quickstart](quickstart.md) and [evidence](historical-comparison-evidence.json).
 
 ## R1 — Computation boundary and engine
 
@@ -148,3 +148,14 @@ not guarantees. Current-source saved-draft regression also reconstructed all 100
 315 tests (171 unit + 144 PostgreSQL/HTTP), Nuxt typecheck, and production build passed.
 Normal native popup-picker keyboard coverage, final T024–T027, and Windows T028 remain
 pending. Earlier sections and US1 evidence retain their original checkpoint provenance.
+
+
+## Final acceptance — 2026-11-10
+
+Final production and Vite development Worker checks pass without architecture changes.
+Keyboard typeahead followed by Tab commits normal collapsed select values (size=0), resolving
+the earlier acceptance gap in the tested environment; CDP arrow/popup strategies remain
+unverified. All three responsive widths pass source safety, non-color cues, labels, focus,
+and target-size checks. Duplicate Nuxt development console timer labels were observed and
+recorded, with no accepted-run runtime exceptions or hydration mismatch. Rendering cost
+remains about 40–50s for 100,000 rows; timings are observations, not guarantees.
