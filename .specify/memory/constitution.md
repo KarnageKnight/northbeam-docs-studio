@@ -1,10 +1,13 @@
 <!--
 Sync Impact Report — review-only; remove this comment before committing.
-Version change: 1.4.0 -> 1.5.0 (branch-wide PR descriptions in Markdown against main).
+Version change: 1.5.0 -> 2.0.0 (approved Windows verification deferral for feature 002).
 Modified principle (title unchanged):
-  V. Small, Reviewable Changes Within the Time Budget — PR description scope and format.
+  V. Small, Reviewable Changes Within the Time Budget — narrow stretch prerequisite exception.
+Major rationale: the exception changes the previous unconditional required-work prerequisite.
+Human approval: 2026-11-09, "approve and move on", in response to the proposed governance amendment.
 Added principles or sections: none.
 Removed sections: none.
+Affected artifacts: feature 002 plan/tasks record T001 disposition; feature 001 T028 stays open.
 Template synchronization: dependent templates read this constitution at runtime;
   no template or command files changed.
 Deferred placeholders and follow-up TODOs: none.
@@ -119,6 +122,14 @@ proportional to this application; additional complexity MUST have a documented r
 or correctness rationale. If time becomes constrained, reduce visual polish and record known
 omissions rather than weakening invariants or claiming unfinished work is complete.
 
+For feature 002 only, the human approved deferring feature 001 Windows PowerShell
+acceptance T028 on 2026-11-09 so version-diff implementation may proceed with the
+required application already implemented and its available-platform evidence recorded.
+T028 MUST remain unchecked until executed on Windows. This exception changes the order
+of work only: Windows setup, tests, cleanup, and persistence MUST NOT be reported verified
+without execution evidence. Required platform acceptance remains incomplete. All other
+spec-first, architecture, UI review, task verification, and human-owned commit gates apply.
+
 ### VI. Human Architecture Decisions
 
 All architecture decisions MUST be made by a human. Before a new or changed decision, AI
@@ -216,4 +227,4 @@ be made explicit and resolved through a documented amendment or a conforming imp
 it cannot silently weaken a required assignment invariant. Temporary amendment-review comments
 MUST be removed before committing the constitution.
 
-**Version**: 1.5.0 | **Ratified**: 2026-11-06 | **Last Amended**: 2026-11-06
+**Version**: 2.0.0 | **Ratified**: 2026-11-06 | **Last Amended**: 2026-11-09

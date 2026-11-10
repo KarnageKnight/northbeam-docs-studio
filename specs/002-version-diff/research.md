@@ -1,10 +1,18 @@
 # Version Diff: Research
 
-**Date**: 2026-11-09 | **Status**: Research completed; option A selected by the user on 2026-11-09. Implementation and full-limit verification pending.
+**Date**: 2026-11-09 | **Status**: Research completed; option A selected by the user on 2026-11-09. Selected dependency installed on 2026-11-10; engine/Worker/UI implementation and full-limit verification pending.
 
 ## R1 — Computation boundary and engine
 
-**Selected design (option A, 2026-11-09)**: Browser-only dedicated Worker with exact selected pin `diff@9.0.0`, subject to feasibility validation. No install performed.
+**Selected design (option A, 2026-11-09)**: Browser-only dedicated Worker with exact selected pin `diff@9.0.0`, subject to feasibility validation.
+
+**Installation evidence (T003, 2026-11-10)**: `pnpm add --save-exact diff@9.0.0` ran with
+Node 24.22.2 and pnpm 12.18.0. package.json pins `9.0.0`; pnpm-lock.yaml records the same
+specifier/version. The package was already resolved transitively, so the lockfile change
+only adds its direct importer entry; no unrelated package resolution changed. Reading the
+installed manifest confirms 9.0.0, and ESM imports expose both `diffLines` and
+`diffWordsWithSpace` as functions. This verifies installation/exports, not full-limit
+algorithm feasibility or browser Worker behavior.
 
 **Rationale**: Existing APIs provide complete sources; comparison does not need server persistence or mutation. Worker computation keeps the diff algorithm off the UI thread. The upstream tagged manifest confirms version, ESM exports, TypeScript declarations, and BSD-3-Clause license. This is a verified candidate, not a claim of latest registry release.
 
@@ -66,4 +74,8 @@ Snapshot deletion after successful GET may be observed next attempt, as the spec
 
 ## Review gates
 
-The user selected option A in plan.md on 2026-11-09, satisfying Constitution VI for the documented architecture. Windows T028 remains an original delivery prerequisite gap, not resolved by research. Algorithm full-limit feasibility is deliberately unverified. No unresolved technical question is disguised as an approved choice.
+The user selected option A in plan.md on 2026-11-09, satisfying Constitution VI for the
+documented architecture. The approved Constitution 2.0.0 disposition permits 002 work
+while Windows T028 remains unverified; research does not establish Windows acceptance.
+Algorithm full-limit feasibility is deliberately unverified. No unresolved technical
+question is disguised as an approved choice.

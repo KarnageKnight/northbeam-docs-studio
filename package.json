@@ -16,6 +16,7 @@
     "test:integration": "node scripts/test-integration.mjs"
   },
   "dependencies": {
+    "diff": "9.0.0",
     "drizzle-kit": "0.31.11",
     "drizzle-orm": "0.45.4",
     "markdown-it": "15.0.3",

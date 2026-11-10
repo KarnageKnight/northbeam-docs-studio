@@ -2,7 +2,7 @@
 
 **Input**: Design artifacts in `specs/002-version-diff/`.
 **Created**: 2026-11-09.
-**Status**: Task generation only. All tasks below are unstarted; no implementation or runtime verification is claimed.
+**Status**: Phase 1 (T001–T003) complete: prerequisite disposition on 2026-11-09, consistency/checkpoint review and dependency/baseline verification on 2026-11-10. T004–T027 remain unstarted; comparison behavior is not implemented or verified.
 **Prerequisites**: [spec](spec.md), [plan](plan.md), [research](research.md), [data model](data-model.md), [contract](contracts/comparison.md), [validation guide](quickstart.md).
 **Architecture**: Option A selected: existing writer GETs, browser Worker with exact `diff@9.0.0`, local comparison state, unified inline panel, complete progressive output.
 **Tests**: Included because the specification defines independent test/acceptance scenarios and Constitution IV requires meaningful automated and real-database evidence.
@@ -21,11 +21,33 @@ Each implementation task includes only the focused tests and behavior it deliver
 
 **Purpose**: Verify prerequisites and establish the selected dependency without re-scaffolding the existing app.
 
-- [ ] T001 Verify the required-work prerequisite against `specs/001-docs-studio/handoff.md`, `specs/001-docs-studio/tasks.md` (Windows T028), and `.specify/memory/constitution.md`; record actual completion evidence or an explicit human-approved governance-compatible disposition in `specs/002-version-diff/plan.md`. Do not infer Windows success or silently waive a constitutional requirement.
-- [ ] T002 Review the spec/plan/task consistency with speckit-analyze, resolve material findings in `specs/002-version-diff/spec.md`, `plan.md`, and `tasks.md`, and verify that the human has recorded the feature spec-first git checkpoint before dependency or application edits. Record checkpoint evidence in `specs/002-version-diff/quickstart.md`; do not create a commit.
-- [ ] T003 After T001–T002, add exact `diff@9.0.0` to `package.json` and update `pnpm-lock.yaml` with the pinned toolchain; verify existing application checks and document the selected installed version in `specs/002-version-diff/research.md`. Add no unrelated package upgrades or new browser-testing framework.
+- [X] T001 Verify the required-work prerequisite against `specs/001-docs-studio/handoff.md`, `specs/001-docs-studio/tasks.md` (Windows T028), and `.specify/memory/constitution.md`; record actual completion evidence or an explicit human-approved governance-compatible disposition in `specs/002-version-diff/plan.md`. Do not infer Windows success or silently waive a constitutional requirement.
+
+  **Evidence (2026-11-09)**: Reviewed the handoff, open T028, and constitution. The human
+  approved the proposed governance amendment with "approve and move on". Constitution 2.0.0
+  permits 002 implementation while Windows acceptance remains explicitly pending; the
+  disposition and existing evidence are recorded in plan.md. Documentation validation only;
+  application tests/build were not rerun. No application files, dependencies, or commits changed.
+- [X] T002 Review the spec/plan/task consistency with speckit-analyze, resolve material findings in `specs/002-version-diff/spec.md`, `plan.md`, and `tasks.md`, and verify that the human has recorded the feature spec-first git checkpoint before dependency or application edits. Record checkpoint evidence in `specs/002-version-diff/quickstart.md`; do not create a commit.
+
+  **Evidence (2026-11-10)**: speckit-analyze found no blocking consistency/coverage findings;
+  all 18 requirements/outcomes map to tasks. Verified human checkpoint
+  `68bc18aaf97972336bddc9551169402c432265e7` before dependency edits. See quickstart.md
+  for the coverage map and history evidence. No commit was created.
+- [X] T003 After T001–T002, add exact `diff@9.0.0` to `package.json` and update `pnpm-lock.yaml` with the pinned toolchain; verify existing application checks and document the selected installed version in `specs/002-version-diff/research.md`. Add no unrelated package upgrades or new browser-testing framework.
+
+  **Evidence (2026-11-10)**: Installed exact diff@9.0.0 with Node 24.22.2/pnpm 12.18.0;
+  verified manifest and line/word ESM exports. Only the direct dependency/importer entry
+  changed; no unrelated upgrades. `pnpm test` passed 99 unit + 143 real-PostgreSQL/HTTP
+  tests (242 total); Nuxt typecheck and production build passed. Integration cleanup
+  completed. Research and quickstart record installation and actual checks. No application
+  source/test changes or commits; Worker/full-limit/UI evidence remains future work.
 
 **Checkpoint**: Required-work disposition and human checkpoint recorded; selected dependency is installed and baseline checks pass.
+
+**Phase 1 status (2026-11-10)**: Complete under the user's request to complete Phase 1.
+Changes are left uncommitted for review. Phase 2 remains pending; no visual approval or
+full-limit feasibility is inferred from setup verification.
 
 ## Phase 2: Foundational work
 
@@ -139,7 +161,7 @@ These are scheduling opportunities only; no additional agents are requested or l
 ## Generation summary
 
 27 tasks: setup 3, foundation 7, US1 7, US2 6, final acceptance 4.
-All remain unchecked. Story labels: US1 T011–T017; US2 T018–T023.
+T001–T003 are complete; T004–T027 remain unchecked. Story labels: US1 T011–T017; US2 T018–T023.
 Parallel markers: T004, T005, T014, T020, subject to the dependency explanations above.
 
 ## Analysis remediation decisions

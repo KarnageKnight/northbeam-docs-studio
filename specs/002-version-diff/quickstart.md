@@ -1,13 +1,78 @@
 # Version Diff: Validation Guide
 
-**Date**: 2026-11-09 | **Status**: Planned validation, not execution evidence.
+**Date**: 2026-11-09 | **Status**: Phase 1 setup verified on 2026-11-10; comparison acceptance below remains planned.
 Option A architecture was selected on 2026-11-09; see [plan](plan.md). Feature controls are not implemented.
 Original Windows acceptance T028 remains unverified.
+
+## Phase 1 evidence — 2026-11-10
+
+### T002: consistency review and spec-first checkpoint
+
+The speckit-analyze review covered the spec, plan, all 27 tasks, supporting data model,
+contract, research, and Constitution 2.0.0. All 12 functional requirements and 6 success
+criteria have implementation/acceptance task coverage (100%). No blocking findings,
+unmapped tasks, material ambiguity, duplication, or constitutional conflict were found.
+Setup and final handoff tasks support the governance and evidence gates. Previously
+recorded analysis remediations remain consistent with the artifacts. UI review and
+full-limit feasibility remain future gates, not verified behavior. No extension hooks
+are registered. The requirements checklist has 16 checked and 0 unchecked items.
+
+| Requirements | Task coverage |
+|---|---|
+| FR-001, FR-004, SC-001 | T011–T017; T018–T023 for historical-mode independence |
+| FR-002 | T018–T023 |
+| FR-003, FR-005, FR-009, SC-002 | T004, T006–T008, T014, T018–T020 |
+| FR-006, FR-007, SC-003 | T011–T013, T015–T016, T019, T021–T022, T026 |
+| FR-008, SC-004 | T011–T013, T018–T019, T021–T022 |
+| FR-010, FR-011, SC-005 | T005, T014, T020, T025 |
+| FR-012, SC-006 | T004, T006–T010, T014, T016, T021–T022, T024 |
+
+Before dependency edits, HEAD was `68bc18aaf97972336bddc9551169402c432265e7`
+(`updating tasks`). Git history records the feature specification in `21d2ee3`, its
+clarification in `7275a9c`, planning in `22f562e`, and the current task breakdown in
+`68bc18a`. HEAD contains spec.md, plan.md, and tasks.md, with no comparison implementation
+files or diff dependency. No application/dependency changes existed in the working tree.
+This verifies the human-created spec-first checkpoint. The approved T001 governance
+disposition remains uncommitted alongside this evidence; no commit was created by the agent.
+
+The user requested completion of Phase 1 on 2026-11-10. This authorizes the remaining
+setup tasks, not Phase 2 implementation or rendered UI approval.
+
+### T003: installed dependency and baseline verification
+
+Used the existing temporary Node executable at
+`/private/tmp/northbeam-phase1-toolchain/node_modules/node/bin/node` (24.22.2), placed
+first on PATH for every install/check, with pnpm 12.18.0. The shell default Node 24.14.0
+was not used for these commands. `pnpm add --save-exact diff@9.0.0` succeeded; installed
+manifest and ESM line/word exports were checked. Only package.json's direct dependency
+and pnpm-lock.yaml's importer entry changed; existing package resolutions were preserved.
+
+| Check | Actual result |
+|---|---|
+| `pnpm test` | Passed: 99 unit + 143 real PostgreSQL/HTTP tests, 242 total; no skips |
+| `pnpm exec nuxt typecheck` | Passed |
+| `pnpm run build` | Passed; production output generated |
+| `git diff --check` | Passed |
+
+The integration suite used the existing isolated Compose project and completed owned
+container/network/volume cleanup. Tests and application source were unchanged. Existing
+git/Docker ignore files cover the actual Nuxt/Node output, dependencies, local database,
+and environment files; no ignore/configuration changes or browser-testing dependency
+were needed. No extension hooks are registered.
+
+Local command logs are `/private/tmp/northbeam-002-phase1-tests.log`,
+`/private/tmp/northbeam-002-phase1-typecheck.log`, and
+`/private/tmp/northbeam-002-phase1-build.log`. This verifies setup and the existing app,
+not comparison computation, Worker loading, full-size rendering, or new UI behavior.
+Those checks remain assigned to later tasks. Windows T028 remains unverified under the
+approved deferral. Changes remain uncommitted for human review.
 
 ## Prerequisites and startup
 
 Use existing [README](../../README.md) and [baseline guide](../001-docs-studio/quickstart.md).
-Docker/Compose are needed for isolated integration tests. Host checks use pinned Node/pnpm and locked dependencies. The selected diff@9.0.0 dependency is installed and locked during implementation, not this planning update.
+Docker/Compose are needed for isolated integration tests. Host checks use pinned Node/pnpm
+and locked dependencies. The selected diff@9.0.0 dependency was installed and locked in T003;
+use `pnpm install --frozen-lockfile` with the pinned toolchain for a fresh checkout.
 
 ```sh
 docker compose up --build

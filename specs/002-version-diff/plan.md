@@ -2,7 +2,7 @@
 
 **Branch**: `002-version-diff` | **Date**: 2026-11-09 | **Spec**: [spec.md](spec.md)
 
-**Status**: Option A selected by the user on 2026-11-09; task breakdown generated on 2026-11-09 in [tasks.md](tasks.md). Implementation, dependency installation, full-limit feasibility, and runtime verification remain pending.
+**Status**: Phase 1 complete on 2026-11-10: T001 approved disposition, T002 consistency/checkpoint review, and T003 exact dependency installation with passing baseline tests/typecheck/build. See [tasks.md](tasks.md) and [evidence](quickstart.md). Comparison engine, Worker, UI implementation, and full-limit verification remain pending.
 
 ## Summary
 
@@ -13,7 +13,7 @@ Selected option A: reuse existing writer GETs and captured saved editor state, c
 ## Technical Context
 
 **Language/Version**: Existing TypeScript 6.0.3, Vue 3.5.45, Nuxt 4.6.4, Node 24.22.2.
-**Primary Dependencies**: Existing stack plus selected exact `diff@9.0.0` (jsdiff, upstream includes TypeScript declarations). Native Worker and AbortController; no worker framework. Install and lock this dependency during its implementation task, not this documentation update.
+**Primary Dependencies**: Existing stack plus exact `diff@9.0.0` (jsdiff, upstream includes TypeScript declarations), installed and locked in T003 on 2026-11-10. Native Worker and AbortController; no worker framework.
 **Storage**: Existing PostgreSQL 18.6, read only. Comparison state is per-editor and transient.
 **Testing**: Existing Vitest unit and real PostgreSQL/HTTP integration suites; pure engine/controller unit cases and actual-browser Worker/DOM/keyboard checks. No new browser testing dependency proposed.
 **Target Platform**: Existing Compose and host workflows. Worker starts in browser interaction only, never during SSR. Chrome is the existing acceptance baseline; other browsers require actual checks.
@@ -24,7 +24,8 @@ Selected option A: reuse existing writer GETs and captured saved editor state, c
 
 ## Constitution Check
 
-Option A was selected by the user on 2026-11-09. No invariant exception is requested.
+Option A was selected by the user on 2026-11-09. Constitution 2.0.0 records the approved
+Windows verification deferral for this feature; no lifecycle invariant exception is requested.
 
 | Principle | Design response / gate |
 |---|---|
@@ -32,11 +33,39 @@ Option A was selected by the user on 2026-11-09. No invariant exception is reque
 | II. Draft/history isolation | Owned snapshot reads and copied saved content; no writes. |
 | III. Lifecycle/concurrency | Preserve existing transactions and revision semantics; feature 003 is independent. |
 | IV. Database-backed evidence | Reuse existing real-DB source ownership/read-only coverage; extend only missing cases. Full tests/typechecks/build gate implementation completion. |
-| V. Small changes/stretch | Planning only. Required-work Windows T028 remains open; resolve prerequisite or obtain an explicit governance-compatible disposition before stretch implementation. |
+| V. Small changes/stretch | T001 satisfied by the human-approved Constitution 2.0.0 exception on 2026-11-09. Windows T028 remains open and unverified; other implementation/review gates remain applicable. |
 | VI. Human architecture | SATISFIED for option A: user selected existing GETs, browser Worker/diff@9.0.0, inline panel/local state, and the documented verification approach on 2026-11-09. |
 | VII. Consistent patterns | Native fetching, local Vue state, existing GET/error patterns/styles/tests; Worker extension selected as option A. |
 
-**Pre-research result**: no research blocker. **Post-design result**: architecture selection gate satisfied by user selection of option A on 2026-11-09. Task generation may proceed. Required-work disposition, human checkpoint, UI review, and full-limit verification remain pending; no implementation or benchmark success is claimed.
+**Pre-research result**: no research blocker. **Post-design result**: architecture selection gate satisfied by user selection of option A on 2026-11-09. Required-work disposition is recorded below. T002 analysis/checkpoint and T003 dependency/baseline checks passed on 2026-11-10; UI review and full-limit verification remain pending. No comparison implementation or benchmark success is claimed.
+
+## Implementation prerequisite audit — 2026-11-09
+
+Implementation was requested on 2026-11-09. The prerequisite script selects this feature,
+and the requirements checklist passes (16 checked, 0 unchecked). No extension hooks are
+registered (`.specify/extensions.yml` is absent).
+
+At the initial audit, T001 was pending: the feature 001 handoff records the required implementation and
+242 passing automated tests, typechecks, build, and exercised startup/persistence flows,
+but its Windows PowerShell acceptance T028 remains unchecked. The prior authorization
+covered independent feature 001 audit/delivery work; it did not verify Windows or resolve
+this feature's required-work gate. Constitution V requires required local setup and tests
+before stretch work, and this plan explicitly requires a governance-compatible disposition.
+The initial request to start implementation was not treated as a waiver. In response to the
+explicit proposal to amend governance and defer the check, the human approved on 2026-11-09:
+"approve and move on". Constitution 2.0.0 now permits feature 002 to proceed while Windows
+T028 remains unchecked and required platform acceptance remains incomplete. This approved
+order-of-work exception completes T001; it does not establish Windows success or waive any
+other review/verification gate. No application checks were rerun for this documentation-only task.
+
+The working tree was clean at audit start. HEAD
+`68bc18aaf97972336bddc9551169402c432265e7` contains the feature spec, plan, and tasks;
+their history includes `21d2ee3`, `7275a9c`, `22f562e`, and `68bc18a`. No comparison
+implementation files are present in HEAD. This is preliminary checkpoint evidence, not
+completion of T002's cross-artifact analysis at that initial audit. T002 subsequently verified
+the same human checkpoint and found full task coverage with no blocking findings on
+2026-11-10; T003 installed the selected pin and passed the 242-test suite, Nuxt typecheck,
+and production build. See quickstart.md for the complete Phase 1 evidence. No commit was created.
 
 ## Architecture selection
 
@@ -64,7 +93,9 @@ specs/002-version-diff/
 └── checklists/requirements.md
 ```
 
-The generated [tasks.md](tasks.md) follows selected option A. Next run speckit-analyze and review the spec-first checkpoint and required-work prerequisites before implementation.
+The generated [tasks.md](tasks.md) follows selected option A. Phase 1 analysis,
+checkpoint verification, prerequisite disposition, and dependency setup are complete.
+Next is Phase 2 foundation work, subject to the existing phase review boundary.
 
 ### Source Code (selected design; not implemented)
 
@@ -94,8 +125,13 @@ tests/integration/articles.test.ts               # only missing source-read evid
 [contracts/comparison.md](contracts/comparison.md) defines API reuse, Worker messages, rendering and cancellation.
 [quickstart.md](quickstart.md) defines future acceptance scenarios and verification.
 
-Next: speckit-analyze for the generated task breakdown, followed by human review/checkpoint and prerequisite resolution before implementation. Do not introduce feature 003 publish behavior or amend its baseline in this work.
+Phase 1 review and setup are complete; next is Phase 2 types and concrete UI design
+(T004–T005), followed by engine/Worker implementation and feasibility validation.
+Do not introduce feature 003 publish behavior or amend its baseline in this work.
 
 ## Complexity Tracking
 
-No constitution exception requested. Worker and bounded rendering address full-limit word-diff computation and potentially large DOM output. No worker pool, comparison persistence, global store, or new service.
+The sole approved constitution exception defers Windows T028 as a prerequisite to 002;
+it leaves platform verification pending. Worker and bounded rendering address full-limit
+word-diff computation and potentially large DOM output. No worker pool, comparison
+persistence, global store, or new service.
