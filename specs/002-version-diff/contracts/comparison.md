@@ -41,7 +41,7 @@ Worker receives cloned values, never Vue state or database credentials. It runs 
 
 Selected engine: diff@9.0.0 line diff with normalization/ignore options disabled, then diffWordsWithSpace over replacement blocks. Preserve original line breaks and unequal block lengths; no arbitrary row pairing that loses words. Tags compare memberships. Exact reconstruction is mandatory.
 
-Do not represent timeouts, dropped words, truncation, or reduced maximum size as successful output. Full-limit algorithm and DOM feasibility must be demonstrated before acceptance.
+Do not represent timeouts, dropped words, truncation, or reduced maximum size as successful output. Full-limit algorithm and DOM feasibility must be demonstrated before acceptance. Validate observable responsiveness using quickstart.md: Cancel/Close and source selection must take effect during pending computation, cancelled work must not produce late output, and all completed ranges must be keyboard reachable. Record environment and timings without a fixed latency threshold.
 
 ## Read-only guarantees
 

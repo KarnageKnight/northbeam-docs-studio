@@ -41,7 +41,20 @@ pnpm test remains the one-command complete suite. Inspect/reuse existing tests b
 
 Exercise both modes with maximum title/tags and two 100,000-code-point bodies: identical, sparse edits, fully different token-dense text, repeated lines, many short lines, long single lines, large unequal replacement blocks, Unicode, and whitespace. Reconstruct each source exactly and verify required word detail. Every result chunk must remain reachable.
 
-Record hardware/CPU/RAM, browser/build, fixtures, compute/render timings, responsiveness, cancellation, and available memory observations. Worker computation alone is insufficient if DOM rendering freezes input. No numerical speed promise is adopted.
+Apply this matrix in stages: T010 proves shared engine/Worker computation; T016 must verify the full rendered draft/version mode before the US1 MVP checkpoint; T022 must verify the full rendered version/version mode (including reversed roles) before the US2 checkpoint. T024 is final cross-mode regression and evidence review, not the first size-validation gate. Reuse unchanged-source story evidence and rerun cases affected by subsequent changes.
+
+Record hardware/CPU/RAM, operating system, browser/version, build/source identity, fixture identity, compute/render timings, and available memory observations. Use the same recorded environment and fixtures for repeat checks. No fixed completion or cancellation time limit is approved; measured timings are observations, not service guarantees.
+
+### Observable responsiveness acceptance
+
+For each full-size case, run a completion attempt and a separate interaction/cancellation attempt where computation is still pending:
+
+- **Interaction**: While computing, use the panel source selectors and Cancel/Close by keyboard or pointer. The intended control action must be handled before the original computation finishes; a UI that queues the action until completion fails. Switching sources must supersede the old attempt without losing editor fields.
+- **Cancellation**: Cancel/Close must abort pending reads, terminate the current Worker, clear the pending comparison state, and permit another attempt. The cancelled attempt must never display a late result or remain computing. Verify Worker/request cleanup using browser tooling or controlled test observations.
+- **Complete output**: In the non-cancelled attempt, computation must finish and all required line/word output must be accessible. Operate the progressive range controls by keyboard and reach the last range without missing content, corrupted source reconstruction, or lost draft fields.
+- **Result**: Record observed actions and their order relative to completion alongside timings. Mark failure if interaction waits for the computation, cleanup fails, a stale result appears, the complete result cannot be reached, or a non-cancelled valid case produces no complete result. User-cancelled attempts are lifecycle checks, not successful full comparisons and not evidence of unsupported content size.
+
+If a fixture finishes before pending interaction can be exercised, record that observation and cover the lifecycle ordering with a clearly labeled controlled delayed-boundary test. Do not report synthetic delays as production completion timings. Worker computation alone is insufficient if DOM rendering blocks the output controls.
 
 Timeout/no-result, lost highlighting, truncation, smaller caps, or inaccessible omitted output fail FR-012/SC-006. Investigate another engine/design or request explicit requirement revision; do not report these cases passed. No maximum-input experiment was executed during planning.
 
