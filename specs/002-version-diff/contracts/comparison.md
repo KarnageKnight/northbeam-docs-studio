@@ -1,6 +1,6 @@
 # Version Diff: Interface Contracts
 
-**Date**: 2026-11-09 | **Status**: Design selected through option A on 2026-11-09; not implemented or verified.
+**Date**: 2026-11-09 | **Status**: Design selected through option A on 2026-11-09; shared TypeScript contracts implemented in T004 on 2026-11-10. HTTP reuse, controller, Worker, and UI behavior remain pending.
 Authority: [spec](../spec.md), [plan](../plan.md), [model](../data-model.md).
 
 ## Existing HTTP interfaces
@@ -28,6 +28,13 @@ Render escaped source strings using Vue text interpolation, never v-html, Markdo
 Use native labeled controls, visible focus, 44px targets, focus return on close, and concise announced status. Progressively reveal complete output with keyboard-operable controls and ranges; do not announce every token or silently omit hidden content. Review the concrete screen design before UI implementation.
 
 ## Worker messages (selected design)
+
+T004 declares these messages in `shared/types/article-comparison.ts`. Requests use a
+`type: 'compare'` discriminator with `mode: 'draft-version' | 'version-version'` and
+readonly captures. Responses discriminate on `type: 'result' | 'error'`. Result messages
+wrap an `ArticleComparisonResult`; both wrapper and result include requestId/articleId.
+Errors use code `comparison-failed` with a safe message. Startup/runtime transport failures
+will be handled by the controller; defining this protocol does not implement the Worker.
 
 Instantiate lazily after client interaction using Vite's static new Worker(new URL(..., import.meta.url), {type:'module'}) pattern.
 

@@ -1,6 +1,6 @@
 # Version Diff: Validation Guide
 
-**Date**: 2026-11-09 | **Status**: Phase 1 setup verified on 2026-11-10; comparison acceptance below remains planned.
+**Date**: 2026-11-09 | **Status**: Phase 1 setup and T004 shared types verified on 2026-11-10; runtime comparison acceptance below remains planned.
 Option A architecture was selected on 2026-11-09; see [plan](plan.md). Feature controls are not implemented.
 Original Windows acceptance T028 remains unverified.
 
@@ -66,6 +66,29 @@ Local command logs are `/private/tmp/northbeam-002-phase1-tests.log`,
 not comparison computation, Worker loading, full-size rendering, or new UI behavior.
 Those checks remain assigned to later tasks. Windows T028 remains unverified under the
 approved deferral. Changes remain uncommitted for human review.
+
+## T004 evidence — 2026-11-10
+
+Added `shared/types/article-comparison.ts` with readonly captures, discriminated source
+roles and messages, exact text/inline changes, normalized tag membership output, request
+generations, and output ranges. The original source limits are preserved verbatim.
+Contracts and data-model documentation describe the implemented types and their limits.
+
+With Node 24.22.2/pnpm 12.18.0, the temporary strict compile probe
+`/private/tmp/northbeam-002-t004-typecheck.ts` passed via `pnpm exec tsc --ignoreConfig
+--strict --noEmit --skipLibCheck --target es2022 --module esnext --moduleResolution bundler
+/private/tmp/northbeam-002-t004-typecheck.ts`. Positive fixtures cover both request modes,
+exact removed-line text, and an error response. Expected compile errors cover invalid
+source roles, saved-draft versionId, invalid line numbering, missing message articleId,
+and mutation of captured text/tags. No permanent runtime tests were added for type-only work.
+
+`pnpm test` passed 99 unit + 143 real PostgreSQL/HTTP tests (242 total, no skips);
+`pnpm exec nuxt typecheck`, `pnpm run build`, and `git diff --check` passed.
+Integration resources were cleaned up. Logs are `/private/tmp/northbeam-002-t004-tests.log`,
+`/private/tmp/northbeam-002-t004-typecheck.log`, and `/private/tmp/northbeam-002-t004-build.log`.
+No extension hooks are registered. Changes remain uncommitted. Runtime copies, size checks,
+stale-result handling, Worker loading, and UI/full-limit acceptance remain later work;
+readonly types alone do not verify them. Next is T005 concrete UI design/review.
 
 ## Prerequisites and startup
 

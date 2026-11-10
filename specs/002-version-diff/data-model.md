@@ -1,6 +1,27 @@
 # Version Diff: Proposed Data Model
 
-**Date**: 2026-11-09 | **Status**: Design selected through option A on 2026-11-09; not implemented. See [plan](plan.md).
+**Date**: 2026-11-09 | **Status**: Design selected through option A on 2026-11-09; T004 shared types implemented on 2026-11-10. Runtime capture/computation/state transitions remain pending. See [plan](plan.md).
+
+## Shared type contract (T004)
+
+`shared/types/article-comparison.ts` defines readonly source selections and captures,
+exact line/inline changes, tag deltas, mode-specific requests/results, Worker messages,
+request generations, comparison status, and presentation ranges. Existing article/version
+identity and revision types are reused. Version selections use the version UUID; their
+version number and label are display metadata. Saved draft sources carry the literal label
+`Saved draft` and captured revision, with no versionId.
+
+Mode literals are `draft-version` (version baseline, saved draft target) and
+`version-version` (both sources are versions). Request IDs are monotonically increasing
+numbers local to an editor; every Worker response also includes articleId. Line numbers
+are one-based, with null on a side where the line does not exist. Exact text retains its
+original line ending; inline segments describe portions of that text. Presentation ranges
+use zero-based half-open `[start, end)` indices plus total row count.
+
+Readonly typing prevents direct mutation through the contract; it does not copy or freeze
+runtime values. Later tasks must copy captures, enforce same-article UUID ownership and
+content limits, validate range boundaries, and reject obsolete generations. These types
+alone do not establish those runtime guarantees or full-limit feasibility.
 
 ## Persistence
 

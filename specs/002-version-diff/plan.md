@@ -2,7 +2,7 @@
 
 **Branch**: `002-version-diff` | **Date**: 2026-11-09 | **Spec**: [spec.md](spec.md)
 
-**Status**: Phase 1 complete on 2026-11-10: T001 approved disposition, T002 consistency/checkpoint review, and T003 exact dependency installation with passing baseline tests/typecheck/build. See [tasks.md](tasks.md) and [evidence](quickstart.md). Comparison engine, Worker, UI implementation, and full-limit verification remain pending.
+**Status**: Phase 1 and T004 shared types complete on 2026-11-10, with passing tests/typecheck/build. See [tasks.md](tasks.md) and [evidence](quickstart.md). Concrete UI design/review, comparison engine, Worker, UI implementation, and full-limit verification remain pending.
 
 ## Summary
 
@@ -95,9 +95,9 @@ specs/002-version-diff/
 
 The generated [tasks.md](tasks.md) follows selected option A. Phase 1 analysis,
 checkpoint verification, prerequisite disposition, and dependency setup are complete.
-Next is Phase 2 foundation work, subject to the existing phase review boundary.
+Phase 2 began with T004 under the user's "next step" request on 2026-11-10.
 
-### Source Code (selected design; not implemented)
+### Source Code (T004 shared types implemented; remaining files planned)
 
 ```text
 app/components/ArticleComparison.vue
@@ -125,8 +125,10 @@ tests/integration/articles.test.ts               # only missing source-read evid
 [contracts/comparison.md](contracts/comparison.md) defines API reuse, Worker messages, rendering and cancellation.
 [quickstart.md](quickstart.md) defines future acceptance scenarios and verification.
 
-Phase 1 review and setup are complete; next is Phase 2 types and concrete UI design
-(T004–T005), followed by engine/Worker implementation and feasibility validation.
+Phase 1 review/setup and T004 types are complete; next is T005 concrete UI design,
+followed by engine/Worker implementation and feasibility validation. T004's focused
+type assertions, 242-test suite, Nuxt typecheck, and production build passed; this does
+not verify runtime capture, computation, or browser behavior.
 Do not introduce feature 003 publish behavior or amend its baseline in this work.
 
 ## Complexity Tracking

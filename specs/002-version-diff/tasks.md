@@ -2,7 +2,7 @@
 
 **Input**: Design artifacts in `specs/002-version-diff/`.
 **Created**: 2026-11-09.
-**Status**: Phase 1 (T001–T003) complete: prerequisite disposition on 2026-11-09, consistency/checkpoint review and dependency/baseline verification on 2026-11-10. T004–T027 remain unstarted; comparison behavior is not implemented or verified.
+**Status**: Phase 1 (T001–T003) and T004 shared types complete. T005–T027 remain unstarted; comparison runtime behavior is not implemented or verified.
 **Prerequisites**: [spec](spec.md), [plan](plan.md), [research](research.md), [data model](data-model.md), [contract](contracts/comparison.md), [validation guide](quickstart.md).
 **Architecture**: Option A selected: existing writer GETs, browser Worker with exact `diff@9.0.0`, local comparison state, unified inline panel, complete progressive output.
 **Tests**: Included because the specification defines independent test/acceptance scenarios and Constitution IV requires meaningful automated and real-database evidence.
@@ -53,7 +53,16 @@ full-limit feasibility is inferred from setup verification.
 
 **Purpose**: Establish shared contracts, exact computation, and full-limit feasibility before integrating either story.
 
-- [ ] T004 [P] Define source selections, copied saved/version captures, line/inline changes, tag sets, request/result/error messages, generation IDs, and presentation range in `shared/types/article-comparison.ts` according to `specs/002-version-diff/data-model.md`. Preserve constraints verbatim: “Each source supports title 200 and body 100,000 Unicode code points, 10 tags of 30 code points.” Preserve source “kind (saved-draft/version)” and text “kind (unchanged/removed/added)”; versionId applies to version selections only. Use UUID as source identity and version number as label; results contain exact text, never HTML or stored comparison records.
+- [X] T004 [P] Define source selections, copied saved/version captures, line/inline changes, tag sets, request/result/error messages, generation IDs, and presentation range in `shared/types/article-comparison.ts` according to `specs/002-version-diff/data-model.md`. Preserve constraints verbatim: “Each source supports title 200 and body 100,000 Unicode code points, 10 tags of 30 code points.” Preserve source “kind (saved-draft/version)” and text “kind (unchanged/removed/added)”; versionId applies to version selections only. Use UUID as source identity and version number as label; results contain exact text, never HTML or stored comparison records.
+
+  **Evidence (2026-11-10)**: Added readonly discriminated source/capture, line/inline,
+  tag, mode/request/result/error, generation/status, and presentation-range types after
+  inspecting existing shared article types and the approved model/contract. A temporary
+  strict TypeScript probe accepted valid mode requests and rejected invalid roles,
+  saved-draft versionId, removed-line target numbering, missing response article identity,
+  and capture mutations. Nuxt typecheck, production build, and `pnpm test` passed
+  (99 unit + 143 real PostgreSQL/HTTP tests, 242 total). Updated model/contract/plan and
+  quickstart evidence. No runtime behavior or full-limit feasibility is claimed.
 - [ ] T005 [P] Prepare the concrete unified panel design in `specs/002-version-diff/ui-design.md`, covering both modes, source roles, saved revision, dirty-save guard, loading/error/identity states, word cues, complete progressive output, keyboard/focus, and 320/390/1440px layouts using existing styles. Record human visual review before T014/T020 screen implementation; do not treat the architecture selection as rendered-design approval.
 - [ ] T006 After T004, implement pure line changes and normalized tag membership differences in `app/utils/articleDiff.ts` together with passing focused cases in `tests/unit/article-diff.test.ts`. Inspect `tests/unit/markdown.test.ts` and `articles-validation.test.ts` first; cover line additions/removals, simple exact reconstruction, empty/identical sources, tag changes/order independence, and non-mutation without duplicating validation/rendering tests. Disable ignore/normalization options; add no failing word-highlighting cases until T007. Finish with the complete suite green.
 - [ ] T007 Extend `app/utils/articleDiff.ts` with whitespace-preserving word highlighting inside replacement blocks and add its passing cases to `tests/unit/article-diff.test.ts` in the same task. Verify changed versus unchanged words, unequal multiline replacements, original newline boundaries, and reverse direction. Do not zip unrelated lines arbitrarily or use a line-only fallback. Keep T006 cases and the complete suite green; do not leave word tests waiting for T008.
@@ -161,7 +170,7 @@ These are scheduling opportunities only; no additional agents are requested or l
 ## Generation summary
 
 27 tasks: setup 3, foundation 7, US1 7, US2 6, final acceptance 4.
-T001–T003 are complete; T004–T027 remain unchecked. Story labels: US1 T011–T017; US2 T018–T023.
+T001–T004 are complete; T005–T027 remain unchecked. Story labels: US1 T011–T017; US2 T018–T023.
 Parallel markers: T004, T005, T014, T020, subject to the dependency explanations above.
 
 ## Analysis remediation decisions
