@@ -1,6 +1,6 @@
 # Version Diff: Research
 
-**Date**: 2026-11-09 | **Status**: Research completed; option A selected by the user on 2026-11-09. Selected dependency installed on 2026-11-10; engine/Worker/UI implementation and full-limit verification pending.
+**Date**: 2026-11-09 | **Status**: Research completed; option A selected by the user on 2026-11-09. Selected dependency installed on 2026-11-10; engine/Worker implemented and all 9 full-limit production computation fixtures verified after the human-selected optimization. Revised UI visual review approved on 2026-11-10; story-level DOM/controller acceptance remains pending.
 
 ## R1 — Computation boundary and engine
 
@@ -34,13 +34,13 @@ algorithm feasibility or browser Worker behavior.
 
 ## R3 — Full-limit feasibility and presentation
 
-**Selected design (option A, 2026-11-09)**: Make maximum-size compute and browser rendering checks an early implementation gate before committing to integration. Retain complete result data and expose bounded/progressive portions with explicit access to all output.
+**Selected design (option A, 2026-11-09)**: Make maximum-size compute and browser rendering checks an early implementation gate before committing to integration. Retain complete result data. The human revised presentation on 2026-11-10 to one continuous unified article diff with every line visible, superseding paged/progressive portions.
 
 **Rationale**: A Worker does not remove potentially expensive worst-case sequence alignment. Two 100,000-code-point token-dense dissimilar sources or repeated-line patterns can be costly. Rendering every row/span also threatens interaction even when computation is off-thread.
 
 **Alternatives**: Time/edit-distance limits can produce no result; silent truncation, line-only degradation, and smaller comparison caps contradict FR-012/SC-006. They are failures requiring resolution, not acceptable successful fallbacks. Virtualization is another presentation option but adds keyboard/accessibility complexity.
 
-No numeric latency target was selected and no benchmark run. Report hardware/browser, completion timings, cancellation, and complete accessibility of results. If the engine cannot satisfy full-limit checks, resolve a different design or return for explicit scope clarification; do not claim support.
+No numeric latency target was selected. Initial production-browser measurements are recorded in quickstart.md; they do not establish full-limit feasibility. Report hardware/browser, completion timings, cancellation, and complete accessibility of results. If the engine cannot satisfy full-limit checks, resolve a different design or return for explicit scope clarification; do not claim support.
 
 **Sources**: [jsdiff limits](https://github.com/kpdecker/jsdiff), [Vue large-list performance](https://vuejs.org/guide/best-practices/performance.html#virtualize-large-lists).
 
@@ -79,3 +79,35 @@ documented architecture. The approved Constitution 2.0.0 disposition permits 002
 while Windows T028 remains unverified; research does not establish Windows acceptance.
 Algorithm full-limit feasibility is deliberately unverified. No unresolved technical
 question is disguised as an approved choice.
+
+## T010 exact optimization decision — 2026-11-10
+
+The first production Worker experiment completed 4/9 maximum-size shapes; five dense
+replacements produced no result in the 45-second observation window. That window is
+an experiment limit, not an adopted latency requirement; full-limit support was not proved.
+The human selected “Review exact optimizations within jsdiff (recommended)” over evaluating
+alternative engines. Retain Worker/jsdiff and the exact reconstruction/word-detail contracts.
+
+The selected optimization uses public jsdiff APIs to tokenize exact lines/words
+(`diffLines`/`diffWordsWithSpace` against empty text with oneChangePerToken). Tokens absent
+from the opposite source cannot match and may be excluded from alignment search, but must
+be emitted unchanged as removed/added source text. If either retained sequence is a
+subsequence of the other, greedy linear matching preserves a maximum-length common
+subsequence. Otherwise jsdiff diffArrays aligns the retained exact tokens. Project the
+chosen matches back to original token indices and emit every intervening source token;
+then preserve original line boundaries as before. No ignore options, approximate equality,
+timeouts, size caps, omitted words, or line-only fallback are introduced. The ambiguous
+choice among equally valid repeated-token alignments may change; exact reconstruction
+and word-level tests, plus the same production Worker matrix, gate adoption.
+
+## T010 result — 2026-11-10
+
+All nine original maximum-size fixtures completed and reconstructed exactly in the
+optimized actual production Worker. Observed completion: 6.8ms–14,042.4ms on the recorded
+M2 Pro/Chrome 157 environment. Keyboard probe cancellation, Close/source change, fresh
+Worker retry, and maximum changed title/body/tags in both modes passed. Final tests,
+typechecks, and build passed. See quickstart.md and worker-feasibility.json for initial
+failures, measured outcomes, source/fixture identities, and limits. This demonstrates
+shared computation feasibility for those fixtures, not final single-scroll DOM capacity,
+all possible adversarial input timings, or untested browsers. No comparison-specific
+content cap or engine timeout is introduced; final renderer/controller checks remain required.

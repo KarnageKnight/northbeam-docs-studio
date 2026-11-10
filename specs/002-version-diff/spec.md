@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-08
 
-**Status**: Draft — stretch feature specified; not implemented or verified.
+**Status**: Foundation engine/Worker implemented and tested on 2026-11-10. Revised single-scroll UI design approved on 2026-11-10; neither editor comparison story is integrated or verified.
 
 **Input**: User description: "A diff view between the draft and a past version, or between two versions. This is a stretch goal."
 
@@ -16,6 +16,10 @@
 - Q: How much detail should text differences show? → A: Show added, removed, and unchanged lines, with additional word-level highlighting within changed lines in titles and Markdown source bodies.
 - Q: Should comparison support articles up to the existing 100,000-code-point body limit? → A: Support the full existing content limits for both sources without truncating differences or imposing a smaller comparison-only limit.
 - Q: How should we decide whether the UI stays responsive during large comparisons? → A: Record the test environment and timings; verify controls operate during computation, cancellation stops the pending attempt without late results, and all completed output remains reachable. No fixed timing limit is adopted.
+
+### Session 2026-11-10
+
+- Q: How should the article diff be presented? → A: One continuous GitHub-style unified diff, with every line visible in one scroll. No pagination or collapsed unchanged sections. Title changes remain in the same diff surface; tag membership changes remain a summary.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -148,7 +152,7 @@ Requirement IDs below are local to `002-version-diff`.
   tag comparison MUST ignore ordering when membership is identical.
 - **FR-010**: Comparison MUST display source content safely as text without executing HTML
   or scripts or activating unsafe link destinations.
-- **FR-011**: Source selection and comparison exit MUST be keyboard operable, with readable
+- **FR-011**: The entire article MUST appear in one continuous unified diff with all lines visible in one scroll, without pagination or collapsed unchanged sections. Source selection and comparison exit MUST be keyboard operable, with readable
   source labels and textual or symbolic change indicators.
 - **FR-012**: Both comparison modes MUST support the full existing per-source content limits:
   titles of 200 Unicode code points, Markdown bodies of 100,000 Unicode code points, and
@@ -193,7 +197,7 @@ Requirement IDs below are local to `002-version-diff`.
   differences are available without truncation or a size-based rejection. During a separate pending-comparison
   attempt, Cancel/Close and source selection take effect before the original computation
   completes, preserve local edits, and prevent late results from cancelled work. In the
-  completion attempt, all output ranges remain keyboard reachable. Record environment,
+  completion attempt, the entire output remains keyboard reachable in one continuous scroll. Record environment,
   actions, and timings without requiring an unapproved fixed duration.
 
 ## Assumptions
@@ -203,8 +207,8 @@ Requirement IDs below are local to `002-version-diff`.
 - "Draft" means saved draft content; writers must explicitly save unsaved changes before
   opening or refreshing draft comparison. Confirmed by the user on 2026-11-09.
 - Markdown source comparison includes line-level differences and word-level highlighting
-  within changed lines, confirmed by the user on 2026-11-09. Rendered comparison and a
-  particular split or unified layout are not required.
+  within changed lines, confirmed by the user on 2026-11-09. Rendered comparison and the
+  unified continuous layout was selected on 2026-11-10.
 - Tag ordering has no comparison significance; text whitespace does.
 - Comparison supports the full existing content limits without truncation, confirmed by
   the user on 2026-11-09. No numerical comparison-time budget has been agreed.

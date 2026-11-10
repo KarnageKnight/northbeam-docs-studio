@@ -104,10 +104,3 @@ export interface ArticleComparisonErrorMessage extends ComparisonMessageIdentity
 }
 
 export type ArticleComparisonResponse = ArticleComparisonResultMessage | ArticleComparisonErrorMessage
-
-export interface ComparisonPresentationRange {
-  // Zero-based half-open range [start, end) within the complete result rows.
-  readonly start: number
-  readonly end: number
-  readonly total: number
-}

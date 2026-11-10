@@ -1,12 +1,12 @@
 # Version Diff: Proposed Data Model
 
-**Date**: 2026-11-09 | **Status**: Design selected through option A on 2026-11-09; T004 shared types implemented on 2026-11-10. Runtime capture/computation/state transitions remain pending. See [plan](plan.md).
+**Date**: 2026-11-09 | **Status**: Design selected through option A on 2026-11-09; T004 shared types implemented on 2026-11-10. Exact text/tag computation and Worker result projection are implemented in T006–T009; editor capture/state transitions remain pending. See [plan](plan.md).
 
 ## Shared type contract (T004)
 
 `shared/types/article-comparison.ts` defines readonly source selections and captures,
 exact line/inline changes, tag deltas, mode-specific requests/results, Worker messages,
-request generations, comparison status, and presentation ranges. Existing article/version
+request generations and comparison status. Existing article/version
 identity and revision types are reused. Version selections use the version UUID; their
 version number and label are display metadata. Saved draft sources carry the literal label
 `Saved draft` and captured revision, with no versionId.
@@ -15,12 +15,11 @@ Mode literals are `draft-version` (version baseline, saved draft target) and
 `version-version` (both sources are versions). Request IDs are monotonically increasing
 numbers local to an editor; every Worker response also includes articleId. Line numbers
 are one-based, with null on a side where the line does not exist. Exact text retains its
-original line ending; inline segments describe portions of that text. Presentation ranges
-use zero-based half-open `[start, end)` indices plus total row count.
+original line ending; inline segments describe portions of that text. The human-selected continuous diff has no paged presentation range.
 
 Readonly typing prevents direct mutation through the contract; it does not copy or freeze
 runtime values. Later tasks must copy captures, enforce same-article UUID ownership and
-content limits, validate range boundaries, and reject obsolete generations. These types
+content limits and reject obsolete generations. These types
 alone do not establish those runtime guarantees or full-limit feasibility.
 
 ## Persistence
@@ -39,7 +38,6 @@ Reuse Article, WriterArticle, VersionSummary, and VersionDetail from shared/type
 | Inline segment | kind and exact text for word/whitespace changes within replacement blocks; no HTML. |
 | Tag delta | added/removed/unchanged normalized memberships, ignoring order. |
 | Result | requestId, source identities/labels, title/body changes, tag delta, identical flag. |
-| Presentation range | current reachable output portion and total; complete result remains available. |
 
 Captures are not real-time views. Draft source is the editor's most recent successful fetched/saved response; show captured revision. Existing explicit reload loads remote changes without comparison replacing local input. Snapshot sources are freshly read per attempt; deletion after a successful GET need not be observed until the next attempt.
 
@@ -59,3 +57,9 @@ Version/version comparison permits unrelated unsaved/conflicted draft state. An 
 ## Validation and failure
 
 Each source supports title 200 and body 100,000 Unicode code points, 10 tags of 30 code points. UTF-16 length is not code-point length. Missing/wrong-owner/deleted source invalidates the whole attempted comparison; no substitution or stale prior output labeled as current. No stored state changes on reads, computation, failure, refresh, reversal, or close.
+
+## Presentation amendment — 2026-11-10
+
+The human replaced paged output with a single continuous article diff showing every line.
+The now-unused ComparisonPresentationRange type was removed. T004's earlier range evidence
+is historical; no pagination or collapsed unchanged context is required by the current model.

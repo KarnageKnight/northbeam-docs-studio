@@ -2,13 +2,13 @@
 
 **Branch**: `002-version-diff` | **Date**: 2026-11-09 | **Spec**: [spec.md](spec.md)
 
-**Status**: Phase 1 and T004 shared types complete on 2026-11-10, with passing tests/typecheck/build. See [tasks.md](tasks.md) and [evidence](quickstart.md). Concrete UI design/review, comparison engine, Worker, UI implementation, and full-limit verification remain pending.
+**Status**: Phase 1 and T004 shared types complete on 2026-11-10, with passing tests/typecheck/build. See [tasks.md](tasks.md) and [evidence](quickstart.md). Phase 2 now has a concrete UI preview and implemented exact engine/Worker (T006–T009). T010 optimized full-limit Worker computation passed all 9 fixtures; the human approved the revised visual design on 2026-11-10. Phase 2 is complete; later full-size DOM acceptance remains open. Editor integration is pending.
 
 ## Summary
 
 Add writer-only saved-draft/version and version/version comparisons to the existing editor. Require explicit successful Save before draft comparison when local edits exist. Show line differences and word-level highlighting in title/body, plus order-independent tag membership changes. Support both bodies at 100,000 Unicode code points without truncation.
 
-Selected option A: reuse existing writer GETs and captured saved editor state, compute differences in a browser-only Web Worker using jsdiff, and display an inline unified comparison panel with progressively accessible complete output. No new database schema or comparison endpoint.
+Selected option A: reuse existing writer GETs and captured saved editor state, compute differences in a browser-only Web Worker using jsdiff, and display an inline unified comparison panel with the complete article in one continuous scroll (human revision, 2026-11-10). No new database schema or comparison endpoint.
 
 ## Technical Context
 
@@ -18,7 +18,7 @@ Selected option A: reuse existing writer GETs and captured saved editor state, c
 **Testing**: Existing Vitest unit and real PostgreSQL/HTTP integration suites; pure engine/controller unit cases and actual-browser Worker/DOM/keyboard checks. No new browser testing dependency proposed.
 **Target Platform**: Existing Compose and host workflows. Worker starts in browser interaction only, never during SSR. Chrome is the existing acceptance baseline; other browsers require actual checks.
 **Project Type**: Extend existing Nuxt monolith.
-**Performance Goals**: The user selected observable responsiveness checks on 2026-11-09, with no fixed timing threshold. Record hardware/OS/browser/build/fixture and measured compute/render timings. Pass requires Cancel/Close and source selection to take effect while compute is pending, cancelled requests/Workers to stop without late output, and keyboard access to every result range after successful completion; follow the repeatable procedure in quickstart.md. Worker execution does not prove worst-case completion. Full-limit feasibility is a blocking implementation acceptance gate; timeout, truncation, or line-only fallback cannot count as success. Shared compute feasibility precedes UI integration; full-size rendered acceptance then gates each story completion (T016 for US1, T022 for US2), followed by final cross-mode regression/evidence review (T024).
+**Performance Goals**: The user selected observable responsiveness checks on 2026-11-09, with no fixed timing threshold. Record hardware/OS/browser/build/fixture and measured compute/render timings. Pass requires Cancel/Close and source selection to take effect while compute is pending, cancelled requests/Workers to stop without late output, and keyboard access to the entire continuous diff after successful completion; follow the repeatable procedure in quickstart.md. Worker execution does not prove worst-case completion. Full-limit feasibility is a blocking implementation acceptance gate; timeout, truncation, or line-only fallback cannot count as success. Shared compute feasibility precedes UI integration; full-size rendered acceptance then gates each story completion (T016 for US1, T022 for US2), followed by final cross-mode regression/evidence review (T024).
 **Constraints**: Preserve edits; no lifecycle mutations; escaped text; stale-response protection; cancellation; no comparison-specific size reduction. Architecture selection is recorded; tasks and the human spec-first git checkpoint still precede code.
 **Scale/Scope**: One active comparison/editor, two same-article sources. Per source: title 200, body 100,000 Unicode code points; 10 tags of 30 code points. No new system capacity claim.
 
@@ -37,7 +37,7 @@ Windows verification deferral for this feature; no lifecycle invariant exception
 | VI. Human architecture | SATISFIED for option A: user selected existing GETs, browser Worker/diff@9.0.0, inline panel/local state, and the documented verification approach on 2026-11-09. |
 | VII. Consistent patterns | Native fetching, local Vue state, existing GET/error patterns/styles/tests; Worker extension selected as option A. |
 
-**Pre-research result**: no research blocker. **Post-design result**: architecture selection gate satisfied by user selection of option A on 2026-11-09. Required-work disposition is recorded below. T002 analysis/checkpoint and T003 dependency/baseline checks passed on 2026-11-10; UI review and full-limit verification remain pending. No comparison implementation or benchmark success is claimed.
+**Pre-research result**: no research blocker. **Post-design result**: architecture selection gate satisfied by user selection of option A on 2026-11-09. Required-work disposition is recorded below. T002 analysis/checkpoint and T003 dependency/baseline checks passed on 2026-11-10; Revised UI review is approved and engine/Worker full-limit computation is verified on the recorded fixtures; final DOM/controller acceptance remains pending.
 
 ## Implementation prerequisite audit — 2026-11-09
 
@@ -71,7 +71,7 @@ and production build. See quickstart.md for the complete Phase 1 evidence. No co
 
 | Option | Approach | Tradeoff |
 |---|---|---|
-| A — selected 2026-11-09 | Existing GETs + browser Worker with diff@9.0.0; inline unified panel; local comparison composable; complete progressive rendering | No backend/DB changes; browser compute and worker bundling require boundary validation. |
+| A — selected 2026-11-09 | Existing GETs + browser Worker with diff@9.0.0; inline unified panel; local comparison composable; complete single-scroll rendering (revised 2026-11-10) | No backend/DB changes; browser compute and worker bundling require boundary validation. |
 | B | New server comparison endpoint and diff engine, same UI | Adds API/resource/cancellation complexity and server load; large DOM still needs bounding. |
 | C | Browser Worker with custom exact engine | Avoids dependency but adds substantial algorithm/tokenization maintenance and correctness work. |
 
@@ -89,6 +89,8 @@ specs/002-version-diff/
 ├── data-model.md
 ├── quickstart.md
 ├── tasks.md
+├── ui-design.md
+├── design-preview/index.html
 ├── contracts/comparison.md
 └── checklists/requirements.md
 ```
@@ -97,7 +99,7 @@ The generated [tasks.md](tasks.md) follows selected option A. Phase 1 analysis,
 checkpoint verification, prerequisite disposition, and dependency setup are complete.
 Phase 2 began with T004 under the user's "next step" request on 2026-11-10.
 
-### Source Code (T004 shared types implemented; remaining files planned)
+### Source Code (shared types, engine, Worker, and engine tests implemented; UI/controller planned)
 
 ```text
 app/components/ArticleComparison.vue
@@ -125,15 +127,50 @@ tests/integration/articles.test.ts               # only missing source-read evid
 [contracts/comparison.md](contracts/comparison.md) defines API reuse, Worker messages, rendering and cancellation.
 [quickstart.md](quickstart.md) defines future acceptance scenarios and verification.
 
-Phase 1 review/setup and T004 types are complete; next is T005 concrete UI design,
-followed by engine/Worker implementation and feasibility validation. T004's focused
-type assertions, 242-test suite, Nuxt typecheck, and production build passed; this does
-not verify runtime capture, computation, or browser behavior.
+Phase 2 is complete: the human approved T005's revised design on 2026-11-10;
+T006–T009 engine correctness and Worker protocol/production loading are verified. T010
+maximum-input shared engine/Worker feasibility passed after the approved exact optimization. No editor comparison controls or
+controller are integrated; later story-level browser/rendering checks remain required.
 Do not introduce feature 003 publish behavior or amend its baseline in this work.
 
 ## Complexity Tracking
 
 The sole approved constitution exception defers Windows T028 as a prerequisite to 002;
-it leaves platform verification pending. Worker and bounded rendering address full-limit
-word-diff computation and potentially large DOM output. No worker pool, comparison
+it leaves platform verification pending. Worker execution keeps computation off-thread. The human selected a continuous full-article
+diff on 2026-11-10; final large-DOM responsiveness still requires explicit verification. No worker pool, comparison
 persistence, global store, or new service.
+
+## Presentation revision — 2026-11-10
+
+The human requested a GitHub-style single diff and selected “Show every line in one
+scroll.” This supersedes paged/progressive output: title and Markdown body share one
+continuous diff surface, all unchanged context is visible, and tags remain a membership
+summary. No pagination or collapsed content. Worker/jsdiff, read-only semantics, exact
+word detail, and full source limits remain unchanged. The human approved the revised concrete preview on 2026-11-10. An unused presentation-range type was retired; this does not change
+the Worker protocol. Full-size single-scroll rendering remains a later acceptance gate.
+
+## Engine feasibility resolution — 2026-11-10
+
+After five dense maximum-size experiments did not complete within the observation window,
+the human selected exact optimizations within jsdiff. Research records exact token pruning,
+linear subsequence matching, and jsdiff diffArrays for remaining alignment, followed by
+projection to original source positions. The Worker boundary and package pin are unchanged.
+This selection authorizes the T010 optimization experiment; acceptance still requires
+exact reconstruction, complete word detail, passing regression checks, and actual Worker
+full-limit results. No smaller content limit or fixed latency target is adopted.
+
+## Foundation handoff — 2026-11-10
+
+T006–T010 implemented exact line/word/tag computation and the typed Worker. All 9
+maximum-body production Worker fixtures reconstruct completely after the human-selected
+optimization, with responsive native-keyboard probe cancellation/close/source switching.
+Observed completion ranged from 6.8ms to 14,042.4ms. Final 279-test suite, strict focused
+test-source compilation, Nuxt typecheck, and production build passed. The temporary
+probe was removed; no comparison panel/controller is integrated. T005's revised
+single-scroll visual review was approved on 2026-11-10, completing Phase 2.
+[Evidence](worker-feasibility.json) records source/fixture hashes and actual environment.
+Single-scroll full-size DOM acceptance remains required in T016/T022.
+
+Phase 2 closure records the human response “Approve revised design”. Next is T011 saved-draft
+capture/guard behavior in Phase 3; Phase 3 has not started. No runtime changes or new test
+results are implied by this documentation-only approval record.
