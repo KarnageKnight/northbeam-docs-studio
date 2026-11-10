@@ -1,0 +1,40 @@
+# Version Diff: Proposed Data Model
+
+**Date**: 2026-11-09 | **Status**: Design selected through option A on 2026-11-09; not implemented. See [plan](plan.md).
+
+## Persistence
+
+Reuse Article, WriterArticle, VersionSummary, and VersionDetail from shared/types/articles.ts. No schema, migration, revision, publication, or version-format change. Comparison results are transient and never become snapshots.
+
+## Transient entities
+
+| Entity | Fields / invariant |
+|---|---|
+| Source selection | articleId, kind (saved-draft/version), versionId where applicable; UUID is identity, versionNumber is display label. |
+| Captured draft | articleId, revision, copied saved title/body/tags, label Saved draft. Copy WriterArticle.draft, never editable draft or tagsText. |
+| Captured version | articleId plus fetched VersionDetail; existing endpoint enforces ownership. |
+| Comparison request | requestId, articleId, mode, baseline and target. Draft mode uses version baseline/draft target; version mode permits reversal. |
+| Text change | kind (unchanged/removed/added), exact text, applicable baseline/target line numbers. |
+| Inline segment | kind and exact text for word/whitespace changes within replacement blocks; no HTML. |
+| Tag delta | added/removed/unchanged normalized memberships, ignoring order. |
+| Result | requestId, source identities/labels, title/body changes, tag delta, identical flag. |
+| Presentation range | current reachable output portion and total; complete result remains available. |
+
+Captures are not real-time views. Draft source is the editor's most recent successful fetched/saved response; show captured revision. Existing explicit reload loads remote changes without comparison replacing local input. Snapshot sources are freshly read per attempt; deletion after a successful GET need not be observed until the next attempt.
+
+## Exactness
+
+Concatenating unchanged+removed text reconstructs baseline exactly; unchanged+added reconstructs target. Preserve spaces, CR/LF, blank lines, final newline, Unicode, and Markdown syntax. Replacement blocks preserve original newline boundaries even with unequal line counts. No normalization or rendered-Markdown equivalence.
+
+## State transitions
+
+closed → selecting → fetching → computing → ready; failures → error; retry → fresh fetching.
+Close/cancel/unmount abort pending GETs, terminate worker, invalidate generation, and release captured output. Selection/mode changes invalidate output before a new attempt.
+
+Draft comparison checks dirty=false, pending=false, conflict=false before and after fetching. Typing during reads invalidates pending draft capture without discarding text. A successful save is not sufficient if newer edits remain dirty. Displayed comparisons remain labeled captures when editing resumes.
+
+Version/version comparison permits unrelated unsaved/conflicted draft state. An in-progress lifecycle mutation may temporarily disable new capture; comparison itself never changes lifecycle pending/conflict flags. Reject late results unless generation, article, and selected sources match.
+
+## Validation and failure
+
+Each source supports title 200 and body 100,000 Unicode code points, 10 tags of 30 code points. UTF-16 length is not code-point length. Missing/wrong-owner/deleted source invalidates the whole attempted comparison; no substitution or stale prior output labeled as current. No stored state changes on reads, computation, failure, refresh, reversal, or close.
