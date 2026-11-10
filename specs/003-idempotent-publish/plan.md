@@ -2,7 +2,7 @@
 
 **Feature context**: `003-idempotent-publish` | **Date**: 2026-11-09 | **Spec**: [spec.md](spec.md)
 
-**Status**: Option B selected by the user on 2026-11-09. Architecture approved for task planning; constitution/baseline alignment remains pending. No branch checkout, implementation, dependency installation, or runtime verification performed.
+**Status**: Option B selected by the user on 2026-11-09. Architecture approved for task planning; constitution 3.0.0 and the 003 Windows deferral approved and applied on 2026-11-10; baseline reconciliation and human git checkpoint remain pending. No branch checkout, implementation, dependency installation, or runtime verification performed.
 
 ## Summary
 
@@ -28,13 +28,13 @@ Selected option B: branch inside the existing article-locked publication transac
 |---|---|
 | I. Specification first | Spec/plan/tasks and human checkpoint precede implementation. New behavior is explicitly future, not retroactive evidence. |
 | II. Draft/history isolation | Existing isolation, immutability, reference protection, and first date retained; no data migration. |
-| III. Atomic lifecycle | OPEN alignment gate: current unconditional snapshot requirement conflicts with confirmed product behavior. Exact proposed replacement is in constitution-alignment.md. |
+| III. Atomic lifecycle | SATISFIED at governance level: human-approved constitution 3.0.0 permits the three outcomes. Baseline reconciliation remains T004. |
 | IV. Database evidence | Real-DB exact no-op state, reactivation, changed publish, rollback, and independent-connection races planned. Existing full-suite/build/typecheck gates remain. |
-| V. Scope/review | Documentation only. Required Windows acceptance remains open; resolve prerequisite or record an explicit governance-compatible disposition before stretch implementation. |
+| V. Scope/review | Documentation only. Windows T028 remains open and unverified; the human approved extending its deferral to 003 on 2026-11-10. |
 | VI. Human architecture | SATISFIED: user selected option B on 2026-11-09: existing locked transaction, unchanged response, inferred feedback, and the documented integration/testing approach. |
 | VII. Consistent patterns | Reuse withArticleTransaction, direct response, errors, acceptSaved, and existing test helpers; no publish-only response field or new response type is introduced. |
 
-**Research gate**: read-only investigation allowed. **Post-design gate**: architecture selection satisfied by option B; constitution/baseline alignment remains open. Implementation is not approved. No exception to atomicity, stale checks, or snapshot protection is requested.
+**Research gate**: read-only investigation allowed. **Post-design gate**: architecture selection satisfied by option B; constitution amendment and Windows disposition are approved; baseline reconciliation and the human spec-first git checkpoint remain open. Application implementation has not started. No exception to atomicity, stale checks, or snapshot protection is requested.
 
 ## Architecture selection
 
@@ -84,7 +84,7 @@ specs/003-idempotent-publish/
 └── checklists/requirements.md
 ```
 
-tasks.md follows later through speckit-tasks using selected option B; task generation must include prerequisite alignment before code.
+[tasks.md](tasks.md) contains 24 generated tasks for selected option B. Governance decisions are approved; baseline alignment and the human git checkpoint still precede code.
 
 ### Source integration (selected design; not implemented)
 
@@ -109,7 +109,7 @@ The existing publish handler can continue forwarding the service result. Keep to
 [constitution-alignment.md](constitution-alignment.md) provides the concrete governance/baseline change for review.
 [quickstart.md](quickstart.md) maps all requirements to future evidence.
 
-Next: speckit-tasks with constitution/baseline alignment as a prerequisite to code. Do not treat option selection as installation, implementation, or verification evidence.
+Next: reconcile baseline artifacts (T004), validate task completion gates, and record the human spec-first git checkpoint (T005) before code. Governance approval and task generation are not implementation or runtime verification evidence.
 
 ## Complexity Tracking
 

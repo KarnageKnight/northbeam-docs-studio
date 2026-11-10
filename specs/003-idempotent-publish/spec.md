@@ -147,11 +147,10 @@ does not close that acceptance item.
 
 **Required alignment before implementation**: The original User Story 3, FR-003, data model,
 publish contracts, decision records, and tests describe a new snapshot on every publish.
-Constitution Principle III also says Publish MUST create a snapshot. This feature proposes
-a conditional exception for unchanged content and reuse after Unpublish. Planning must
-identify and reconcile affected artifacts, including a human-reviewed constitution
-amendment, before dependent implementation. The existing records remain the baseline;
-this draft does not silently amend them or claim architecture approval.
+Constitution 3.0.0 now permits the three outcomes following human approval on 2026-11-10.
+The human also extended the Windows T028 deferral to 003; the check remains unverified.
+Reconcile the original baseline artifacts before dependent implementation and preserve the
+human spec-first git checkpoint. These approvals do not claim implementation or verification.
 
 In scope: content-based duplicate prevention against the same article's referenced
 live/last-published snapshot, writer feedback, and preserved lifecycle guarantees.
