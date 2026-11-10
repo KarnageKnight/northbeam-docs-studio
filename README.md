@@ -7,7 +7,18 @@ Public readers see only explicitly published content.
 Integrated acceptance, Linux-client Docker startup/persistence, macOS host development,
 and the final verification audit are recorded in the [verification guide](specs/001-docs-studio/quickstart.md).
 **Windows acceptance remains unverified (T028).** Final delivery review is prepared;
-see the [handoff notes](specs/001-docs-studio/handoff.md). Final review was approved on November 8, 2026; commits and submission remain human-owned.
+see the [delivery review](specs/001-docs-studio/quickstart.md#phase-18-delivery-rehearsal-and-history-review--november-8-2026). Final review was approved on November 8, 2026; commits and submission remain human-owned.
+
+## Planned idempotent publishing (003)
+
+The approved [003 plan](specs/003-idempotent-publish/plan.md) is not implemented or verified.
+Current Publish still creates a snapshot every time. The planned reviewer demo will publish
+once, repeat unchanged Publish with no new version or persisted changes, save changed content
+and publish one new version, then unpublish/republish unchanged content using the retained
+version. Exact title/body and normalized tag membership define equality; tag order is ignored.
+The existing WriterArticle response stays unchanged; the editor will distinguish all three
+outcomes. See [planned validation](specs/003-idempotent-publish/quickstart.md). Windows T028
+remains unverified; the human-approved deferral now includes 003.
 
 ## Run with Docker
 
@@ -245,9 +256,7 @@ For the approved sample-only visual preview, open
 
 ## Delivery review
 
-A clean-copy build and complete demo rehearsal passed on November 8, 2026. The existing
-repository history confirms that Spec Kit artifacts preceded application code. A local
-review ZIP preserves that history and includes a file manifest/checksum; local configuration,
-hooks, secrets, dependencies, and generated output are excluded. Delivery-review documentation
-remains uncommitted. See the [handoff notes](specs/001-docs-studio/handoff.md) for the history
-checkpoints, archive scope, Windows gap, and human-owned review/commit/submission boundary.
+The [delivery review record](specs/001-docs-studio/quickstart.md#phase-18-delivery-rehearsal-and-history-review--november-8-2026)
+is the authoritative record of the November 8 approval, history checkpoints, archive scope,
+and platform limitations. Windows acceptance remains unverified; commits, merges, and
+submission are human-owned. The historical review ZIP must be regenerated after changes.

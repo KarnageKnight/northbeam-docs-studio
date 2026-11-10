@@ -2,7 +2,7 @@
 
 **Feature context**: `003-idempotent-publish` | **Date**: 2026-11-09 | **Spec**: [spec.md](spec.md)
 
-**Status**: Option B selected by the user on 2026-11-09. Architecture approved for task planning; constitution 3.0.0 and the 003 Windows deferral approved and applied on 2026-11-10; baseline reconciliation and human git checkpoint remain pending. No branch checkout, implementation, dependency installation, or runtime verification performed.
+**Status**: Option B selected by the user on 2026-11-09. Architecture approved for task planning; constitution 3.0.0 and the 003 Windows deferral approved and applied on 2026-11-10; baseline reconciliation completed on 2026-11-10; the human git checkpoint remains pending. No branch checkout, implementation, dependency installation, or runtime verification performed.
 
 ## Summary
 
@@ -28,13 +28,13 @@ Selected option B: branch inside the existing article-locked publication transac
 |---|---|
 | I. Specification first | Spec/plan/tasks and human checkpoint precede implementation. New behavior is explicitly future, not retroactive evidence. |
 | II. Draft/history isolation | Existing isolation, immutability, reference protection, and first date retained; no data migration. |
-| III. Atomic lifecycle | SATISFIED at governance level: human-approved constitution 3.0.0 permits the three outcomes. Baseline reconciliation remains T004. |
+| III. Atomic lifecycle | SATISFIED at governance level: human-approved constitution 3.0.0 permits the three outcomes. Baseline reconciliation completed in T004; implementation remains pending. |
 | IV. Database evidence | Real-DB exact no-op state, reactivation, changed publish, rollback, and independent-connection races planned. Existing full-suite/build/typecheck gates remain. |
 | V. Scope/review | Documentation only. Windows T028 remains open and unverified; the human approved extending its deferral to 003 on 2026-11-10. |
 | VI. Human architecture | SATISFIED: user selected option B on 2026-11-09: existing locked transaction, unchanged response, inferred feedback, and the documented integration/testing approach. |
 | VII. Consistent patterns | Reuse withArticleTransaction, direct response, errors, acceptSaved, and existing test helpers; no publish-only response field or new response type is introduced. |
 
-**Research gate**: read-only investigation allowed. **Post-design gate**: architecture selection satisfied by option B; constitution amendment and Windows disposition are approved; baseline reconciliation and the human spec-first git checkpoint remain open. Application implementation has not started. No exception to atomicity, stale checks, or snapshot protection is requested.
+**Research gate**: read-only investigation allowed. **Post-design gate**: architecture selection satisfied by option B; constitution amendment and Windows disposition are approved; baseline reconciliation is complete; the human spec-first git checkpoint remains open. Application implementation has not started. No exception to atomicity, stale checks, or snapshot protection is requested.
 
 ## Architecture selection
 
@@ -78,13 +78,12 @@ specs/003-idempotent-publish/
 ├── plan.md
 ├── research.md
 ├── data-model.md
-├── constitution-alignment.md
 ├── contracts/publish.md
 ├── quickstart.md
 └── checklists/requirements.md
 ```
 
-[tasks.md](tasks.md) contains 24 generated tasks for selected option B. Governance decisions are approved; baseline alignment and the human git checkpoint still precede code.
+[tasks.md](tasks.md) contains 24 generated tasks for selected option B. Governance decisions are approved; T001–T004 are complete; the human git checkpoint still precedes code.
 
 ### Source integration (selected design; not implemented)
 
@@ -106,11 +105,38 @@ The existing publish handler can continue forwarding the service result. Keep to
 
 [data-model.md](data-model.md) gives the state/field-change matrix.
 [contracts/publish.md](contracts/publish.md) specifies the unchanged response and selected feedback inference.
-[constitution-alignment.md](constitution-alignment.md) provides the concrete governance/baseline change for review.
+The [governance alignment record](#governance-alignment) below records approval and baseline reconciliation.
 [quickstart.md](quickstart.md) maps all requirements to future evidence.
 
-Next: reconcile baseline artifacts (T004), validate task completion gates, and record the human spec-first git checkpoint (T005) before code. Governance approval and task generation are not implementation or runtime verification evidence.
+Next: record the human spec-first git checkpoint (T005), including the completed T004 baseline reconciliation, before code. Governance approval and task generation are not implementation or runtime verification evidence.
 
 ## Complexity Tracking
 
 No additional service/table/cache/framework. Governance change is a required explicit redefinition of unconditional snapshot creation, not a hidden exception. Exact reference comparison keeps the implementation bounded to one article.
+
+## Governance alignment
+
+**Approved 2026-11-10; baseline reconciliation completed in T004.** The human approved
+constitution 3.0.0 (from 2.2.0), conditional publication, and extension of the Windows
+T028 deferral to 003. The major increment reflects replacement of unconditional snapshot
+creation. The ratification date is preserved. Windows T028 remains unchecked/unverified.
+The [constitution](../../.specify/memory/constitution.md#iii-atomic-lifecycle-changes-and-explicit-concurrency)
+is the sole authority for the amended governance text; this section records its application
+to 003 without copying that text. The human spec-first git checkpoint still precedes code.
+
+T004 reconciled these baseline documents, preserving their dated approvals and evidence:
+
+- `specs/001-docs-studio/spec.md`: US3/FR-003 and conditional concurrency outcomes.
+- `assumptions.md` and `decision-inventory.md` in that directory: superseded A006 and
+  qualified P008/P029/P075 revision/audit rules.
+- `plan.md`, `research.md`, and `data-model.md`: selected transaction approach, unchanged
+  response, and the create/no-op/reactivation field matrix.
+- `contracts/http-api.md` and `contracts/ui-and-services.md`: publication semantics and
+  outcome feedback with the existing WriterArticle shape.
+- `quickstart.md`, `tasks.md`, and root `README.md`: implementation/verification boundaries,
+  delivery evidence, and the Windows limitation.
+
+Existing history-generating tests still need T006 fixture changes before the new behavior:
+Save actual content changes when a new version is intended and retain rollback/protection
+assertions. 002 requires no schema/API change; its source-read fixtures must retain coverage.
+Application implementation and new-behavior verification remain pending.

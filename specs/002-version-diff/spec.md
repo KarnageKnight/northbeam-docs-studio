@@ -111,7 +111,7 @@ version diffs. The user authorizes specification of this stretch goal. Existing 
 snapshot and draft/public isolation guarantees and the
 [constitution](../../.specify/memory/constitution.md) apply.
 
-The original [handoff](../001-docs-studio/handoff.md) records Windows acceptance T028 as
+The original [verification guide](../001-docs-studio/quickstart.md) records Windows acceptance T028 as
 unverified. This specification does not close that work or claim required delivery is fully
 verified. Assess required-work prerequisites before stretch implementation.
 

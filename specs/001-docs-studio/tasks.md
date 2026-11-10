@@ -1,5 +1,12 @@
 # Tasks: Northbeam Docs Studio
 
+> **003 amendment — 2026-11-10 (approved, not implemented):**
+> The [003 spec](../003-idempotent-publish/spec.md) and constitution 3.0.0 supersede unconditional
+> snapshot creation/revision advancement with create, no-op, and reactivation outcomes.
+> Original implementation descriptions and dated evidence below remain historical, not 003
+> verification. [003 tasks](../003-idempotent-publish/tasks.md) track the new work. Windows T028 remains
+> unchecked and unverified; its approved deferral now includes 003.
+
 **Feature**: `001-docs-studio` · **Created**: 2026-11-07
 **Status**: Phases 1–14 approved. The user authorized one-shot execution through Phase 17
 on 2026-11-08, including intermediate phase gates. Phase 15 and Phase 17 work is verified;
@@ -717,7 +724,7 @@ README, routes, migrations, coverage/platform map, and documented tradeoffs/assu
 Raw repository-object audit at HEAD `32ba2436d67c192ddfc4c8d5bbdca909b712c586` found 44
 reachable commits and confirmed spec/plan/tasks/constitution checkpoint `c1249f9` before
 first application commit `c9edadd`. No git commands/history changes/commits were used.
-[handoff.md](handoff.md) records evidence, limits, and the human-owned submission boundary.
+[delivery review](quickstart.md#phase-18-delivery-rehearsal-and-history-review--november-8-2026) records evidence, limits, and the human-owned submission boundary.
 The review ZIP preserves reachable repository history and includes a file manifest/checksum,
 while excluding local config/hooks/secrets/generated data. No application, architecture,
 requirement, dependency, or stretch change was introduced. Full cross-platform signoff

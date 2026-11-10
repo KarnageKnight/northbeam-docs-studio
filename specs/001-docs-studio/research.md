@@ -1,5 +1,12 @@
 # Research: Northbeam Docs Studio
 
+> **003 amendment — 2026-11-10 (approved, not implemented):**
+> The [003 spec](../003-idempotent-publish/spec.md) and constitution 3.0.0 supersede unconditional
+> snapshot creation/revision advancement with create, no-op, and reactivation outcomes.
+> Original implementation descriptions and dated evidence below remain historical, not 003
+> verification. [003 tasks](../003-idempotent-publish/tasks.md) track the new work. Windows T028 remains
+> unchecked and unverified; its approved deferral now includes 003.
+
 **Date**: 2026-11-07
 **Status**: Research consolidated; final verification on 2026-11-08 passes Nuxt/strict test
 typechecks, production build, 99 unit and 143 PostgreSQL/HTTP cases. Phases 1–14 are approved;
@@ -48,8 +55,10 @@ integer revisions/version counters, and database timestamps. The [data model](da
 specifies all columns, constraints, audit updates, and state transitions.
 
 Article writes use Read Committed transactions: lock the article, check its revision,
-then check operation eligibility and mutate. Publish allocates its number from the locked
-article counter; rollback undoes the allocation. Foreign keys enforce snapshot ownership
+then check operation eligibility and mutate. Under approved 003 semantics (not implemented),
+Publish reads only the owned reference within that lock and compares exact strings/tag sets.
+Only first/different content allocates from the article counter; rollback undoes allocation.
+No schema, hash, dependency, full-history lookup, or response-shape change is required. Foreign keys enforce snapshot ownership
 and reference protection; a trigger rejects snapshot updates. Application checks enforce
 publication-state consistency, counter ranges, and content rules.
 
@@ -374,5 +383,5 @@ On November 8, 2026 a fresh source copy passed production startup/build and the 
 plus two-tab recovery, with matching runtime/config/test source and no application changes.
 Repository-object audit confirms a complete spec/plan/tasks/constitution checkpoint before
 first application code. A review ZIP preserves reachable history without local config/hooks
-or secrets; its manifest/checksum and [handoff notes](handoff.md) support human review.
+or secrets; its manifest/checksum and [delivery review](quickstart.md#phase-18-delivery-rehearsal-and-history-review--november-8-2026) support human review.
 Windows T028 remains open; final review approval was recorded on 2026-11-08; no submission or commit occurred.

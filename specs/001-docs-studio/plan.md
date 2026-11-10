@@ -1,5 +1,12 @@
 # Implementation Plan: Northbeam Docs Studio
 
+> **003 amendment — 2026-11-10 (approved, not implemented):**
+> The [003 spec](../003-idempotent-publish/spec.md) and constitution 3.0.0 supersede unconditional
+> snapshot creation/revision advancement with create, no-op, and reactivation outcomes.
+> Original implementation descriptions and dated evidence below remain historical, not 003
+> verification. [003 tasks](../003-idempotent-publish/tasks.md) track the new work. Windows T028 remains
+> unchecked and unverified; its approved deferral now includes 003.
+
 **Feature**: `001-docs-studio` | **Date**: 2026-11-07 | **Spec**: [spec.md](spec.md)
 
 **Status**: Phases 1–14 approved. The user authorized one-shot execution through Phase 17
@@ -407,6 +414,12 @@ FR-008's stale-request rule applies to save, restore, publish, and unpublish.
 and [concurrent update behavior](https://www.postgresql.org/docs/current/transaction-iso.html#XACT-READ-COMMITTED).
 
 ### Revision API Protocol (P008)
+
+**003 supersession (approved, not implemented):** Published equality preserves revision and
+updatedAt; unpublished equality advances both once but preserves the retained reference,
+counter, and first date. First/different content creates a snapshot. The original decision
+record below remains historical; the [003 model](../003-idempotent-publish/data-model.md)
+and [contract](../003-idempotent-publish/contracts/publish.md) govern dependent implementation.
 
 **Decision**: Return `revision` in writer article JSON and require `expectedRevision` in
 the JSON body of save, restore, publish, and unpublish requests. Return `409 Conflict` for
@@ -928,6 +941,12 @@ Native error data and validation are approved in P031/P033. This decision define
 fields/defaults and does not create handlers or Zod schemas yet.
 
 ### Writer Article Responses and Revisions (P029)
+
+**003 supersession (approved, not implemented):** Published equality preserves revision and
+updatedAt; unpublished equality advances both once but preserves the retained reference,
+counter, and first date. First/different content creates a snapshot. The original decision
+record below remains historical; the [003 model](../003-idempotent-publish/data-model.md)
+and [contract](../003-idempotent-publish/contracts/publish.md) govern dependent implementation.
 
 **Decision**: Return the following article shape directly, without a `data` wrapper, after
 creation, loading an article, saving, publishing, unpublishing, or restoring. The user
@@ -1983,6 +2002,12 @@ The original map was planning-only; writer slug routing is implemented during Ph
 Not selected.
 
 ### Consolidated Database Schema with Audit Timestamps (P075)
+
+**003 supersession (approved, not implemented):** Published equality preserves revision and
+updatedAt; unpublished equality advances both once but preserves the retained reference,
+counter, and first date. First/different content creates a snapshot. The original decision
+record below remains historical; the [003 model](../003-idempotent-publish/data-model.md)
+and [contract](../003-idempotent-publish/contracts/publish.md) govern dependent implementation.
 
 **Decision**: Adopt the consolidated two-table schema below with audit timestamps.
 The user selected option B, adding article `created_at`/`updated_at` and snapshot

@@ -141,7 +141,7 @@ deferred idempotent publishing. It is independent of [002-version-diff](../002-v
 The request authorizes specification of this stretch feature, with behavioral defaults
 documented below for review.
 
-The original [handoff](../001-docs-studio/handoff.md) records Windows acceptance T028 as
+The original [verification guide](../001-docs-studio/quickstart.md) records Windows acceptance T028 as
 unverified. Assess required-work prerequisites before stretch implementation; this spec
 does not close that acceptance item.
 

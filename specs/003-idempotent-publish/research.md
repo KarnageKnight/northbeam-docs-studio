@@ -1,6 +1,6 @@
 # Idempotent Publish: Research
 
-**Date**: 2026-11-09 | **Status**: Option B selected by the user on 2026-11-09. No code/test changes; governance amendment approved and applied as 3.0.0 on 2026-11-10; baseline reconciliation remains pending.
+**Date**: 2026-11-09 | **Status**: Option B selected by the user on 2026-11-09. No code/test changes; governance amendment approved and applied as 3.0.0 on 2026-11-10; baseline reconciliation completed on 2026-11-10.
 
 ## R1 — Keep the current transaction boundary
 
@@ -50,7 +50,7 @@
 
 ## R6 — Baseline and governance
 
-**Approved decision (2026-11-10)**: The human approved the replacement text in constitution-alignment.md and constitution 3.0.0, a major increment from 2.2.0 because unconditional Publish snapshot creation is redefined. Baseline reconciliation remains required before code.
+**Approved decision (2026-11-10)**: The human approved the replacement text in plan.md#governance-alignment and constitution 3.0.0, a major increment from 2.2.0 because unconditional Publish snapshot creation is redefined. Baseline reconciliation completed in T004; the human git checkpoint remains required before code.
 
 **Rationale**: Confirmed product decisions do not justify falsely reporting that the existing constitution already permits them. Preserve baseline approval/evidence history, explicitly mark superseded active rules, and update current contracts/test fixtures.
 

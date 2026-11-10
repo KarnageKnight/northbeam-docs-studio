@@ -1,7 +1,7 @@
 # Tasks: Idempotent Publish
 
-**Input**: `specs/003-idempotent-publish/{spec.md,plan.md,research.md,data-model.md,contracts/publish.md,quickstart.md,constitution-alignment.md}`.
-**Status**: Generated 2026-11-10. All work below is pending; task generation does not approve governance changes or verify implementation.
+**Input**: `specs/003-idempotent-publish/{spec.md,plan.md,research.md,data-model.md,contracts/publish.md,quickstart.md}`.
+**Status**: Generated 2026-11-10. T001–T004 completed after explicit human governance decisions and baseline alignment; T005 onward remain pending. No 003 application behavior is implemented or verified.
 **Design**: Human-selected option B: existing locked transaction, exact saved-content equality, unchanged WriterArticle response, client-inferred feedback. No schema, endpoint, dependency, hash, or whole-history deduplication changes.
 **Tests**: Required by the feature acceptance scenarios and Constitution IV. Extend existing real-PostgreSQL/HTTP coverage; inspect existing tests before adding cases.
 
@@ -16,12 +16,24 @@
 
 **Goal**: Resolve the existing governance conflicts without treating architecture selection as amendment approval.
 
-- [ ] T001 Refresh the amendment proposal in `specs/003-idempotent-publish/constitution-alignment.md` and the matching R6 note in `specs/003-idempotent-publish/research.md`: the current constitution is 2.2.0, so its proposed incompatible change must advance to 3.0.0 (or the next major of the actual current version), not regress to 2.0.0; retain proposal status and the approved option B design.
-- [ ] T002 Resolve the required-work prerequisite in `.specify/memory/constitution.md`, `specs/001-docs-studio/tasks.md`, and `specs/001-docs-studio/handoff.md`: execute Windows T028 with actual evidence, or obtain and record an explicit human-approved disposition applicable to 003; the existing 002-only deferral does not authorize 003. Keep Windows acceptance unchecked if unexecuted.
-- [ ] T003 Obtain human review of the concrete conditional-Publish amendment in `specs/003-idempotent-publish/constitution-alignment.md`, then apply the approved text/version/date/sync report to `.specify/memory/constitution.md`; preserve revision-before-equality, rollback, snapshot ownership, and all other principles. Record the decision in `specs/003-idempotent-publish/plan.md`; do not infer approval from task generation.
-- [ ] T004 Reconcile active baseline rules using the artifact map in `specs/003-idempotent-publish/constitution-alignment.md`: update `specs/001-docs-studio/spec.md`, `assumptions.md`, `plan.md`, `research.md`, `data-model.md`, `contracts/http-api.md`, `contracts/ui-and-services.md`, and `decision-inventory.md`; add dated extension references to its `quickstart.md`, `handoff.md`, and `tasks.md` and to `README.md`. Mark changed behavior as planned until implemented, preserve old evidence, and reconcile 003 spec/plan gate status.
+- [x] T001 Refresh the amendment proposal in `specs/003-idempotent-publish/plan.md` and the matching R6 note in `specs/003-idempotent-publish/research.md`: the current constitution is 2.2.0, so its proposed incompatible change must advance to 3.0.0 (or the next major of the actual current version), not regress to 2.0.0; retain proposal status and the approved option B design.
+- [x] T002 Resolve the required-work prerequisite in `.specify/memory/constitution.md`, `specs/001-docs-studio/tasks.md`, and `specs/001-docs-studio/quickstart.md`: execute Windows T028 with actual evidence, or obtain and record an explicit human-approved disposition applicable to 003; the existing 002-only deferral does not authorize 003. Keep Windows acceptance unchecked if unexecuted.
+- [x] T003 Obtain human review of the concrete conditional-Publish amendment in `specs/003-idempotent-publish/plan.md`, then apply the approved text/version/date/sync report to `.specify/memory/constitution.md`; preserve revision-before-equality, rollback, snapshot ownership, and all other principles. Record the decision in `specs/003-idempotent-publish/plan.md`; do not infer approval from task generation.
+- [x] T004 Reconcile active baseline rules using the artifact map in `specs/003-idempotent-publish/plan.md`: update `specs/001-docs-studio/spec.md`, `assumptions.md`, `plan.md`, `research.md`, `data-model.md`, `contracts/http-api.md`, `contracts/ui-and-services.md`, and `decision-inventory.md`; add dated extension references to its `quickstart.md` and `tasks.md` and to `README.md`. Mark changed behavior as planned until implemented, preserve old evidence, and reconcile 003 spec/plan gate status.
 
 **Checkpoint**: Governance and required-work disposition are recorded; no application changes yet.
+
+**Verification (2026-11-10):** Constitution 3.0.0 and the 003 Windows deferral were
+explicitly approved; T004 reconciles the baseline specification, decision records, model,
+contracts, and delivery references while retaining historical evidence. All changed
+relative documentation links resolve; Windows T028 remains unchecked. Unit tests: 171
+passed; isolated Docker/PostgreSQL integration tests: 144 passed; Nuxt typecheck and
+production build passed. The initial sandboxed integration attempt could not access Docker;
+the authorized Docker run passed and removed its disposable container, volume, and network.
+These checks verify the unchanged application baseline, not the future 003 behavior.
+No new files or obsolete application code were introduced. T005 still requires the human
+git checkpoint including this reconciliation before application code.
+
 
 ## Phase 2: Foundational prerequisites
 
