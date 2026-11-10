@@ -121,3 +121,22 @@ mobile/desktop checks and the full-size DOM matrix are recorded in quickstart.md
 draft-comparison-evidence.json. Historical source selection/reversal remains Phase 4.
 The original preview stays sample-only and is not the running application. Native
 collapsed-picker keyboard coverage remains a T025/manual gap, explicitly documented.
+
+
+## Phase 4 implementation evidence — 2026-11-10
+
+T018–T023 implement arbitrary retained-version pairs, same-source identity, fresh reads,
+and role reversal. Historical capture permits unrelated dirty/conflicted draft fields;
+active lifecycle writes block attempts. Selection/mode/reversal invalidate obsolete reads,
+Workers, and output. Saved-draft guards remain strict. No comparison writes or backend
+changes were introduced. The inline, complete single-scroll design remains in place.
+
+[Historical evidence](historical-comparison-evidence.json) records nine maximum-size
+fixtures in both directions (18 completed comparisons), exact DOM/source and word-detail
+checks, preserved fields, SQL/public immutability, pending-work cancellation, and keyboard
+final-row access. Five additional controls interrupted real 100,000-row rendering without
+late rows. The largest output took about 49–50s to append in this run; timings are observations,
+not guarantees. Current-source saved-draft regression also reconstructed all 100,000 rows.
+315 tests (171 unit + 144 PostgreSQL/HTTP), Nuxt typecheck, and production build passed.
+Normal native popup-picker keyboard coverage, final T024–T027, and Windows T028 remain
+pending. Earlier sections and US1 evidence retain their original checkpoint provenance.

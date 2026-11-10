@@ -122,15 +122,19 @@ Unsaved edits, pending writes, or conflicts block a new draft comparison. Compar
 saves or reloads automatically. Later typing preserves the displayed saved-revision capture;
 Save and **Refresh comparison** to include it. Cancel, Close, and source changes preserve
 editor input. Version sources are fetched afresh, so a deleted source fails without substitution.
-Comparing two retained versions and reversal remain pending in feature 002's next phase.
+To compare history without saving unrelated edits, choose **Two versions**, select the
+baseline and target, then **Compare**. Any retained pair is allowed, including the same
+version. **Reverse** swaps roles and starts a fresh comparison. Historical comparison
+preserves unsaved or conflicted draft fields; an active lifecycle write must finish first.
+Deleting a selected snapshot in another tab is recognized on the next comparison attempt.
 
 The engine runs in a cancellable browser Worker. The complete article appends automatically
 in rendering batches, with no pagination, collapsed context, or truncation. A real tradeoff:
-the tested 100,000-row output took about 40 seconds to finish rendering on the recorded
+the tested 100,000-row output took about 40–50 seconds to finish rendering on the recorded
 M2 Pro/Chrome environment; Cancel and Close remained usable during rendering. These are
 observations, not latency guarantees. Further DOM optimization could reduce this cost while
 preserving the full single-scroll design. The [validation guide](specs/002-version-diff/quickstart.md)
-records all nine maximum-size browser fixtures, source identities, actual timings, and
+records all nine maximum-size browser fixtures in both historical directions, source identities, actual timings, and
 coverage limits, including the remaining native popup-picker keyboard check.
 
 ## Verify during development

@@ -1,6 +1,6 @@
 # Version Diff: Research
 
-**Date**: 2026-11-09 | **Status**: Research completed; option A selected by the user on 2026-11-09. Selected dependency installed on 2026-11-10; engine/Worker implemented and all 9 full-limit production computation fixtures verified after the human-selected optimization. Revised UI visual review approved on 2026-11-10; story-level DOM/controller acceptance remains pending.
+**Date**: 2026-11-09 | **Status**: Research completed; option A selected by the user on 2026-11-09. Selected dependency installed on 2026-11-10; engine/Worker implemented and all 9 full-limit production computation fixtures verified after the human-selected optimization. Revised UI visual review approved on 2026-11-10; both stories passed recorded DOM/controller acceptance in Phases 3–4. Final T024–T027 remain pending.
 
 ## R1 — Computation boundary and engine
 
@@ -129,3 +129,22 @@ presentation. Normal popup driving remains explicitly unverified for T025/manual
 Other keyboard entry/action/final-output checks passed. No new browser framework or
 production probe was added. Persistent results and source/image identity are recorded in
 draft-comparison-evidence.json. US2 and final cross-mode/accessibility acceptance remain pending.
+
+
+## Phase 4 implementation evidence — 2026-11-10
+
+T018–T023 implement arbitrary retained-version pairs, same-source identity, fresh reads,
+and role reversal. Historical capture permits unrelated dirty/conflicted draft fields;
+active lifecycle writes block attempts. Selection/mode/reversal invalidate obsolete reads,
+Workers, and output. Saved-draft guards remain strict. No comparison writes or backend
+changes were introduced. The inline, complete single-scroll design remains in place.
+
+[Historical evidence](historical-comparison-evidence.json) records nine maximum-size
+fixtures in both directions (18 completed comparisons), exact DOM/source and word-detail
+checks, preserved fields, SQL/public immutability, pending-work cancellation, and keyboard
+final-row access. Five additional controls interrupted real 100,000-row rendering without
+late rows. The largest output took about 49–50s to append in this run; timings are observations,
+not guarantees. Current-source saved-draft regression also reconstructed all 100,000 rows.
+315 tests (171 unit + 144 PostgreSQL/HTTP), Nuxt typecheck, and production build passed.
+Normal native popup-picker keyboard coverage, final T024–T027, and Windows T028 remain
+pending. Earlier sections and US1 evidence retain their original checkpoint provenance.

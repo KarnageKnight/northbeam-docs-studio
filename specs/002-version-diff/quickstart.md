@@ -432,3 +432,104 @@ Phase 3 (T011–T017) is complete and presented for MVP review. Phase 4 (US2 two
 reversal, T018–T023) and final T024–T027 checks remain pending. Native collapsed-picker
 keyboard coverage and Windows T028 remain explicitly unverified; neither was silently
 marked passed. No commits, merge, submission, or external application write was performed.
+
+## Phase 4 execution — 2026-11-10
+
+T018: added mode-aware historical capture and Worker result validation. Six new capture
+cases failed before implementation; all 27 controller cases then passed. Arbitrary pairs
+use fresh owned GETs with retry:0/one abort signal; a same-UUID pair uses one read. Copied
+version tags and source numbers/UUIDs are retained. Historical mode permits unrelated
+revision/dirty/conflict state and unpublished sources while blocking active lifecycle writes.
+The original saved-draft guards remain intact. Full suite: 163 unit + 143 PostgreSQL/HTTP
+(306 total), Nuxt typecheck/build passed. Logs: `/private/tmp/northbeam-002-t018-{red,typecheck,build,tests}.log`.
+
+T019: added role reversal and verified mode/baseline/target supersession, same-UUID fresh
+reversal, obsolete HTTP after switching away/back, and historical navigation/unmount cleanup.
+The two reversal cases failed before reverse() existed; all 35 controller cases then passed.
+Existing engine reversal/identity cases were reused. Full suite: 171 unit + 143 PostgreSQL/HTTP
+(314 total), Nuxt typecheck/build passed. Logs: `/private/tmp/northbeam-002-t019-{red,typecheck,build,tests}.log`.
+
+T020: added reviewed native mode/target selectors, Reverse action, mode-appropriate labels/
+help, and no-history/one-version explanation with same-source identity still allowed.
+Necessary new props/events were wired in the editor in this task so the component remains
+usable and type-correct; T022 owns browser acceptance. The full diff renderer is unchanged.
+Full 314-test suite, Nuxt typecheck/build passed. Logs: `/private/tmp/northbeam-002-t020-{typecheck,build,tests}.log`.
+
+T021: extended only the existing read-only version-history group with one missing case:
+two maximum-size owned source projections (200-code-point titles, 100,000-code-point
+bodies with CRLF/blank/tab suffixes, ten 30-code-point tags), plus an actual deleted-source
+reread. readState() proves every read leaves article/audit/revision/counter/history/public
+state unchanged; explicit test setup/deletion occurs outside the read-only assertion.
+Existing ownership/missing/unpublished/lifecycle cases were retained. Backend behavior
+already satisfied this evidence, so no endpoint or application implementation was added.
+Full suite: 171 unit + 144 PostgreSQL/HTTP (315 total), Nuxt typecheck/build passed.
+Logs: `/private/tmp/northbeam-002-t021-{typecheck,build,tests}.log`.
+
+
+### T022 — historical-pair browser acceptance
+
+The production image was tested in a disposable Compose project, `northbeam002-browser`,
+using Chrome 157 on macOS 27.0.1 / Apple M2 Pro / 16 GiB. Node 24.22.2, pnpm 12.18.0,
+Nuxt 4.6.4, Vue 3.5.45, Vite 8.3.5, diff 9.0.0 were unchanged. Nine source/test SHA256s
+match between the image and workspace. Persistent measurements and fixture identities:
+[historical-comparison-evidence.json](historical-comparison-evidence.json).
+
+Ten walkthrough groups passed: arbitrary nonadjacent pairs; reversal with fresh reads and
+swapped labels/text/tags; same UUID versus distinct identical snapshots; unrelated dirty
+and real stale-save-conflicted fields; mode switching during reads; obsolete Worker/source/
+reverse/cancel results; deletion recognized on the next attempt; unpublished access;
+320/390/1440px layouts and Close focus return; one-version/no-history states. Comparison
+preserved fields and database/public state with no lifecycle writes. No runtime exceptions
+or hydration warnings were observed.
+
+Each of the nine existing boundary fixtures ran forward and reverse with two 100,000-code-
+point bodies, 200-code-point titles, and ten 30-code-point tags per source. All 18 completed
+with exact title/body reconstruction, complete Worker inline-word projection, correct source
+UUIDs/labels and tag directions, keyboard final-row reachability, and unchanged local fields,
+SQL and public projections. No truncation, cap, collapsed lines, or pagination was added.
+The 100,000-row fixture took 49.1s forward / 50.4s reverse to append; whitespace's 66,666
+rows took 17.9s / 20.3s; unequal replacements took about 11s Worker/transfer plus 1.7s
+rendering. These are observations including polling/queued work, not compute/paint SLAs.
+Memory values are completion-time main-thread hints, not peak or Worker heap measurements.
+
+Each fixture exercised Cancel/Close/source/mode while work was pending. Fast fixtures used
+explicitly flagged 700ms transport delays, excluded from completion timings. Five supplemental
+controls interrupted actual 100,000-row rendering with no artificial delay: Cancel, Close,
+source, mode, Reverse at 4,000–6,000 rows, observed in 161–320ms. No later rows appeared in
+the 300ms observation window; pending-message windows were 200ms or 800ms for controlled
+delays. A current-source saved-draft regression also completed all 100,000 rows exactly.
+
+Native collapsed select popup keyboard driving did not commit in this headless macOS CDP
+session. Pending source/mode probes temporarily presented the same select as a native
+listbox; ordinary popup coverage remains T025/manual. This is not formal accessibility or
+other-browser certification. Native End reached completed output. An initial reversed-
+whitespace final-row assertion stopped after successful reconstruction; without application
+changes, the affected fixture was rerun after inspecting settled scroll geometry and passed
+with no additional scroll keys. Seven already-passing unchanged-source fixtures were reused;
+whitespace and dense replacements supplied the remaining accepted results.
+
+Temporary probe scripts/logs/screenshots live under `/private/tmp/northbeam-002-phase4-*`;
+they are not runtime routes or dependencies. The durable evidence preserves results even
+when those temporary files disappear. Regenerate measurements after relevant source/build
+changes; do not manually invent timings. The separate US1 artifact is preserved as historical
+evidence rather than relabeled as current-source verification.
+
+### T023 — story review checkpoint
+
+README now describes historical pairing/reversal and preserved unsaved/conflicted input.
+Both-mode status and evidence are synchronized across the feature artifacts. The final
+T021 checks passed 171 unit + 144 integration cases (315), Nuxt typecheck and build; no
+runtime source changed afterward. Controller tests also compile strictly with the generated
+Nuxt context. Integration tests compile under their existing strict baseline. An optional
+extra check using the app's noUncheckedIndexedAccess flag reported unchanged legacy
+response-array indexing errors; no compiler settings or existing tests were weakened.
+Logs: `/private/tmp/northbeam-002-phase4-{controller-test-types,test-types-baseline}.log`.
+
+Phase 4 (T018–T023) is complete for review. Final T024–T027 evidence reconciliation,
+accessibility/security regressions, development-Worker checks and final validation remain
+pending. Original Windows T028 is unverified. Changes remain uncommitted.
+
+Cleanup: the dedicated `northbeam002-browser` containers, network, and test volume were
+removed successfully after acceptance. Log: `/private/tmp/northbeam-002-t022-cleanup.log`.
+Final artifact validation confirmed nine source hashes, nine fixtures/eighteen directions,
+five real-render controls, task markers, and clean whitespace. No extension hooks registered.

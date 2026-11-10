@@ -1,7 +1,7 @@
 import { computed, onScopeDispose, ref, shallowRef, watch, type Ref } from 'vue'
 import type { VersionDetail, WriterArticle } from '../../shared/types/articles'
 import type { ArticleComparisonRequest, ArticleComparisonResponse, ArticleComparisonResult,
-  CapturedSavedDraft, ComparisonCaptures, ComparisonStatus } from '../../shared/types/article-comparison'
+  CapturedSavedDraft, CapturedVersion, ComparisonCaptures, ComparisonMode, ComparisonStatus } from '../../shared/types/article-comparison'
 
 interface ComparisonInputs {
   article: Readonly<Ref<WriterArticle | null>>
@@ -14,20 +14,24 @@ export function useArticleComparison(inputs: ComparisonInputs) {
   const sources = shallowRef<ComparisonCaptures | null>(null)
   const result = shallowRef<ArticleComparisonResult | null>(null)
   const status = ref<ComparisonStatus>('closed')
+  const mode = ref<ComparisonMode>('draft-version')
   const selectedVersionId = ref<string | null>(null)
+  const targetVersionId = ref<string | null>(null)
   const errorMessage = ref('')
   let generation = 0
   let controller: AbortController | null = null
   let worker: Worker | null = null
   let pendingDraft: CapturedSavedDraft | null = null
-  const blockedReason = computed(() => !inputs.article.value ? 'Load an article before comparing.'
+  const draftBlockedReason = computed(() => !inputs.article.value ? 'Load an article before comparing.'
     : inputs.pending.value ? 'Wait for the current action to finish before comparing.'
       : inputs.conflict.value ? 'Resolve the draft conflict before comparing.'
         : inputs.dirty.value ? 'Save your draft before comparing.' : '')
+  const blockedReason = computed(() => mode.value === 'version-version' && inputs.article.value && !inputs.pending.value
+    ? '' : draftBlockedReason.value)
 
   function captureSavedDraft(): CapturedSavedDraft | null {
     const article = inputs.article.value
-    if (blockedReason.value || !article) return null
+    if (draftBlockedReason.value || !article) return null
     return {
       kind: 'saved-draft', articleId: article.id, revision: article.revision, label: 'Saved draft',
       title: article.draft.title, body: article.draft.body, tags: [...article.draft.tags],
@@ -48,9 +52,10 @@ export function useArticleComparison(inputs: ComparisonInputs) {
 
   function close() { invalidate(); status.value = 'closed' }
   function cancel() { invalidate(); status.value = 'selecting' }
-  function open(versionId: string | null) {
+  function open(versionId: string | null, targetId: string | null = versionId) {
     invalidate()
     selectedVersionId.value = versionId
+    targetVersionId.value = targetId
     status.value = 'selecting'
   }
   function fail(message: string) { invalidate(); errorMessage.value = message; status.value = 'error' }
@@ -59,32 +64,41 @@ export function useArticleComparison(inputs: ComparisonInputs) {
     selectedVersionId.value = versionId
     invalidate()
     const attempt = generation
-    pendingDraft = captureSavedDraft()
-    if (!pendingDraft) {
-      errorMessage.value = blockedReason.value
-      status.value = 'error'
+    const selectedMode = mode.value
+    const selectedTargetId = targetVersionId.value
+    const article = inputs.article.value
+    if (!article || blockedReason.value || (selectedMode === 'version-version' && !selectedTargetId)) {
+      fail(blockedReason.value || 'Choose a retained target version before comparing.')
       return null
     }
-    const articleId = pendingDraft.articleId
-    const revision = pendingDraft.revision
+    pendingDraft = selectedMode === 'draft-version' ? captureSavedDraft() : null
+    const articleId = article.id
+    const revision = article.revision
     const abort = new AbortController()
     controller = abort
     status.value = 'fetching'
-    try {
-      const version = await $fetch<VersionDetail>(`/api/writer/articles/${encodeURIComponent(articleId)}/versions/${encodeURIComponent(versionId)}`, {
+    const readVersion = async (id: string): Promise<CapturedVersion> => {
+      const version = await $fetch<VersionDetail>(`/api/writer/articles/${encodeURIComponent(articleId)}/versions/${encodeURIComponent(id)}`, {
         retry: 0, signal: abort.signal,
       })
+      if (version.id !== id) throw new Error('Unavailable source')
+      return { kind: 'version', articleId, versionId: version.id,
+        versionNumber: version.versionNumber, label: `Version ${version.versionNumber}`,
+        title: version.title, body: version.body, tags: [...version.tags] }
+    }
+    try {
+      const [baseline, historicalTarget] = selectedMode === 'version-version' && selectedTargetId !== versionId
+        ? await Promise.all([readVersion(versionId), readVersion(selectedTargetId!)])
+        : [await readVersion(versionId), null]
       if (attempt !== generation) return null
-      if (!pendingDraft || blockedReason.value || inputs.article.value?.id !== articleId || inputs.article.value.revision !== revision) {
+      if (blockedReason.value || inputs.article.value?.id !== articleId
+        || (selectedMode === 'draft-version' && (!pendingDraft || inputs.article.value.revision !== revision))) {
         fail(blockedReason.value || 'The saved draft changed. Compare again to capture it.')
         return null
       }
-      if (version.id !== versionId) throw new Error('Unavailable source')
-      sources.value = { mode: 'draft-version', target: pendingDraft, baseline: {
-        kind: 'version', articleId, versionId: version.id,
-        versionNumber: version.versionNumber, label: `Version ${version.versionNumber}`,
-        title: version.title, body: version.body, tags: [...version.tags],
-      } }
+      sources.value = selectedMode === 'draft-version'
+        ? { mode: selectedMode, target: pendingDraft!, baseline }
+        : { mode: selectedMode, baseline, target: historicalTarget ?? baseline }
       pendingDraft = null
       status.value = 'selecting'
       return sources.value
@@ -106,11 +120,14 @@ export function useArticleComparison(inputs: ComparisonInputs) {
     const reading = readSources(versionId)
     const attempt = generation
     const pair = await reading
-    if (!pair || pair.mode !== 'draft-version' || attempt !== generation) return
+    if (!pair || attempt !== generation) return
     const articleId = pair.target.articleId
-    const revision = pair.target.revision
+    const comparisonMode = pair.mode
+    const revision = pair.mode === 'draft-version' ? pair.target.revision : null
+    const targetId = pair.mode === 'version-version' ? pair.target.versionId : null
     const current = () => generation === attempt && inputs.article.value?.id === articleId
-      && inputs.article.value.revision === revision && selectedVersionId.value === versionId && !blockedReason.value
+      && mode.value === comparisonMode && selectedVersionId.value === versionId && !blockedReason.value
+      && (comparisonMode === 'draft-version' ? inputs.article.value.revision === revision : targetVersionId.value === targetId)
     if (!current()) { fail(blockedReason.value || 'The saved draft changed. Compare again to capture it.'); return }
     try {
       // Vite bundles this module separately; no Worker is constructed during SSR/setup.
@@ -124,9 +141,10 @@ export function useArticleComparison(inputs: ComparisonInputs) {
           return
         }
         const output = data.result
-        if (output.requestId !== attempt || output.articleId !== articleId || output.mode !== 'draft-version'
+        if (output.requestId !== attempt || output.articleId !== articleId || output.mode !== comparisonMode
           || output.baseline.articleId !== articleId || output.target.articleId !== articleId
-          || output.baseline.versionId !== versionId || output.target.revision !== revision) return
+          || output.baseline.versionId !== versionId) return
+        if (output.mode === 'draft-version' ? output.target.revision !== revision : output.target.versionId !== targetId) return
         activeWorker.terminate()
         worker = null
         sources.value = null
@@ -145,19 +163,27 @@ export function useArticleComparison(inputs: ComparisonInputs) {
     catch { if (current()) fail('We could not start the comparison. Please try again.') }
   }
 
-  watch(selectedVersionId, () => {
+  async function reverse() {
+    if (mode.value !== 'version-version' || blockedReason.value || !selectedVersionId.value || !targetVersionId.value) return
+    const baselineId = selectedVersionId.value
+    selectedVersionId.value = targetVersionId.value
+    targetVersionId.value = baselineId
+    await compare()
+  }
+
+  watch([selectedVersionId, targetVersionId, mode], () => {
     const wasOpen = status.value !== 'closed'
     invalidate()
     if (wasOpen) status.value = 'selecting'
   }, { flush: 'sync' })
   watch(() => inputs.article.value?.id, close, { flush: 'sync' })
   watch([blockedReason, () => inputs.article.value?.revision], () => {
-    if (status.value === 'fetching' || status.value === 'computing') {
+    if ((status.value === 'fetching' || status.value === 'computing') && (blockedReason.value || mode.value === 'draft-version')) {
       fail(blockedReason.value || 'The saved draft changed. Compare again to capture it.')
     }
   }, { flush: 'sync' })
   onScopeDispose(close)
 
   return { blockedReason, captureSavedDraft, sources, errorMessage, readSources,
-    result, status, selectedVersionId, open, compare, cancel, close }
+    result, status, mode, selectedVersionId, targetVersionId, open, compare, reverse, cancel, close }
 }

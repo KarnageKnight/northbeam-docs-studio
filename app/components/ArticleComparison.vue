@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ArticleStatus, VersionSummary } from '../../shared/types/articles'
-import type { ArticleComparisonResult, ComparisonLineChange, ComparisonStatus } from '../../shared/types/article-comparison'
+import type { ArticleComparisonResult, ComparisonLineChange, ComparisonMode, ComparisonStatus } from '../../shared/types/article-comparison'
 
 const props = defineProps<{
   versions: VersionSummary[]
@@ -8,12 +8,15 @@ const props = defineProps<{
   publishedVersionId: string | null
   savedRevision: number
   status: ComparisonStatus
+  mode: ComparisonMode
   selectedVersionId: string | null
+  targetVersionId: string | null
   result: ArticleComparisonResult | null
   blockedReason: string
   errorMessage: string
 }>()
-const emit = defineEmits<{ compare: []; cancel: []; close: []; selectVersion: [versionId: string | null] }>()
+const emit = defineEmits<{ compare: []; reverse: []; cancel: []; close: [];
+  selectMode: [mode: ComparisonMode]; selectVersion: [versionId: string | null]; selectTarget: [versionId: string | null] }>()
 const heading = ref<HTMLHeadingElement | null>(null)
 const batches = shallowRef<(readonly ComparisonLineChange[])[]>([])
 const rendering = ref(false)
@@ -64,25 +67,33 @@ onBeforeUnmount(() => { renderGeneration++; clearTimeout(timer) })
     </header>
     <p class="hint">Baseline is the starting content. Target is the content you are reviewing.</p>
     <div class="comparison-selectors">
-      <div class="field"><label for="comparison-mode">Compare</label><select id="comparison-mode"><option>Saved draft with a version</option></select></div>
+      <div class="field"><label for="comparison-mode">Compare</label><select id="comparison-mode" :value="mode" @change="emit('selectMode', ($event.target as HTMLSelectElement).value as ComparisonMode)"><option value="draft-version">Saved draft with a version</option><option value="version-version">Two versions</option></select></div>
       <div class="field"><label for="comparison-baseline">Baseline</label>
         <select id="comparison-baseline" :value="selectedVersionId ?? ''" @change="emit('selectVersion', ($event.target as HTMLSelectElement).value || null)">
           <option value="" disabled>Choose a version</option><option v-for="version in versions" :key="version.id" :value="version.id">{{ versionLabel(version) }}</option>
         </select>
       </div>
-      <div class="field"><span id="comparison-target-label" class="comparison-label">Target</span><p class="comparison-saved" aria-labelledby="comparison-target-label">Saved draft · revision {{ capturedRevision }}</p></div>
+      <div v-if="mode === 'version-version'" class="field"><label for="comparison-target">Target</label>
+        <select id="comparison-target" :value="targetVersionId ?? ''" @change="emit('selectTarget', ($event.target as HTMLSelectElement).value || null)">
+          <option value="" disabled>Choose a version</option><option v-for="version in versions" :key="version.id" :value="version.id">{{ versionLabel(version) }}</option>
+        </select>
+      </div>
+      <div v-else class="field"><span id="comparison-target-label" class="comparison-label">Target</span><p class="comparison-saved" aria-labelledby="comparison-target-label">Saved draft · revision {{ capturedRevision }}</p></div>
     </div>
-    <p class="hint">This captures your saved draft. Save and refresh to include later edits.</p>
+    <p v-if="mode === 'draft-version'" class="hint">This captures your saved draft. Save and refresh to include later edits.</p>
+    <p v-else class="hint">Compare retained snapshots without saving or changing your draft edits.</p>
     <p v-if="!versions.length" class="notice warning">Publish a version before comparing.</p>
+    <p v-else-if="mode === 'version-version' && versions.length === 1" class="notice warning">A second retained version is needed to review historical changes. Select the same version twice to check for identical content.</p>
     <p v-if="blockedReason" id="comparison-guard" class="notice warning">{{ blockedReason }}</p>
     <div class="confirmation-actions">
-      <button id="comparison-run" type="button" class="button primary" :disabled="!!blockedReason || !selectedVersionId || busy" :aria-describedby="blockedReason ? 'comparison-guard' : undefined" @click="emit('compare')">{{ result ? 'Refresh comparison' : status === 'error' ? 'Retry comparison' : 'Compare' }}</button>
+      <button id="comparison-run" type="button" class="button primary" :disabled="!!blockedReason || !selectedVersionId || (mode === 'version-version' && !targetVersionId) || busy" :aria-describedby="blockedReason ? 'comparison-guard' : undefined" @click="emit('compare')">{{ result ? 'Refresh comparison' : status === 'error' ? 'Retry comparison' : 'Compare' }}</button>
+      <button v-if="mode === 'version-version'" id="comparison-reverse" type="button" class="button" :disabled="!!blockedReason || !selectedVersionId || !targetVersionId" @click="emit('reverse')">Reverse sources</button>
       <button v-if="busy || rendering" id="comparison-cancel" type="button" class="button" @click="emit('cancel')">Cancel comparison</button>
     </div>
     <p class="comparison-status hint" role="status" aria-live="polite">{{ announcement }}</p>
     <p v-if="errorMessage" class="notice error" role="alert">{{ errorMessage }}</p>
     <template v-if="result">
-      <p class="comparison-capture">{{ result.baseline.label }} → Saved draft · revision {{ capturedRevision }}</p>
+      <p class="comparison-capture">{{ result.baseline.label }} → {{ result.target.label }}<template v-if="result.mode === 'draft-version'"> · revision {{ capturedRevision }}</template></p>
       <p v-if="result.identical" class="notice success">No differences. The captured sources have identical content.</p>
       <div class="comparison-legend" aria-label="Change legend"><span>− Removed line</span><span>+ Added line</span><span><del>Removed word</del></span><span><ins>Added word</ins></span><span>Plain text = unchanged</span></div>
       <div :key="result.requestId" class="comparison-source-view" tabindex="0" aria-label="Complete article source comparison">

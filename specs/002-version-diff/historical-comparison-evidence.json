@@ -1,0 +1,1035 @@
+{
+  "date": "2026-11-10",
+  "scope": "US2 arbitrary retained pairs/reversal; full-size forward/reverse production rendering and current-source US1 regression",
+  "hardware": {
+    "cpu": "Apple M2 Pro",
+    "ramGiB": 16,
+    "macOS": "27.0.1"
+  },
+  "toolchain": {
+    "node": "24.22.2",
+    "pnpm": "12.18.0",
+    "nuxt": "4.6.4",
+    "vue": "3.5.45",
+    "vite": "8.3.5",
+    "diff": "9.0.0"
+  },
+  "baselineCommit": "4910c300ddb9a25b011ae452a6c5523d2e0f342c",
+  "browserImage": "4ed10953ffdcc5734be7be748a8b44d4e55a32afebeba3d76c31533170fdd032",
+  "sourceSHA256": {
+    "app/composables/useArticleComparison.ts": "3431ab5c067963f34b06dfa014d0bfd8d450527abb79935c8554fde804ada572",
+    "app/components/ArticleComparison.vue": "b79765a2cb6be9bdde1c427d2d1f9be4c6f6e2dbefb7991adfae08d9dce63300",
+    "app/pages/writer/articles/[slug]/edit.vue": "71c78a6760aec630896c24c6db9e099c9c66a4d7e703330916c288125840a51e",
+    "app/assets/css/main.css": "28e2bf00c1840204b4d5ffc260b3c378f1a541b2ecf49750fdd9ddbec78f34c5",
+    "app/utils/articleDiff.ts": "618711a36b2a2a81a0c3f7669e3fa5df65a7b5ce755688bf724af15db1b513a2",
+    "app/workers/articleDiff.worker.ts": "a4d641272523f907821db1c3360fb737c8589b68bd8c5e0dbe82bcbb6c093fb0",
+    "shared/types/article-comparison.ts": "80dcca4ec926ee5c70277b81eb0068e7450b6145a8570ad775ebc68018de71cc",
+    "tests/unit/article-comparison.test.ts": "d5c566c1d0e31c7f67c93489ebaa80edb245cf0f24d0af245e6d45ac36271a29",
+    "tests/integration/articles.test.ts": "8bbeb47e31ba665d2ba9942d41da33a89d2b83da3925a9b772c4ef8c2a0e1de6"
+  },
+  "imageSourceMatchesWorkspace": true,
+  "walkthrough": {
+    "checks": [
+      "arbitrary non-adjacent version 1/3 pair; dirty draft preserved; fresh owned GETs; exact escaped source; zero SQL/public changes/writes",
+      "Reverse swaps source UUIDs/labels/text/tag roles with fresh reads and unchanged draft/state",
+      "same UUID performs one read; distinct identical snapshots perform two; explicit identity state",
+      "unrelated stale-save conflict remains intact in historical mode; switching to draft restores strict guard",
+      "mode away/back during delayed HTTP aborts prior reads and rejects obsolete completion",
+      "controlled pending Worker target change, Reverse supersession, Cancel, and retry leave no obsolete output",
+      "next attempt observes other-tab deletion without substitution, stale output, or lost dirty/conflicted fields",
+      "unpublished/current-or-last-published retained sources; comparison leaves public 404 and stored state unchanged",
+      "320/390/1440px labels/controls fit; native Close returns focus and preserves unrelated edits",
+      "one-version explanation still permits identity; no-history state blocks invalid comparisons"
+    ],
+    "exceptions": [],
+    "hydrationWarnings": [],
+    "environment": {
+      "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+      "cores": 12,
+      "memoryGiB": 16
+    }
+  },
+  "maximumInputMatrix": [
+    {
+      "fixture": "identical",
+      "articleId": "a01eb5d4-2ad8-4277-bdf3-6b4074d401d3",
+      "baselineVersionId": "c10fb24f-9129-4a5e-b403-28a2d1a39e92",
+      "targetVersionId": "6814d7b1-7e9c-4205-8ad7-741776ada1b8",
+      "baselineSHA256": "96ba2e5f56c189103ab3dad63e67111ee1f58675c1f57e7a351db3ff7b4f71dd",
+      "targetSHA256": "96ba2e5f56c189103ab3dad63e67111ee1f58675c1f57e7a351db3ff7b4f71dd",
+      "directions": [
+        {
+          "direction": "forward",
+          "workerAndTransferMs": 20.5,
+          "renderObservedMs": 494,
+          "rows": 7693,
+          "expectedRows": 7693,
+          "segments": 7693,
+          "heapHintBytes": 22166093,
+          "exact": {
+            "baseline": true,
+            "target": true,
+            "baselineTitle": true,
+            "targetTitle": true,
+            "sourceIdentities": true,
+            "inlineAdded": true,
+            "inlineRemoved": true,
+            "tagRows": 20,
+            "fields": true
+          },
+          "keyboardReachedFinalLine": true,
+          "sqlAndPublicStateUnchanged": true
+        },
+        {
+          "direction": "reverse",
+          "workerAndTransferMs": 15.199999988079071,
+          "renderObservedMs": 423.5,
+          "rows": 7693,
+          "expectedRows": 7693,
+          "segments": 7693,
+          "heapHintBytes": 41349682,
+          "exact": {
+            "baseline": true,
+            "target": true,
+            "baselineTitle": true,
+            "targetTitle": true,
+            "sourceIdentities": true,
+            "inlineAdded": true,
+            "inlineRemoved": true,
+            "tagRows": 20,
+            "fields": true
+          },
+          "keyboardReachedFinalLine": true,
+          "sqlAndPublicStateUnchanged": true
+        }
+      ],
+      "interactions": [
+        {
+          "action": "cancel",
+          "syntheticDelayedBoundary": true,
+          "inputMethod": "native keyboard",
+          "actionObservedMs": 3,
+          "workerTerminated": true,
+          "lateMessages": 0,
+          "fieldsPreserved": true
+        },
+        {
+          "action": "close",
+          "syntheticDelayedBoundary": true,
+          "inputMethod": "native keyboard",
+          "actionObservedMs": 4.5,
+          "workerTerminated": true,
+          "lateMessages": 0,
+          "fieldsPreserved": true
+        },
+        {
+          "action": "source",
+          "syntheticDelayedBoundary": true,
+          "inputMethod": "native keyboard with temporary listbox presentation",
+          "actionObservedMs": 9,
+          "workerTerminated": true,
+          "lateMessages": 0,
+          "fieldsPreserved": true
+        },
+        {
+          "action": "mode",
+          "syntheticDelayedBoundary": true,
+          "inputMethod": "native keyboard with temporary listbox presentation",
+          "actionObservedMs": 3.2000000178813934,
+          "workerTerminated": true,
+          "lateMessages": 0,
+          "fieldsPreserved": true
+        }
+      ],
+      "allRequestsReadOnly": true,
+      "finalSqlAndPublicStateUnchanged": true,
+      "environment": {
+        "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+        "cores": 12,
+        "memoryGiB": 16
+      }
+    },
+    {
+      "fixture": "sparse",
+      "articleId": "d8b62b98-b05d-4408-a580-896748219231",
+      "baselineVersionId": "fd4919d8-37a7-494c-9d77-e0e3796d4ca6",
+      "targetVersionId": "bd1ae34a-b49e-4bd0-9319-e0fd6ab4aa72",
+      "baselineSHA256": "96ba2e5f56c189103ab3dad63e67111ee1f58675c1f57e7a351db3ff7b4f71dd",
+      "targetSHA256": "3187c75f0509fce915f0830c4ebf4c4c427ad265737e28b939aa9847a2637d7c",
+      "directions": [
+        {
+          "direction": "forward",
+          "workerAndTransferMs": 34.29999998211861,
+          "renderObservedMs": 478.7000000178814,
+          "rows": 7695,
+          "expectedRows": 7695,
+          "segments": 7697,
+          "heapHintBytes": 23546432,
+          "exact": {
+            "baseline": true,
+            "target": true,
+            "baselineTitle": true,
+            "targetTitle": true,
+            "sourceIdentities": true,
+            "inlineAdded": true,
+            "inlineRemoved": true,
+            "tagRows": 20,
+            "fields": true
+          },
+          "keyboardReachedFinalLine": true,
+          "sqlAndPublicStateUnchanged": true
+        },
+        {
+          "direction": "reverse",
+          "workerAndTransferMs": 47.60000002384186,
+          "renderObservedMs": 450.89999997615814,
+          "rows": 7695,
+          "expectedRows": 7695,
+          "segments": 7697,
+          "heapHintBytes": 24661468,
+          "exact": {
+            "baseline": true,
+            "target": true,
+            "baselineTitle": true,
+            "targetTitle": true,
+            "sourceIdentities": true,
+            "inlineAdded": true,
+            "inlineRemoved": true,
+            "tagRows": 20,
+            "fields": true
+          },
+          "keyboardReachedFinalLine": true,
+          "sqlAndPublicStateUnchanged": true
+        }
+      ],
+      "interactions": [
+        {
+          "action": "cancel",
+          "syntheticDelayedBoundary": true,
+          "inputMethod": "native keyboard",
+          "actionObservedMs": 3.399999976158142,
+          "workerTerminated": true,
+          "lateMessages": 0,
+          "fieldsPreserved": true
+        },
+        {
+          "action": "close",
+          "syntheticDelayedBoundary": true,
+          "inputMethod": "native keyboard",
+          "actionObservedMs": 2.7999999821186066,
+          "workerTerminated": true,
+          "lateMessages": 0,
+          "fieldsPreserved": true
+        },
+        {
+          "action": "source",
+          "syntheticDelayedBoundary": true,
+          "inputMethod": "native keyboard with temporary listbox presentation",
+          "actionObservedMs": 3.5,
+          "workerTerminated": true,
+          "lateMessages": 0,
+          "fieldsPreserved": true
+        },
+        {
+          "action": "mode",
+          "syntheticDelayedBoundary": true,
+          "inputMethod": "native keyboard with temporary listbox presentation",
+          "actionObservedMs": 5.5999999940395355,
+          "workerTerminated": true,
+          "lateMessages": 0,
+          "fieldsPreserved": true
+        }
+      ],
+      "allRequestsReadOnly": true,
+      "finalSqlAndPublicStateUnchanged": true,
+      "environment": {
+        "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+        "cores": 12,
+        "memoryGiB": 16
+      }
+    },
+    {
+      "fixture": "long-single-line",
+      "articleId": "2f6caa7e-1cd4-4a9c-a961-d315f7e56484",
+      "baselineVersionId": "7d72d144-131f-4f00-8eb8-c940ef2e1069",
+      "targetVersionId": "68abc30a-76dc-4654-b07d-aa853985124d",
+      "baselineSHA256": "6d1cf22d7cc09b085dfc25ee1a1f3ae0265804c607bc2074ad253bcc82fd81ee",
+      "targetSHA256": "768b54e315c41a8d1ae3a29f677bff3b327e238e98e644dc7d566442f5920f8d",
+      "directions": [
+        {
+          "direction": "forward",
+          "workerAndTransferMs": 6.299999982118607,
+          "renderObservedMs": 82.40000000596046,
+          "rows": 2,
+          "expectedRows": 2,
+          "segments": 2,
+          "heapHintBytes": 4934342,
+          "exact": {
+            "baseline": true,
+            "target": true,
+            "baselineTitle": true,
+            "targetTitle": true,
+            "sourceIdentities": true,
+            "inlineAdded": true,
+            "inlineRemoved": true,
+            "tagRows": 20,
+            "fields": true
+          },
+          "keyboardReachedFinalLine": true,
+          "sqlAndPublicStateUnchanged": true
+        },
+        {
+          "direction": "reverse",
+          "workerAndTransferMs": 5.4000000059604645,
+          "renderObservedMs": 92,
+          "rows": 2,
+          "expectedRows": 2,
+          "segments": 2,
+          "heapHintBytes": 7361673,
+          "exact": {
+            "baseline": true,
+            "target": true,
+            "baselineTitle": true,
+            "targetTitle": true,
+            "sourceIdentities": true,
+            "inlineAdded": true,
+            "inlineRemoved": true,
+            "tagRows": 20,
+            "fields": true
+          },
+          "keyboardReachedFinalLine": true,
+          "sqlAndPublicStateUnchanged": true
+        }
+      ],
+      "interactions": [
+        {
+          "action": "cancel",
+          "syntheticDelayedBoundary": true,
+          "inputMethod": "native keyboard",
+          "actionObservedMs": 3.2000000178813934,
+          "workerTerminated": true,
+          "lateMessages": 0,
+          "fieldsPreserved": true
+        },
+        {
+          "action": "close",
+          "syntheticDelayedBoundary": true,
+          "inputMethod": "native keyboard",
+          "actionObservedMs": 4.299999982118607,
+          "workerTerminated": true,
+          "lateMessages": 0,
+          "fieldsPreserved": true
+        },
+        {
+          "action": "source",
+          "syntheticDelayedBoundary": true,
+          "inputMethod": "native keyboard with temporary listbox presentation",
+          "actionObservedMs": 9.100000023841858,
+          "workerTerminated": true,
+          "lateMessages": 0,
+          "fieldsPreserved": true
+        },
+        {
+          "action": "mode",
+          "syntheticDelayedBoundary": true,
+          "inputMethod": "native keyboard with temporary listbox presentation",
+          "actionObservedMs": 7.700000017881393,
+          "workerTerminated": true,
+          "lateMessages": 0,
+          "fieldsPreserved": true
+        }
+      ],
+      "allRequestsReadOnly": true,
+      "finalSqlAndPublicStateUnchanged": true,
+      "environment": {
+        "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+        "cores": 12,
+        "memoryGiB": 16
+      }
+    },
+    {
+      "fixture": "repeated-lines",
+      "articleId": "961c39f0-0f51-4fbb-b93f-f301ef8b79e0",
+      "baselineVersionId": "2aa6e579-2743-4c07-98cf-40e6f0832339",
+      "targetVersionId": "959b3469-f0a4-4f92-ad01-e1663da285b6",
+      "baselineSHA256": "85e38413b34a2cf7ae2803d4f9da65e65a39c9c2d709850a1ad2781d8f68a218",
+      "targetSHA256": "4f4e05f49026ada68c593ba5db311c15a7abff15867c376bd7871c9ada2019ea",
+      "directions": [
+        {
+          "direction": "forward",
+          "workerAndTransferMs": 68.5,
+          "renderObservedMs": 1635.5,
+          "rows": 16669,
+          "expectedRows": 16669,
+          "segments": 16669,
+          "heapHintBytes": 46512899,
+          "exact": {
+            "baseline": true,
+            "target": true,
+            "baselineTitle": true,
+            "targetTitle": true,
+            "sourceIdentities": true,
+            "inlineAdded": true,
+            "inlineRemoved": true,
+            "tagRows": 20,
+            "fields": true
+          },
+          "keyboardReachedFinalLine": true,
+          "sqlAndPublicStateUnchanged": true
+        },
+        {
+          "direction": "reverse",
+          "workerAndTransferMs": 65.7000000178814,
+          "renderObservedMs": 1268.7999999821186,
+          "rows": 16669,
+          "expectedRows": 16669,
+          "segments": 16670,
+          "heapHintBytes": 44949034,
+          "exact": {
+            "baseline": true,
+            "target": true,
+            "baselineTitle": true,
+            "targetTitle": true,
+            "sourceIdentities": true,
+            "inlineAdded": true,
+            "inlineRemoved": true,
+            "tagRows": 20,
+            "fields": true
+          },
+          "keyboardReachedFinalLine": true,
+          "sqlAndPublicStateUnchanged": true
+        }
+      ],
+      "interactions": [
+        {
+          "action": "cancel",
+          "syntheticDelayedBoundary": true,
+          "inputMethod": "native keyboard",
+          "actionObservedMs": 3.0999999940395355,
+          "workerTerminated": true,
+          "lateMessages": 0,
+          "fieldsPreserved": true
+        },
+        {
+          "action": "close",
+          "syntheticDelayedBoundary": true,
+          "inputMethod": "native keyboard",
+          "actionObservedMs": 4,
+          "workerTerminated": true,
+          "lateMessages": 0,
+          "fieldsPreserved": true
+        },
+        {
+          "action": "source",
+          "syntheticDelayedBoundary": true,
+          "inputMethod": "native keyboard with temporary listbox presentation",
+          "actionObservedMs": 8.400000005960464,
+          "workerTerminated": true,
+          "lateMessages": 0,
+          "fieldsPreserved": true
+        },
+        {
+          "action": "mode",
+          "syntheticDelayedBoundary": true,
+          "inputMethod": "native keyboard with temporary listbox presentation",
+          "actionObservedMs": 3.100000023841858,
+          "workerTerminated": true,
+          "lateMessages": 0,
+          "fieldsPreserved": true
+        }
+      ],
+      "allRequestsReadOnly": true,
+      "finalSqlAndPublicStateUnchanged": true,
+      "environment": {
+        "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+        "cores": 12,
+        "memoryGiB": 16
+      }
+    },
+    {
+      "fixture": "many-short-lines",
+      "articleId": "891e245a-91ed-4bc7-8f07-010e81512e84",
+      "baselineVersionId": "6bf0eb9f-3421-4772-b871-a9f14f5ccb25",
+      "targetVersionId": "8369f3f0-36b1-49cb-8e01-f29a3ab3a5c3",
+      "baselineSHA256": "705042a2f4267ce89c994543d1f2a0f44df191488ad0420b405f544ca2488920",
+      "targetSHA256": "ac1812dabd29521ce6ba8ae3dd0256acab8c58baba13d45b9ddba3255a9050fe",
+      "directions": [
+        {
+          "direction": "forward",
+          "workerAndTransferMs": 457.09999999403954,
+          "renderObservedMs": 49135.30000001192,
+          "rows": 100000,
+          "expectedRows": 100000,
+          "segments": 200000,
+          "heapHintBytes": 283111898,
+          "exact": {
+            "baseline": true,
+            "target": true,
+            "baselineTitle": true,
+            "targetTitle": true,
+            "sourceIdentities": true,
+            "inlineAdded": true,
+            "inlineRemoved": true,
+            "tagRows": 20,
+            "fields": true
+          },
+          "keyboardReachedFinalLine": true,
+          "sqlAndPublicStateUnchanged": true
+        },
+        {
+          "direction": "reverse",
+          "workerAndTransferMs": 484.69999998807907,
+          "renderObservedMs": 50385.40000000596,
+          "rows": 100000,
+          "expectedRows": 100000,
+          "segments": 200000,
+          "heapHintBytes": 309864883,
+          "exact": {
+            "baseline": true,
+            "target": true,
+            "baselineTitle": true,
+            "targetTitle": true,
+            "sourceIdentities": true,
+            "inlineAdded": true,
+            "inlineRemoved": true,
+            "tagRows": 20,
+            "fields": true
+          },
+          "keyboardReachedFinalLine": true,
+          "sqlAndPublicStateUnchanged": true
+        }
+      ],
+      "interactions": [
+        {
+          "action": "cancel",
+          "syntheticDelayedBoundary": true,
+          "inputMethod": "native keyboard",
+          "actionObservedMs": 2.199999988079071,
+          "workerTerminated": true,
+          "lateMessages": 0,
+          "fieldsPreserved": true
+        },
+        {
+          "action": "close",
+          "syntheticDelayedBoundary": true,
+          "inputMethod": "native keyboard",
+          "actionObservedMs": 3.899999976158142,
+          "workerTerminated": true,
+          "lateMessages": 0,
+          "fieldsPreserved": true
+        },
+        {
+          "action": "source",
+          "syntheticDelayedBoundary": true,
+          "inputMethod": "native keyboard with temporary listbox presentation",
+          "actionObservedMs": 17.100000023841858,
+          "workerTerminated": true,
+          "lateMessages": 0,
+          "fieldsPreserved": true
+        },
+        {
+          "action": "mode",
+          "syntheticDelayedBoundary": true,
+          "inputMethod": "native keyboard with temporary listbox presentation",
+          "actionObservedMs": 6.299999982118607,
+          "workerTerminated": true,
+          "lateMessages": 0,
+          "fieldsPreserved": true
+        }
+      ],
+      "allRequestsReadOnly": true,
+      "finalSqlAndPublicStateUnchanged": true,
+      "environment": {
+        "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+        "cores": 12,
+        "memoryGiB": 16
+      }
+    },
+    {
+      "fixture": "unequal-replacements",
+      "articleId": "17aca50a-1ad1-491c-a88c-74b495076f7c",
+      "baselineVersionId": "15077077-8c6e-47cf-bc6c-078bb41ac60c",
+      "targetVersionId": "5a10f5cd-935c-4db5-9a47-05ef1f1bcf7a",
+      "baselineSHA256": "70f77092fab1e590771c7fc63015646199466cc93673dda505a2af25f21384b7",
+      "targetSHA256": "61082a492851586314ceb3e96ed84879c628d22b5174c27c37a8cf1e0daa5440",
+      "directions": [
+        {
+          "direction": "forward",
+          "workerAndTransferMs": 11191.699999988079,
+          "renderObservedMs": 1750.4000000059605,
+          "rows": 16234,
+          "expectedRows": 16234,
+          "segments": 28897,
+          "heapHintBytes": 50010660,
+          "exact": {
+            "baseline": true,
+            "target": true,
+            "baselineTitle": true,
+            "targetTitle": true,
+            "sourceIdentities": true,
+            "inlineAdded": true,
+            "inlineRemoved": true,
+            "tagRows": 20,
+            "fields": true
+          },
+          "keyboardReachedFinalLine": true,
+          "sqlAndPublicStateUnchanged": true
+        },
+        {
+          "direction": "reverse",
+          "workerAndTransferMs": 22403,
+          "renderObservedMs": 1704.800000011921,
+          "rows": 16234,
+          "expectedRows": 16234,
+          "segments": 28899,
+          "heapHintBytes": 54724108,
+          "exact": {
+            "baseline": true,
+            "target": true,
+            "baselineTitle": true,
+            "targetTitle": true,
+            "sourceIdentities": true,
+            "inlineAdded": true,
+            "inlineRemoved": true,
+            "tagRows": 20,
+            "fields": true
+          },
+          "keyboardReachedFinalLine": true,
+          "sqlAndPublicStateUnchanged": true
+        }
+      ],
+      "interactions": [
+        {
+          "action": "cancel",
+          "syntheticDelayedBoundary": false,
+          "inputMethod": "native keyboard",
+          "actionObservedMs": 2.5,
+          "workerTerminated": true,
+          "lateMessages": 0,
+          "fieldsPreserved": true
+        },
+        {
+          "action": "close",
+          "syntheticDelayedBoundary": false,
+          "inputMethod": "native keyboard",
+          "actionObservedMs": 2.199999988079071,
+          "workerTerminated": true,
+          "lateMessages": 0,
+          "fieldsPreserved": true
+        },
+        {
+          "action": "source",
+          "syntheticDelayedBoundary": false,
+          "inputMethod": "native keyboard with temporary listbox presentation",
+          "actionObservedMs": 3,
+          "workerTerminated": true,
+          "lateMessages": 0,
+          "fieldsPreserved": true
+        },
+        {
+          "action": "mode",
+          "syntheticDelayedBoundary": false,
+          "inputMethod": "native keyboard with temporary listbox presentation",
+          "actionObservedMs": 3.2000000178813934,
+          "workerTerminated": true,
+          "lateMessages": 0,
+          "fieldsPreserved": true
+        }
+      ],
+      "allRequestsReadOnly": true,
+      "finalSqlAndPublicStateUnchanged": true,
+      "environment": {
+        "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+        "cores": 12,
+        "memoryGiB": 16
+      }
+    },
+    {
+      "fixture": "unicode",
+      "articleId": "e11b2360-c4b4-4f0e-81e6-b858c886287f",
+      "baselineVersionId": "8bf09a50-ea0b-46b6-bfc6-a914df8a6194",
+      "targetVersionId": "6393077d-3e6f-41c0-9d75-647a5b0decef",
+      "baselineSHA256": "45c1a48718b045941f428ce71df505120c207255f663b9a9b19806d6065d6e41",
+      "targetSHA256": "d47ffd315af22062c5c37da82d5e8c64ba2fe5187a9866402a4da1b2b3cbdb3e",
+      "directions": [
+        {
+          "direction": "forward",
+          "workerAndTransferMs": 299.60000002384186,
+          "renderObservedMs": 3037.7999999821186,
+          "rows": 22500,
+          "expectedRows": 22500,
+          "segments": 102500,
+          "heapHintBytes": 99394878,
+          "exact": {
+            "baseline": true,
+            "target": true,
+            "baselineTitle": true,
+            "targetTitle": true,
+            "sourceIdentities": true,
+            "inlineAdded": true,
+            "inlineRemoved": true,
+            "tagRows": 20,
+            "fields": true
+          },
+          "keyboardReachedFinalLine": true,
+          "sqlAndPublicStateUnchanged": true
+        },
+        {
+          "direction": "reverse",
+          "workerAndTransferMs": 293.59999999403954,
+          "renderObservedMs": 3044,
+          "rows": 22500,
+          "expectedRows": 22500,
+          "segments": 102500,
+          "heapHintBytes": 107323809,
+          "exact": {
+            "baseline": true,
+            "target": true,
+            "baselineTitle": true,
+            "targetTitle": true,
+            "sourceIdentities": true,
+            "inlineAdded": true,
+            "inlineRemoved": true,
+            "tagRows": 20,
+            "fields": true
+          },
+          "keyboardReachedFinalLine": true,
+          "sqlAndPublicStateUnchanged": true
+        }
+      ],
+      "interactions": [
+        {
+          "action": "cancel",
+          "syntheticDelayedBoundary": true,
+          "inputMethod": "native keyboard",
+          "actionObservedMs": 2.4000000059604645,
+          "workerTerminated": true,
+          "lateMessages": 0,
+          "fieldsPreserved": true
+        },
+        {
+          "action": "close",
+          "syntheticDelayedBoundary": true,
+          "inputMethod": "native keyboard",
+          "actionObservedMs": 3.399999976158142,
+          "workerTerminated": true,
+          "lateMessages": 0,
+          "fieldsPreserved": true
+        },
+        {
+          "action": "source",
+          "syntheticDelayedBoundary": true,
+          "inputMethod": "native keyboard with temporary listbox presentation",
+          "actionObservedMs": 2.9000000059604645,
+          "workerTerminated": true,
+          "lateMessages": 0,
+          "fieldsPreserved": true
+        },
+        {
+          "action": "mode",
+          "syntheticDelayedBoundary": true,
+          "inputMethod": "native keyboard with temporary listbox presentation",
+          "actionObservedMs": 5,
+          "workerTerminated": true,
+          "lateMessages": 0,
+          "fieldsPreserved": true
+        }
+      ],
+      "allRequestsReadOnly": true,
+      "finalSqlAndPublicStateUnchanged": true,
+      "environment": {
+        "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+        "cores": 12,
+        "memoryGiB": 16
+      }
+    },
+    {
+      "fixture": "whitespace",
+      "articleId": "e6550ceb-74fc-4423-aa99-7b2768d1ce25",
+      "baselineVersionId": "4bcb1c41-2a33-4672-9bcd-55cc147be71d",
+      "targetVersionId": "d8230ae7-8915-44ff-b9bc-93c94cd7d7aa",
+      "baselineSHA256": "e8a3cf1e4e2b9b7bce520a61b4652a4bfd336e78db711d588b3e29821443a5e6",
+      "targetSHA256": "2f5201af47bf33b768ae7a5733d296dbc3d0a46d07b494e91cab5ba0b0cb2187",
+      "directions": [
+        {
+          "direction": "forward",
+          "workerAndTransferMs": 350.2000000178814,
+          "renderObservedMs": 17892.5,
+          "rows": 66666,
+          "expectedRows": 66666,
+          "segments": 116666,
+          "heapHintBytes": 184749761,
+          "additionalNativeScrollKeys": 0,
+          "exact": {
+            "baseline": true,
+            "target": true,
+            "baselineTitle": true,
+            "targetTitle": true,
+            "sourceIdentities": true,
+            "inlineAdded": true,
+            "inlineRemoved": true,
+            "tagRows": 20,
+            "fields": true
+          },
+          "keyboardReachedFinalLine": true,
+          "sqlAndPublicStateUnchanged": true
+        },
+        {
+          "direction": "reverse",
+          "workerAndTransferMs": 334.69999998807907,
+          "renderObservedMs": 20266.30000001192,
+          "rows": 66666,
+          "expectedRows": 66666,
+          "segments": 116666,
+          "heapHintBytes": 200214553,
+          "additionalNativeScrollKeys": 0,
+          "exact": {
+            "baseline": true,
+            "target": true,
+            "baselineTitle": true,
+            "targetTitle": true,
+            "sourceIdentities": true,
+            "inlineAdded": true,
+            "inlineRemoved": true,
+            "tagRows": 20,
+            "fields": true
+          },
+          "keyboardReachedFinalLine": true,
+          "sqlAndPublicStateUnchanged": true
+        }
+      ],
+      "interactions": [
+        {
+          "action": "cancel",
+          "syntheticDelayedBoundary": true,
+          "inputMethod": "native keyboard",
+          "actionObservedMs": 27.69999998807907,
+          "workerTerminated": true,
+          "lateMessages": 0,
+          "fieldsPreserved": true
+        },
+        {
+          "action": "close",
+          "syntheticDelayedBoundary": true,
+          "inputMethod": "native keyboard",
+          "actionObservedMs": 3.2000000178813934,
+          "workerTerminated": true,
+          "lateMessages": 0,
+          "fieldsPreserved": true
+        },
+        {
+          "action": "source",
+          "syntheticDelayedBoundary": true,
+          "inputMethod": "native keyboard with temporary listbox presentation",
+          "actionObservedMs": 7.299999982118607,
+          "workerTerminated": true,
+          "lateMessages": 0,
+          "fieldsPreserved": true
+        },
+        {
+          "action": "mode",
+          "syntheticDelayedBoundary": true,
+          "inputMethod": "native keyboard with temporary listbox presentation",
+          "actionObservedMs": 5.5999999940395355,
+          "workerTerminated": true,
+          "lateMessages": 0,
+          "fieldsPreserved": true
+        }
+      ],
+      "allRequestsReadOnly": true,
+      "finalSqlAndPublicStateUnchanged": true,
+      "environment": {
+        "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+        "cores": 12,
+        "memoryGiB": 16
+      }
+    },
+    {
+      "fixture": "different-token-dense",
+      "articleId": "05a325f1-ef4a-4d37-809a-2c8ffa21d808",
+      "baselineVersionId": "620b25ad-26df-4efd-8278-484438e7a5f2",
+      "targetVersionId": "af2eb67e-97ba-45b8-a8e9-7f8655f3678e",
+      "baselineSHA256": "9b27798217a612c56bf6a43a9135787d88b6e67a29adbf0a3beb19ca539021b1",
+      "targetSHA256": "fd89ee2a3ce79168781dd5d1b12d838e9a14a5d176211c3efb0f647559e9b2b4",
+      "directions": [
+        {
+          "direction": "forward",
+          "workerAndTransferMs": 207.89999997615814,
+          "renderObservedMs": 82.90000000596046,
+          "rows": 2,
+          "expectedRows": 2,
+          "segments": 2,
+          "heapHintBytes": 5416382,
+          "additionalNativeScrollKeys": 0,
+          "exact": {
+            "baseline": true,
+            "target": true,
+            "baselineTitle": true,
+            "targetTitle": true,
+            "sourceIdentities": true,
+            "inlineAdded": true,
+            "inlineRemoved": true,
+            "tagRows": 20,
+            "fields": true
+          },
+          "keyboardReachedFinalLine": true,
+          "sqlAndPublicStateUnchanged": true
+        },
+        {
+          "direction": "reverse",
+          "workerAndTransferMs": 209,
+          "renderObservedMs": 83.69999998807907,
+          "rows": 2,
+          "expectedRows": 2,
+          "segments": 2,
+          "heapHintBytes": 6408753,
+          "additionalNativeScrollKeys": 0,
+          "exact": {
+            "baseline": true,
+            "target": true,
+            "baselineTitle": true,
+            "targetTitle": true,
+            "sourceIdentities": true,
+            "inlineAdded": true,
+            "inlineRemoved": true,
+            "tagRows": 20,
+            "fields": true
+          },
+          "keyboardReachedFinalLine": true,
+          "sqlAndPublicStateUnchanged": true
+        }
+      ],
+      "interactions": [
+        {
+          "action": "cancel",
+          "syntheticDelayedBoundary": true,
+          "inputMethod": "native keyboard",
+          "actionObservedMs": 13,
+          "workerTerminated": true,
+          "lateMessages": 0,
+          "fieldsPreserved": true
+        },
+        {
+          "action": "close",
+          "syntheticDelayedBoundary": true,
+          "inputMethod": "native keyboard",
+          "actionObservedMs": 4.300000011920929,
+          "workerTerminated": true,
+          "lateMessages": 0,
+          "fieldsPreserved": true
+        },
+        {
+          "action": "source",
+          "syntheticDelayedBoundary": true,
+          "inputMethod": "native keyboard with temporary listbox presentation",
+          "actionObservedMs": 6.699999988079071,
+          "workerTerminated": true,
+          "lateMessages": 0,
+          "fieldsPreserved": true
+        },
+        {
+          "action": "mode",
+          "syntheticDelayedBoundary": true,
+          "inputMethod": "native keyboard with temporary listbox presentation",
+          "actionObservedMs": 9.099999994039536,
+          "workerTerminated": true,
+          "lateMessages": 0,
+          "fieldsPreserved": true
+        }
+      ],
+      "allRequestsReadOnly": true,
+      "finalSqlAndPublicStateUnchanged": true,
+      "environment": {
+        "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+        "cores": 12,
+        "memoryGiB": 16
+      }
+    }
+  ],
+  "supplemental": {
+    "savedDraftRegression": {
+      "mode": "draft-version",
+      "rows": 100000,
+      "baselineExact": true,
+      "targetExact": true,
+      "savedLabel": true,
+      "fields": true
+    },
+    "rendering": [
+      {
+        "action": "cancel",
+        "rowsBeforeAction": 4000,
+        "totalRows": 100000,
+        "actionObservedMs": 190.7999999821186,
+        "lateRenderedRows": 0,
+        "fieldsPreserved": true,
+        "syntheticDelay": false
+      },
+      {
+        "action": "close",
+        "rowsBeforeAction": 6000,
+        "totalRows": 100000,
+        "actionObservedMs": 176.40000000596046,
+        "lateRenderedRows": 0,
+        "fieldsPreserved": true,
+        "syntheticDelay": false
+      },
+      {
+        "action": "source",
+        "rowsBeforeAction": 4000,
+        "totalRows": 100000,
+        "actionObservedMs": 320.09999999403954,
+        "lateRenderedRows": 0,
+        "fieldsPreserved": true,
+        "syntheticDelay": false,
+        "selectionInput": "native keyboard with temporary listbox presentation"
+      },
+      {
+        "action": "mode",
+        "rowsBeforeAction": 5000,
+        "totalRows": 100000,
+        "actionObservedMs": 161,
+        "lateRenderedRows": 0,
+        "fieldsPreserved": true,
+        "syntheticDelay": false,
+        "selectionInput": "native keyboard with temporary listbox presentation"
+      },
+      {
+        "action": "reverse",
+        "rowsBeforeAction": 6000,
+        "totalRows": 100000,
+        "actionObservedMs": 295,
+        "lateRenderedRows": 0,
+        "fieldsPreserved": true,
+        "syntheticDelay": false
+      }
+    ],
+    "sqlUnchanged": true,
+    "noComparisonWrites": true,
+    "exceptions": [],
+    "hydrationWarnings": []
+  },
+  "automatedChecks": {
+    "unit": 171,
+    "integration": 144,
+    "total": 315,
+    "nuxtTypecheck": "passed",
+    "productionBuild": "passed",
+    "controllerTestSourceCompilation": "passed with Nuxt app strict indexed-access context",
+    "integrationTestSourceCompilation": "passed with existing strict test baseline; noUncheckedIndexedAccess false"
+  },
+  "probeCorrections": [
+    "Initial reversed-whitespace document-end assertion stopped after successful exact reconstruction; no application change was made. The affected fixture was rerun after inspecting settled geometry; native End reached the final row with no additional scroll key needed. Seven already-passing unchanged-source fixtures were reused; whitespace and different-token-dense comprise the remaining accepted run.",
+    "An optional integration-test compilation using the additional Nuxt app noUncheckedIndexedAccess flag failed in unchanged legacy response-array indexing. Compilation with the existing --strict test baseline passed; no application compiler setting or existing test was weakened."
+  ],
+  "timingScope": "Observed Worker+transfer and complete DOM append; includes polling/queued work, not isolated compute/paint or a latency guarantee",
+  "limitations": [
+    "Headless Chrome 157/macOS only; no formal accessibility certification or untested-browser claim",
+    "Native collapsed select popup did not commit CDP keyboard selection; source/mode pending-interaction probes use the actual select temporarily as a native listbox. Normal picker keyboard acceptance remains T025/manual coverage.",
+    "Fast-fixture pending interactions use explicitly flagged 700ms transport delays, excluded from completion timings. Supplemental render-control checks use real work without artificial delay.",
+    "Main-thread performance.memory values are approximate completion-time hints, not peak memory or Worker heap measurements.",
+    "100000-row output remains complete but measured about 49–50 seconds to render in this run. No caps, truncation, pagination, or collapsed context were added.",
+    "Late-message observation windows are 200ms, or 800ms for controlled delays; render-stop checks observe 300ms.",
+    "Final T024–T027 cross-mode/evidence/accessibility/development-worker checks and original Windows T028 remain pending."
+  ]
+}

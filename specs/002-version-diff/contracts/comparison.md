@@ -1,6 +1,6 @@
 # Version Diff: Interface Contracts
 
-**Date**: 2026-11-09 | **Status**: Design selected through option A on 2026-11-09; shared TypeScript contracts implemented in T004 on 2026-11-10. T006–T009 implement the pure engine and Worker protocol, including a real production-browser smoke check. T010 verifies optimized full-limit production Worker computation on the recorded fixtures. US1 controller/HTTP orchestration and full-size single-scroll DOM acceptance passed T011–T016 within recorded coverage. US2 orchestration/controls and final cross-mode/accessibility checks remain pending.
+**Date**: 2026-11-09 | **Status**: Design selected through option A on 2026-11-09; shared TypeScript contracts implemented in T004 on 2026-11-10. T006–T009 implement the pure engine and Worker protocol, including a real production-browser smoke check. T010 verifies optimized full-limit production Worker computation on the recorded fixtures. US1 controller/HTTP orchestration and full-size single-scroll DOM acceptance passed T011–T016 within recorded coverage. US2 orchestration/controls and full-size DOM checks passed T018–T022 within recorded coverage; final T024–T027 remain pending.
 Authority: [spec](../spec.md), [plan](../plan.md), [model](../data-model.md).
 
 ## Existing HTTP interfaces
@@ -34,7 +34,7 @@ T004 declares these messages in `shared/types/article-comparison.ts`. Requests u
 readonly captures. Responses discriminate on `type: 'result' | 'error'`. Result messages
 wrap an `ArticleComparisonResult`; both wrapper and result include requestId/articleId.
 Errors use code `comparison-failed` with a safe message. Startup/runtime transport failures
-will be handled by the controller; the Worker protocol is implemented in T009; controller handling remains pending.
+are handled by the controller; the Worker protocol is implemented in T009 and both-mode controller handling in T011–T019.
 
 Instantiate lazily after client interaction using Vite's static new Worker(new URL(..., import.meta.url), {type:'module'}) pattern.
 
@@ -70,3 +70,22 @@ US1 production-editor fixtures passed complete DOM reconstruction, preserved fie
 SQL/public immutability, and pending-compute/render controls. Native collapsed-picker
 keyboard coverage remains pending T025/manual review; boundary selection tests used a
 temporary native listbox presentation. See draft-comparison-evidence.json and quickstart.
+
+
+## Phase 4 implementation evidence — 2026-11-10
+
+T018–T023 implement arbitrary retained-version pairs, same-source identity, fresh reads,
+and role reversal. Historical capture permits unrelated dirty/conflicted draft fields;
+active lifecycle writes block attempts. Selection/mode/reversal invalidate obsolete reads,
+Workers, and output. Saved-draft guards remain strict. No comparison writes or backend
+changes were introduced. The inline, complete single-scroll design remains in place.
+
+[Historical evidence](historical-comparison-evidence.json) records nine maximum-size
+fixtures in both directions (18 completed comparisons), exact DOM/source and word-detail
+checks, preserved fields, SQL/public immutability, pending-work cancellation, and keyboard
+final-row access. Five additional controls interrupted real 100,000-row rendering without
+late rows. The largest output took about 49–50s to append in this run; timings are observations,
+not guarantees. Current-source saved-draft regression also reconstructed all 100,000 rows.
+315 tests (171 unit + 144 PostgreSQL/HTTP), Nuxt typecheck, and production build passed.
+Normal native popup-picker keyboard coverage, final T024–T027, and Windows T028 remain
+pending. Earlier sections and US1 evidence retain their original checkpoint provenance.

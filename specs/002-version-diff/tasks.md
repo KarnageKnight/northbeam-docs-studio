@@ -2,7 +2,7 @@
 
 **Input**: Design artifacts in `specs/002-version-diff/`.
 **Created**: 2026-11-09.
-**Status**: Phases 1–3 (T001–T017) complete. Saved-draft/version MVP is integrated and verified within recorded browser coverage; presented for review. T018–T027 remain pending.
+**Status**: Phases 1–4 (T001–T023) complete. Both comparison modes are integrated and verified within recorded browser coverage; presented for review. Final T024–T027 remain pending.
 **Prerequisites**: [spec](spec.md), [plan](plan.md), [research](research.md), [data model](data-model.md), [contract](contracts/comparison.md), [validation guide](quickstart.md).
 **Architecture**: Option A selected: existing writer GETs, browser Worker with exact `diff@9.0.0`, local comparison state, unified inline panel, complete continuous output.
 **Tests**: Included because the specification defines independent test/acceptance scenarios and Constitution IV requires meaningful automated and real-database evidence.
@@ -123,12 +123,12 @@ review before US2. No agent commits or Phase 4 implementation.
 
 ### Tests and implementation
 
-- [ ] T018 [US2] Add version/version source capture to `app/composables/useArticleComparison.ts` together with passing cases in `tests/unit/article-comparison.test.ts`: arbitrary selected same-article UUIDs, fresh owned reads on every attempt, one read for a same-source pair, current/last-published and unpublished eligibility, unrelated dirty/conflicted drafts, and unavailable source without substitution. Bypass only draft-specific guards, preserve local input, and finish with the complete suite green; do not pre-add failing reversal cases reserved for T019.
-- [ ] T019 [US2] Add role reversal and historical-mode supersession behavior to `app/composables/useArticleComparison.ts` together with passing cases in `tests/unit/article-comparison.test.ts`: swapped source roles, new attempts after mode/source changes, obsolete HTTP/Worker completion rejection, and article navigation cleanup. Reuse engine reversal/identity cases in `tests/unit/article-diff.test.ts`, extending only missing evidence. Preserve the existing draft-mode behavior and finish with the complete suite green.
-- [ ] T020 [P] [US2] After T018 and reviewed T005 design, add mode/source selectors and Reverse behavior to `app/components/ArticleComparison.vue`; provide no-history/one-version explanations, permit same-version identity checks, label baseline/target by version number, and preserve complete line/word/tag output. May overlap T019 because controller interfaces were established in T004.
-- [ ] T021 [US2] Inspect the existing read-only history group in `tests/integration/articles.test.ts` and extend only missing deleted-source reread or maximum-size source retrieval evidence, reusing `readState()` and `tests/integration/helpers.ts`. Assert exact owned GET projections and zero committed draft/revision/audit/history/counter/publication/public-data changes for source reads; retain existing missing/wrong-owner, unpublished, protection, and lifecycle tests. Do not add an endpoint or duplicate already-proven cases.
-- [ ] T022 [US2] Integrate both modes through `app/pages/writer/articles/[slug]/edit.vue` and verify in-browser arbitrary/same/identical version pairs, reversal, unrelated unsaved/conflicted input, mode switching during fetch/compute, source deletion in another tab, and unpublished access. Before T023 story review, also run the full maximum-input matrix from `specs/002-version-diff/quickstart.md` in version/version mode, including reversed source roles, against the production Worker and rendered panel: both bodies at 100,000 code points, maximum titles/tags, long and repeated lines, complete word detail, keyboard access to the entire continuous diff, responsiveness, and cancellation. Record actual results, hardware/build/timings, and preserved input/state evidence in that guide; recognize deletion on next attempt without promising background detection. A failed or missing full-size rendering check blocks US2 completion. Apply the observable responsiveness acceptance procedure in `specs/002-version-diff/quickstart.md`: record environment/fixture/timings, actions processed during pending computation, cancellation/late-result cleanup, and complete keyboard-reachable continuous output, without a fixed timing threshold; report unexecuted checks as pending.
-- [ ] T023 [US2] Update `README.md` with the verified historical-pair/reversal demo and synchronize US2 status/evidence in `specs/002-version-diff/spec.md`, `plan.md`, `quickstart.md`, and `tasks.md`. Keep snapshots immutable and do not introduce feature 003 publication semantics or rewrite previous test evidence.
+- [X] T018 [US2] Add version/version source capture to `app/composables/useArticleComparison.ts` together with passing cases in `tests/unit/article-comparison.test.ts`: arbitrary selected same-article UUIDs, fresh owned reads on every attempt, one read for a same-source pair, current/last-published and unpublished eligibility, unrelated dirty/conflicted drafts, and unavailable source without substitution. Bypass only draft-specific guards, preserve local input, and finish with the complete suite green; do not pre-add failing reversal cases reserved for T019.
+- [X] T019 [US2] Add role reversal and historical-mode supersession behavior to `app/composables/useArticleComparison.ts` together with passing cases in `tests/unit/article-comparison.test.ts`: swapped source roles, new attempts after mode/source changes, obsolete HTTP/Worker completion rejection, and article navigation cleanup. Reuse engine reversal/identity cases in `tests/unit/article-diff.test.ts`, extending only missing evidence. Preserve the existing draft-mode behavior and finish with the complete suite green.
+- [X] T020 [P] [US2] After T018 and reviewed T005 design, add mode/source selectors and Reverse behavior to `app/components/ArticleComparison.vue`; provide no-history/one-version explanations, permit same-version identity checks, label baseline/target by version number, and preserve complete line/word/tag output. May overlap T019 because controller interfaces were established in T004.
+- [X] T021 [US2] Inspect the existing read-only history group in `tests/integration/articles.test.ts` and extend only missing deleted-source reread or maximum-size source retrieval evidence, reusing `readState()` and `tests/integration/helpers.ts`. Assert exact owned GET projections and zero committed draft/revision/audit/history/counter/publication/public-data changes for source reads; retain existing missing/wrong-owner, unpublished, protection, and lifecycle tests. Do not add an endpoint or duplicate already-proven cases.
+- [X] T022 [US2] Integrate both modes through `app/pages/writer/articles/[slug]/edit.vue` and verify in-browser arbitrary/same/identical version pairs, reversal, unrelated unsaved/conflicted input, mode switching during fetch/compute, source deletion in another tab, and unpublished access. Before T023 story review, also run the full maximum-input matrix from `specs/002-version-diff/quickstart.md` in version/version mode, including reversed source roles, against the production Worker and rendered panel: both bodies at 100,000 code points, maximum titles/tags, long and repeated lines, complete word detail, keyboard access to the entire continuous diff, responsiveness, and cancellation. Record actual results, hardware/build/timings, and preserved input/state evidence in that guide; recognize deletion on next attempt without promising background detection. A failed or missing full-size rendering check blocks US2 completion. Apply the observable responsiveness acceptance procedure in `specs/002-version-diff/quickstart.md`: record environment/fixture/timings, actions processed during pending computation, cancellation/late-result cleanup, and complete keyboard-reachable continuous output, without a fixed timing threshold; report unexecuted checks as pending.
+- [X] T023 [US2] Update `README.md` with the verified historical-pair/reversal demo and synchronize US2 status/evidence in `specs/002-version-diff/spec.md`, `plan.md`, `quickstart.md`, and `tasks.md`. Keep snapshots immutable and do not introduce feature 003 publication semantics or rewrite previous test evidence.
 
 **Checkpoint**: Both modes work independently only after their per-story full-size computation/rendering gates pass (T016 and T022). US2 neither requires saving unrelated draft edits nor changes persisted data.
 
@@ -195,7 +195,7 @@ These are scheduling opportunities only; no additional agents are requested or l
 ## Generation summary
 
 27 tasks: setup 3, foundation 7, US1 7, US2 6, final acceptance 4.
-T001–T017 are complete; T018–T027 are pending. Story labels: US1 T011–T017; US2 T018–T023.
+T001–T023 are complete; T024–T027 are pending. Story labels: US1 T011–T017; US2 T018–T023.
 Parallel markers: T004, T005, T014, T020, subject to the dependency explanations above.
 
 ## Analysis remediation decisions
@@ -224,3 +224,22 @@ summary. No pagination or collapsed unchanged context. This approval resolves th
 design gate for later T014/T020; it does not verify the unimplemented panel/controller or
 start Phase 3. Existing final engine tests/build evidence remains applicable; this closure
 changes documentation only and creates no commit.
+
+
+## Phase 4 implementation evidence — 2026-11-10
+
+T018–T023 implement arbitrary retained-version pairs, same-source identity, fresh reads,
+and role reversal. Historical capture permits unrelated dirty/conflicted draft fields;
+active lifecycle writes block attempts. Selection/mode/reversal invalidate obsolete reads,
+Workers, and output. Saved-draft guards remain strict. No comparison writes or backend
+changes were introduced. The inline, complete single-scroll design remains in place.
+
+[Historical evidence](historical-comparison-evidence.json) records nine maximum-size
+fixtures in both directions (18 completed comparisons), exact DOM/source and word-detail
+checks, preserved fields, SQL/public immutability, pending-work cancellation, and keyboard
+final-row access. Five additional controls interrupted real 100,000-row rendering without
+late rows. The largest output took about 49–50s to append in this run; timings are observations,
+not guarantees. Current-source saved-draft regression also reconstructed all 100,000 rows.
+315 tests (171 unit + 144 PostgreSQL/HTTP), Nuxt typecheck, and production build passed.
+Normal native popup-picker keyboard coverage, final T024–T027, and Windows T028 remain
+pending. Earlier sections and US1 evidence retain their original checkpoint provenance.

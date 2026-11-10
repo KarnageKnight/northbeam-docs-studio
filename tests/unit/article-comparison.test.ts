@@ -231,3 +231,194 @@ describe('comparison attempt lifecycle', () => {
     scope.stop()
   })
 })
+
+describe('historical comparison capture', () => {
+  it('reads arbitrary same-article pairs freshly while preserving unrelated dirty/conflicted drafts', async () => {
+    const snapshots = {
+      first: { ...version, id: 'first', versionNumber: 1, tags: ['first'] },
+      third: { ...version, id: 'third', versionNumber: 3, body: 'Third body', tags: ['third'] },
+    }
+    const read = vi.fn((url: string) => Promise.resolve(snapshots[url.endsWith('/first') ? 'first' : 'third']))
+    vi.stubGlobal('$fetch', read)
+    const state = setup()
+    state.article.value!.status = 'unpublished'
+    state.dirty.value = true
+    state.conflict.value = true
+    state.comparison.mode.value = 'version-version'
+    state.comparison.targetVersionId.value = 'third'
+    expect(state.comparison.blockedReason.value).toBe('')
+    const pair = await state.comparison.readSources('first')
+    expect(pair).toMatchObject({ mode: 'version-version', baseline: { versionId: 'first', versionNumber: 1 }, target: { versionId: 'third', versionNumber: 3 } })
+    expect(read).toHaveBeenCalledTimes(2)
+    expect(read).toHaveBeenCalledWith('/api/writer/articles/article-id/versions/third', { retry: 0, signal: expect.any(AbortSignal) })
+    snapshots.first.tags.push('later')
+    expect(pair?.baseline.tags).toEqual(['first'])
+    await state.comparison.readSources('first')
+    expect(read).toHaveBeenCalledTimes(4)
+    expect(state.article.value!.draft.body).toBe('Saved body\n')
+    expect(state.dirty.value && state.conflict.value).toBe(true)
+    state.scope.stop()
+  })
+
+  it('uses one fresh owned read per same-source attempt', async () => {
+    const read = vi.fn().mockResolvedValue(version)
+    vi.stubGlobal('$fetch', read)
+    const { comparison, scope } = setup()
+    comparison.mode.value = 'version-version'
+    comparison.targetVersionId.value = 'version-id'
+    expect(await comparison.readSources('version-id')).toMatchObject({ mode: 'version-version', baseline: { versionId: 'version-id' }, target: { versionId: 'version-id' } })
+    expect(read).toHaveBeenCalledTimes(1)
+    await comparison.readSources('version-id')
+    expect(read).toHaveBeenCalledTimes(2)
+    scope.stop()
+  })
+
+  it('rejects an unavailable side without substitution or retained output', async () => {
+    const read = vi.fn().mockResolvedValueOnce(version).mockRejectedValueOnce({ status: 404 })
+    vi.stubGlobal('$fetch', read)
+    const { comparison, scope } = setup()
+    comparison.mode.value = 'version-version'
+    comparison.targetVersionId.value = 'missing'
+    expect(await comparison.readSources('version-id')).toBeNull()
+    expect(comparison.sources.value).toBeNull()
+    expect(comparison.result.value).toBeNull()
+    expect(comparison.errorMessage.value).toContain('unavailable')
+    scope.stop()
+  })
+
+  it('still blocks new historical reads during an active lifecycle write', async () => {
+    const read = vi.fn()
+    vi.stubGlobal('$fetch', read)
+    const { comparison, pending, scope } = setup()
+    comparison.mode.value = 'version-version'
+    comparison.targetVersionId.value = 'version-id'
+    pending.value = true
+    expect(await comparison.readSources('version-id')).toBeNull()
+    expect(read).not.toHaveBeenCalled()
+    scope.stop()
+  })
+
+  it('permits unrelated revision/dirty/conflict changes during a historical read', async () => {
+    const response = deferred<typeof version>()
+    vi.stubGlobal('$fetch', vi.fn(() => response.promise))
+    const state = setup()
+    state.comparison.mode.value = 'version-version'
+    state.comparison.targetVersionId.value = 'version-id'
+    const reading = state.comparison.readSources('version-id')
+    state.article.value!.revision++
+    state.dirty.value = true
+    state.conflict.value = true
+    response.resolve(version)
+    expect(await reading).toMatchObject({ mode: 'version-version' })
+    state.scope.stop()
+  })
+
+  it('computes historical results independently of the unrelated draft revision', async () => {
+    workerBoundary()
+    const state = setup()
+    state.comparison.open('version-id')
+    state.comparison.mode.value = 'version-version'
+    state.dirty.value = true
+    state.conflict.value = true
+    await state.comparison.compare()
+    state.article.value!.revision++
+    expect(state.comparison.status.value).toBe('computing')
+    TestWorker.instances[0]!.complete()
+    expect(state.comparison.result.value).toMatchObject({ mode: 'version-version', identical: true,
+      target: { label: 'Version 3', versionId: 'version-id' } })
+    expect(state.conflict.value && state.dirty.value).toBe(true)
+    state.scope.stop()
+  })
+})
+
+describe('historical roles and supersession', () => {
+  it('reverses selected UUID roles with fresh reads and reversed tag changes', async () => {
+    workerBoundary()
+    const read = vi.fn((url: string) => Promise.resolve(url.endsWith('/first')
+      ? { ...version, id: 'first', versionNumber: 1, body: 'Shared old body', tags: ['old'] }
+      : { ...version, id: 'third', versionNumber: 3, body: 'Shared new body', tags: ['new'] }))
+    vi.stubGlobal('$fetch', read)
+    const { comparison, scope } = setup()
+    comparison.open('first', 'third')
+    comparison.mode.value = 'version-version'
+    await comparison.compare()
+    TestWorker.instances[0]!.complete()
+    expect(comparison.result.value?.tags).toMatchObject({ added: ['new'], removed: ['old'] })
+    await comparison.reverse()
+    expect(comparison.selectedVersionId.value).toBe('third')
+    expect(comparison.targetVersionId.value).toBe('first')
+    expect(read).toHaveBeenCalledTimes(4)
+    expect(TestWorker.instances[1]!.request).toMatchObject({ baseline: { versionId: 'third' }, target: { versionId: 'first' } })
+    TestWorker.instances[1]!.complete()
+    expect(comparison.result.value?.tags).toMatchObject({ added: ['old'], removed: ['new'] })
+    scope.stop()
+  })
+
+  it('reverses identical UUID selections as a fresh one-read attempt', async () => {
+    workerBoundary()
+    const { comparison, scope } = setup()
+    comparison.open('version-id')
+    comparison.mode.value = 'version-version'
+    await comparison.compare()
+    TestWorker.instances[0]!.complete()
+    await comparison.reverse()
+    expect(TestWorker.instances[1]!.request!.requestId).toBeGreaterThan(TestWorker.instances[0]!.request!.requestId)
+    TestWorker.instances[1]!.complete()
+    expect(comparison.result.value?.identical).toBe(true)
+    scope.stop()
+  })
+
+  it.each(['baseline', 'target', 'mode'] as const)('terminates historical computation on %s changes', async (change) => {
+    workerBoundary()
+    const { comparison, scope } = setup()
+    comparison.open('version-id')
+    comparison.mode.value = 'version-version'
+    await comparison.compare()
+    const obsolete = TestWorker.instances[0]!
+    if (change === 'mode') comparison.mode.value = 'draft-version'
+    else if (change === 'baseline') comparison.selectedVersionId.value = 'changed-version'
+    else comparison.targetVersionId.value = 'changed-version'
+    expect(obsolete.terminated).toBe(true)
+    obsolete.complete()
+    expect(comparison.result.value).toBeNull()
+    expect(comparison.status.value).toBe('selecting')
+    scope.stop()
+  })
+
+  it('rejects obsolete HTTP after switching modes away and back to the same selections', async () => {
+    workerBoundary()
+    const response = deferred<typeof version>()
+    const read = vi.fn().mockReturnValueOnce(response.promise).mockResolvedValue(version)
+    vi.stubGlobal('$fetch', read)
+    const { comparison, scope } = setup()
+    comparison.open('version-id')
+    comparison.mode.value = 'version-version'
+    const obsolete = comparison.compare()
+    comparison.mode.value = 'draft-version'
+    comparison.mode.value = 'version-version'
+    expect((read.mock.calls[0]![1].signal as AbortSignal).aborted).toBe(true)
+    await comparison.compare()
+    response.resolve(version)
+    await obsolete
+    expect(TestWorker.instances).toHaveLength(1)
+    TestWorker.instances[0]!.complete()
+    expect(comparison.result.value?.mode).toBe('version-version')
+    scope.stop()
+  })
+
+  it.each(['article', 'unmount'] as const)('cleans up historical work on %s navigation', async (change) => {
+    workerBoundary()
+    const state = setup()
+    state.comparison.open('version-id')
+    state.comparison.mode.value = 'version-version'
+    await state.comparison.compare()
+    const obsolete = TestWorker.instances[0]!
+    if (change === 'article') state.article.value = { ...state.article.value!, id: 'different-article' }
+    else state.scope.stop()
+    obsolete.complete()
+    expect(obsolete.terminated).toBe(true)
+    expect(state.comparison.status.value).toBe('closed')
+    expect(state.comparison.result.value).toBeNull()
+    state.scope.stop()
+  })
+})

@@ -8,7 +8,10 @@ const { article, draft, tagsText, dirty, pending, conflict, publishDisabledReaso
 const missing = computed(() => loadError.value?.status === 404)
 const comparison = useArticleComparison({ article, dirty, pending, conflict })
 
-function openComparison() { comparison.open(selectedVersionId.value ?? history.value?.[0]?.id ?? null) }
+function openComparison() {
+  const baselineId = selectedVersionId.value ?? history.value?.[0]?.id ?? null
+  comparison.open(baselineId, history.value?.find(version => version.id !== baselineId)?.id ?? baselineId)
+}
 async function closeComparison() {
   comparison.close()
   await nextTick()
@@ -81,7 +84,7 @@ useHead({ title: computed(() => `${article.value?.draft.title ?? 'Article'} · N
       <p v-if="successMessage" class="notice success" role="status">{{ successMessage }}</p>
       <ArticleEditorForm :draft="draft" :tags-text="tagsText" :dirty="dirty" :pending="pending" :conflict="conflict" :publish-disabled-reason="publishDisabledReason" :can-unpublish="article.status === 'published'" :field-errors="fieldErrors" @update:title="draft.title = $event" @update:body="draft.body = $event" @update:tags-text="tagsText = $event" @save="save" @publish="publish" @unpublish="unpublish" />
       <ArticleHistory :versions="history ?? []" :loading="historyStatus === 'pending'" :failed="!!historyError" :publication-status="article.status" :published-version-id="article.currentPublishedVersionId" :inspected-version="inspectedVersion" :selected-version-id="selectedVersionId" :inspection-pending="inspectionPending" :inspection-error="inspectionError" :write-pending="pending" :conflict="conflict" :restore-confirmation="restoreConfirmation" :delete-confirmation="deleteConfirmation" @refresh="refreshHistory()" @inspect="inspectVersion" @restore="requestRestore" @confirm-restore="confirmRestore" @cancel-restore="restoreConfirmation = null" @delete="requestDelete" @confirm-delete="confirmDelete" @cancel-delete="deleteConfirmation = null" @compare="openComparison" />
-      <ArticleComparison v-if="comparison.status.value !== 'closed'" :versions="history ?? []" :publication-status="article.status" :published-version-id="article.currentPublishedVersionId" :saved-revision="article.revision" :status="comparison.status.value" :selected-version-id="comparison.selectedVersionId.value" :result="comparison.result.value" :blocked-reason="comparison.blockedReason.value" :error-message="comparison.errorMessage.value" @select-version="comparison.selectedVersionId.value = $event" @compare="comparison.compare" @cancel="comparison.cancel" @close="closeComparison" />
+      <ArticleComparison v-if="comparison.status.value !== 'closed'" :versions="history ?? []" :publication-status="article.status" :published-version-id="article.currentPublishedVersionId" :saved-revision="article.revision" :status="comparison.status.value" :mode="comparison.mode.value" :selected-version-id="comparison.selectedVersionId.value" :target-version-id="comparison.targetVersionId.value" :result="comparison.result.value" :blocked-reason="comparison.blockedReason.value" :error-message="comparison.errorMessage.value" @select-mode="comparison.mode.value = $event" @select-version="comparison.selectedVersionId.value = $event" @select-target="comparison.targetVersionId.value = $event" @compare="comparison.compare" @reverse="comparison.reverse" @cancel="comparison.cancel" @close="closeComparison" />
     </template>
   </div>
 </template>

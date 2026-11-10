@@ -2,7 +2,7 @@
 
 **Branch**: `002-version-diff` | **Date**: 2026-11-09 | **Spec**: [spec.md](spec.md)
 
-**Status**: Phases 1–3 complete on 2026-11-10. US1 saved-draft/version comparison is integrated and browser-verified; MVP presented for review. US2 and final cross-mode/accessibility checks remain pending. See [tasks](tasks.md), [validation](quickstart.md), and [US1 evidence](draft-comparison-evidence.json).
+**Status**: Phases 1–4 complete on 2026-11-10. Both modes are integrated and browser-verified within recorded coverage; presented for review. Final T024–T027 remain pending. See [tasks](tasks.md), [validation](quickstart.md), [US1 evidence](draft-comparison-evidence.json), and [US2 evidence](historical-comparison-evidence.json).
 
 ## Summary
 
@@ -99,7 +99,7 @@ The generated [tasks.md](tasks.md) follows selected option A. Phase 1 analysis,
 checkpoint verification, prerequisite disposition, and dependency setup are complete.
 Phase 2 began with T004 under the user's "next step" request on 2026-11-10.
 
-### Source Code (US1 types/engine/Worker/controller/panel/tests implemented; US2 remains planned)
+### Source Code (both modes, shared engine/Worker/controller/panel/tests implemented)
 
 ```text
 app/components/ArticleComparison.vue
@@ -193,3 +193,22 @@ The 100,000-row result took about 40.5s to finish rendering; no fixed latency gu
 size reduction, pagination, collapsed context, or lost word detail is introduced.
 The disposable browser app/database was removed. Phase 3 MVP is ready for review before
 Phase 4; version/version capture/selectors/reversal and T024–T027 remain pending.
+
+
+## Phase 4 implementation evidence — 2026-11-10
+
+T018–T023 implement arbitrary retained-version pairs, same-source identity, fresh reads,
+and role reversal. Historical capture permits unrelated dirty/conflicted draft fields;
+active lifecycle writes block attempts. Selection/mode/reversal invalidate obsolete reads,
+Workers, and output. Saved-draft guards remain strict. No comparison writes or backend
+changes were introduced. The inline, complete single-scroll design remains in place.
+
+[Historical evidence](historical-comparison-evidence.json) records nine maximum-size
+fixtures in both directions (18 completed comparisons), exact DOM/source and word-detail
+checks, preserved fields, SQL/public immutability, pending-work cancellation, and keyboard
+final-row access. Five additional controls interrupted real 100,000-row rendering without
+late rows. The largest output took about 49–50s to append in this run; timings are observations,
+not guarantees. Current-source saved-draft regression also reconstructed all 100,000 rows.
+315 tests (171 unit + 144 PostgreSQL/HTTP), Nuxt typecheck, and production build passed.
+Normal native popup-picker keyboard coverage, final T024–T027, and Windows T028 remain
+pending. Earlier sections and US1 evidence retain their original checkpoint provenance.
