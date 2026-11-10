@@ -33,7 +33,9 @@
 
 - This built-in checklist was reviewed during specification. Checked items concern
   requirements quality, not implementation, user approval, or runtime verification.
-- Defaults for review: unsaved local draft content, title/body/tags, source-text comparison,
-  and order-independent tag membership. Both requested comparison modes are covered.
+- Confirmed behavior: compare saved draft content only; unsaved local changes require an
+  explicit successful Save before draft comparison, with no automatic save. Compare
+  title/body/tags using source-text line and word differences and order-independent tag
+  membership. Version-to-version comparison does not require saving unrelated local edits.
 - Ready for clarification or planning. Original Windows acceptance T028 remains unverified;
   assess required-work prerequisites before stretch implementation.

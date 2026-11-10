@@ -15,6 +15,7 @@
 - Q: When comparing a draft with a past version, which draft content should the comparison use? → A: Require writers to explicitly save before comparing a draft; compare saved content only. The user selected C, replacing the earlier A selection. Comparison must not save automatically.
 - Q: How much detail should text differences show? → A: Show added, removed, and unchanged lines, with additional word-level highlighting within changed lines in titles and Markdown source bodies.
 - Q: Should comparison support articles up to the existing 100,000-code-point body limit? → A: Support the full existing content limits for both sources without truncating differences or imposing a smaller comparison-only limit.
+- Q: How should we decide whether the UI stays responsive during large comparisons? → A: Record the test environment and timings; verify controls operate during computation, cancellation stops the pending attempt without late results, and all completed output remains reachable. No fixed timing limit is adopted.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -189,7 +190,11 @@ Requirement IDs below are local to `002-version-diff`.
 - **SC-006**: Boundary examples in both modes compare sources at the maximum title, body,
   and tag limits, including 100,000-code-point bodies on both sides with changed content,
   long single lines, and repeated lines. All changed fields and required line/word-level
-  differences are available without truncation or a size-based rejection.
+  differences are available without truncation or a size-based rejection. During a separate pending-comparison
+  attempt, Cancel/Close and source selection take effect before the original computation
+  completes, preserve local edits, and prevent late results from cancelled work. In the
+  completion attempt, all output ranges remain keyboard reachable. Record environment,
+  actions, and timings without requiring an unapproved fixed duration.
 
 ## Assumptions
 

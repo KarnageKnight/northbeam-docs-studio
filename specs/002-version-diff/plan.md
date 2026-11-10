@@ -2,7 +2,7 @@
 
 **Branch**: `002-version-diff` | **Date**: 2026-11-09 | **Spec**: [spec.md](spec.md)
 
-**Status**: Option A selected by the user on 2026-11-09. Architecture approved for task planning; implementation, dependency installation, full-limit feasibility, and runtime verification remain pending.
+**Status**: Option A selected by the user on 2026-11-09; task breakdown generated on 2026-11-09 in [tasks.md](tasks.md). Implementation, dependency installation, full-limit feasibility, and runtime verification remain pending.
 
 ## Summary
 
@@ -18,7 +18,7 @@ Selected option A: reuse existing writer GETs and captured saved editor state, c
 **Testing**: Existing Vitest unit and real PostgreSQL/HTTP integration suites; pure engine/controller unit cases and actual-browser Worker/DOM/keyboard checks. No new browser testing dependency proposed.
 **Target Platform**: Existing Compose and host workflows. Worker starts in browser interaction only, never during SSR. Chrome is the existing acceptance baseline; other browsers require actual checks.
 **Project Type**: Extend existing Nuxt monolith.
-**Performance Goals**: No numerical latency target approved. Measure compute/render time and responsiveness at full limits on recorded hardware. Worker execution does not prove worst-case completion. Full-limit feasibility is a blocking implementation acceptance gate; timeout, truncation, or line-only fallback cannot count as success.
+**Performance Goals**: The user selected observable responsiveness checks on 2026-11-09, with no fixed timing threshold. Record hardware/OS/browser/build/fixture and measured compute/render timings. Pass requires Cancel/Close and source selection to take effect while compute is pending, cancelled requests/Workers to stop without late output, and keyboard access to every result range after successful completion; follow the repeatable procedure in quickstart.md. Worker execution does not prove worst-case completion. Full-limit feasibility is a blocking implementation acceptance gate; timeout, truncation, or line-only fallback cannot count as success. Shared compute feasibility precedes UI integration; full-size rendered acceptance then gates each story completion (T016 for US1, T022 for US2), followed by final cross-mode regression/evidence review (T024).
 **Constraints**: Preserve edits; no lifecycle mutations; escaped text; stale-response protection; cancellation; no comparison-specific size reduction. Architecture selection is recorded; tasks and the human spec-first git checkpoint still precede code.
 **Scale/Scope**: One active comparison/editor, two same-article sources. Per source: title 200, body 100,000 Unicode code points; 10 tags of 30 code points. No new system capacity claim.
 
@@ -59,11 +59,12 @@ specs/002-version-diff/
 ├── research.md
 ├── data-model.md
 ├── quickstart.md
+├── tasks.md
 ├── contracts/comparison.md
 └── checklists/requirements.md
 ```
 
-Next generate tasks.md with speckit-tasks using the selected option A.
+The generated [tasks.md](tasks.md) follows selected option A. Next run speckit-analyze and review the spec-first checkpoint and required-work prerequisites before implementation.
 
 ### Source Code (selected design; not implemented)
 
@@ -93,7 +94,7 @@ tests/integration/articles.test.ts               # only missing source-read evid
 [contracts/comparison.md](contracts/comparison.md) defines API reuse, Worker messages, rendering and cancellation.
 [quickstart.md](quickstart.md) defines future acceptance scenarios and verification.
 
-Next: speckit-tasks for the selected option A. Do not introduce feature 003 publish behavior or amend its baseline in this work.
+Next: speckit-analyze for the generated task breakdown, followed by human review/checkpoint and prerequisite resolution before implementation. Do not introduce feature 003 publish behavior or amend its baseline in this work.
 
 ## Complexity Tracking
 
