@@ -2,7 +2,7 @@
 
 **Branch**: `002-version-diff` | **Date**: 2026-11-09 | **Spec**: [spec.md](spec.md)
 
-**Status**: Phase 1 and T004 shared types complete on 2026-11-10, with passing tests/typecheck/build. See [tasks.md](tasks.md) and [evidence](quickstart.md). Phase 2 now has a concrete UI preview and implemented exact engine/Worker (T006–T009). T010 optimized full-limit Worker computation passed all 9 fixtures; the human approved the revised visual design on 2026-11-10. Phase 2 is complete; later full-size DOM acceptance remains open. Editor integration is pending.
+**Status**: Phases 1–3 complete on 2026-11-10. US1 saved-draft/version comparison is integrated and browser-verified; MVP presented for review. US2 and final cross-mode/accessibility checks remain pending. See [tasks](tasks.md), [validation](quickstart.md), and [US1 evidence](draft-comparison-evidence.json).
 
 ## Summary
 
@@ -99,7 +99,7 @@ The generated [tasks.md](tasks.md) follows selected option A. Phase 1 analysis,
 checkpoint verification, prerequisite disposition, and dependency setup are complete.
 Phase 2 began with T004 under the user's "next step" request on 2026-11-10.
 
-### Source Code (shared types, engine, Worker, and engine tests implemented; UI/controller planned)
+### Source Code (US1 types/engine/Worker/controller/panel/tests implemented; US2 remains planned)
 
 ```text
 app/components/ArticleComparison.vue
@@ -174,3 +174,22 @@ Single-scroll full-size DOM acceptance remains required in T016/T022.
 Phase 2 closure records the human response “Approve revised design”. Next is T011 saved-draft
 capture/guard behavior in Phase 3; Phase 3 has not started. No runtime changes or new test
 results are implied by this documentation-only approval record.
+
+## Saved-draft MVP handoff — 2026-11-10
+
+T011–T017 implemented copied saved capture, synchronous guards, fresh owned GETs with
+abort/retry:0, generation/source/article isolation, lazy client-only Worker lifecycle,
+actual single-scroll panel, and editor/history entry integration. All lines append
+automatically in yielded batches; source text is escaped and every row stays present.
+No lifecycle handler is called by comparison, and existing inspect/restore/Write/Preview
+behavior remains usable. Normal popup-picker keyboard driving is an explicit coverage
+gap for T025/manual review; boundary source-keyboard probes used native listbox presentation.
+
+All 9 full-size draft-mode fixtures passed actual Worker and DOM reconstruction, source
+labels, saved fields, SQL/public immutability, keyboard end-of-output access, and pending
+compute/render cleanup. Fourteen walkthrough groups and four supplemental groups passed.
+Final 300-case suite, strict controller-test source check, Nuxt typecheck, and build pass.
+The 100,000-row result took about 40.5s to finish rendering; no fixed latency guarantee,
+size reduction, pagination, collapsed context, or lost word detail is introduced.
+The disposable browser app/database was removed. Phase 3 MVP is ready for review before
+Phase 4; version/version capture/selectors/reversal and T024–T027 remain pending.

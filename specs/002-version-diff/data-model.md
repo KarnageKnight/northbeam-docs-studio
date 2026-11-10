@@ -1,6 +1,6 @@
 # Version Diff: Proposed Data Model
 
-**Date**: 2026-11-09 | **Status**: Design selected through option A on 2026-11-09; T004 shared types implemented on 2026-11-10. Exact text/tag computation and Worker result projection are implemented in T006–T009; editor capture/state transitions remain pending. See [plan](plan.md).
+**Date**: 2026-11-09 | **Status**: Design selected through option A on 2026-11-09; T004 shared types implemented on 2026-11-10. Exact text/tag computation and Worker result projection are implemented in T006–T009; US1 editor capture/state transitions are implemented and verified in T011–T016; historical capture remains pending. See [plan](plan.md).
 
 ## Shared type contract (T004)
 
@@ -63,3 +63,15 @@ Each source supports title 200 and body 100,000 Unicode code points, 10 tags of 
 The human replaced paged output with a single continuous article diff showing every line.
 The now-unused ComparisonPresentationRange type was removed. T004's earlier range evidence
 is historical; no pagination or collapsed unchanged context is required by the current model.
+
+## US1 runtime contract — 2026-11-10
+
+useArticleComparison now copies saved draft content/revision, reads owned versions anew,
+and owns fetching/computing/ready/error state independently of editor lifecycle state.
+Synchronous dirty/pending/conflict/revision/article watches invalidate pending captures;
+selection/close/unmount abort reads, terminate the Worker, clear output, and invalidate
+generations. Ready output retains its original saved label/revision during later typing.
+Worker output is held in a shallow ref and checked against generation/article/source IDs.
+The panel appends all body rows automatically, yielding between 1,000-row batches, and
+cancels queued batches on source change/Cancel/Close/unmount. No presentation range,
+pagination, hidden context, or persisted comparison record is introduced. US2 is pending.

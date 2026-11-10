@@ -1,6 +1,6 @@
 # Version Diff: Interface Contracts
 
-**Date**: 2026-11-09 | **Status**: Design selected through option A on 2026-11-09; shared TypeScript contracts implemented in T004 on 2026-11-10. T006–T009 implement the pure engine and Worker protocol, including a real production-browser smoke check. T010 verifies optimized full-limit production Worker computation on the recorded fixtures. Controller/HTTP orchestration and UI behavior/full-size DOM acceptance remain pending.
+**Date**: 2026-11-09 | **Status**: Design selected through option A on 2026-11-09; shared TypeScript contracts implemented in T004 on 2026-11-10. T006–T009 implement the pure engine and Worker protocol, including a real production-browser smoke check. T010 verifies optimized full-limit production Worker computation on the recorded fixtures. US1 controller/HTTP orchestration and full-size single-scroll DOM acceptance passed T011–T016 within recorded coverage. US2 orchestration/controls and final cross-mode/accessibility checks remain pending.
 Authority: [spec](../spec.md), [plan](../plan.md), [model](../data-model.md).
 
 ## Existing HTTP interfaces
@@ -53,3 +53,20 @@ Do not represent timeouts, dropped words, truncation, or reduced maximum size as
 ## Read-only guarantees
 
 Comparison changes no saved draft, revision, audit field, history, allocation counter, publication state/reference/date, or public data. Explicit Save before comparison is a separate existing writer operation. Source reads are independent captures; no multi-request transactional view or background deletion detection is promised.
+
+## Implemented US1 boundary — 2026-11-10
+
+The editor supplies saved article plus read-only dirty/pending/conflict refs. Current
+controller mode is fixed to saved draft/version; the version/version mode and reversal
+remain planned for T018–T020. All reads set retry:0 and AbortSignal; snapshots and saved
+draft tags are copied. Guard watches run synchronously while pending and recheck before
+Worker startup. Result acceptance validates request/article IDs, source UUID, and saved
+revision. Close/cancel/supersession/unmount abort/terminate and clear retained state.
+
+ArticleComparison renders escaped title/body in one table and complete automatic body
+batches with no output cap, paging, or collapsed context. Batch scheduling is presentation
+work only and is cancelled when output changes or the component unmounts. The 9 full-size
+US1 production-editor fixtures passed complete DOM reconstruction, preserved fields,
+SQL/public immutability, and pending-compute/render controls. Native collapsed-picker
+keyboard coverage remains pending T025/manual review; boundary selection tests used a
+temporary native listbox presentation. See draft-comparison-evidence.json and quickstart.

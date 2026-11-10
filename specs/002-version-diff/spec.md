@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-08
 
-**Status**: Foundation engine/Worker implemented and tested on 2026-11-10. Revised single-scroll UI design approved on 2026-11-10; neither editor comparison story is integrated or verified.
+**Status**: US1 saved-draft comparison MVP implemented and verified on 2026-11-10 within recorded browser coverage. US2 and final cross-mode/accessibility acceptance remain pending.
 
 **Input**: User description: "A diff view between the draft and a past version, or between two versions. This is a stretch goal."
 
@@ -218,3 +218,21 @@ Requirement IDs below are local to `002-version-diff`.
   requirements, not approved architecture choices.
   Technical design and any new dependency decisions belong in planning.
 
+
+## Implementation evidence — US1, 2026-11-10
+
+Saved-draft/version comparison is integrated with explicit-save guards, captured revision,
+fresh owned source reads, exact line/word/tag output, cancellation/error isolation, and
+one complete continuous article diff. Nine maximum-size production-editor fixtures passed
+exact DOM reconstruction and keyboard final-line reachability. Source reads changed no
+SQL/public state; all editor fields survived the exercised reads/computation/rendering/
+close/error paths. The complete automated suite passes 300 cases, plus typecheck/build.
+[Evidence and limits](draft-comparison-evidence.json) and [walkthrough](quickstart.md).
+
+FR-001 and the draft-mode portions of FR-003–FR-012/SC-001–SC-006 have recorded evidence;
+FR-002 and version/version portions await US2. This is not a claim that every both-mode
+success criterion is complete. Normal collapsed-picker keyboard coverage remains a
+T025/manual gap; no formal accessibility or untested-browser certification is claimed.
+Large output is complete but can be slow: 100,000 rows took about 40.5s to render on the
+recorded environment, with cancellation and source/close controls still processing.
+US1 MVP is presented for review; historical pairing/reversal is not yet implemented.

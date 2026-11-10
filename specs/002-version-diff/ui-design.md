@@ -1,7 +1,6 @@
 # Version Diff: UI design
 
-**Prepared**: 2026-11-10. **Human visual review**: revised preview approved on 2026-11-10 with “Approve revised design”; initial design changes retained below as history. This is a design artifact,
-not an implemented editor feature. Open [interactive preview](design-preview/index.html).
+**Prepared**: 2026-11-10. **Human visual review**: revised preview approved on 2026-11-10 with “Approve revised design”; initial design changes retained below as history. This approved design is implemented for saved-draft comparison in T014–T016; historical controls remain planned. Open [interactive preview](design-preview/index.html).
 
 ## Placement and controls
 
@@ -112,3 +111,13 @@ The human selected “Approve revised design” after reviewing the revised prev
 complete. The approved design has every article line visible in one continuous scroll,
 with title changes in the same unified surface and tags summarized below. Visual approval
 is separate from the later integrated full-size rendering and controller acceptance gates.
+
+## US1 implementation — 2026-11-10
+
+The approved saved-draft layout is now integrated in ArticleComparison.vue and the editor.
+All article lines remain in a single table; complete output appends automatically in
+yielded batches, without range controls, collapsed content, or truncation. Production
+mobile/desktop checks and the full-size DOM matrix are recorded in quickstart.md and
+draft-comparison-evidence.json. Historical source selection/reversal remains Phase 4.
+The original preview stays sample-only and is not the running application. Native
+collapsed-picker keyboard coverage remains a T025/manual gap, explicitly documented.

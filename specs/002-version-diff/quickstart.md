@@ -1,7 +1,7 @@
 # Version Diff: Validation Guide
 
-**Date**: 2026-11-09 | **Status**: Phase 1 and T004/T006–T010 engine/Worker foundation verified on 2026-11-10. Revised UI preview approved on 2026-11-10, completing Phase 2; story-level controller/rendering acceptance remains pending.
-Option A architecture was selected on 2026-11-09; see [plan](plan.md). Feature controls are not implemented.
+**Date**: 2026-11-09 | **Status**: Phases 1–3 complete on 2026-11-10. Saved-draft comparison MVP verified within recorded browser coverage; US2 and final acceptance remain pending.
+Option A architecture was selected on 2026-11-09; see [plan](plan.md). Saved-draft controls are implemented; historical pair/reversal controls remain pending.
 Original Windows acceptance T028 remains unverified.
 
 ## Phase 1 evidence — 2026-11-10
@@ -101,7 +101,7 @@ use `pnpm install --frozen-lockfile` with the pinned toolchain for a fresh check
 docker compose up --build
 ```
 
-Open http://127.0.0.1:3000, choose Writer, and prepare two distinct retained versions plus a different saved draft. Do not treat future comparison steps below as currently working controls.
+Open http://127.0.0.1:3000, choose Writer, and prepare two distinct retained versions plus a different saved draft. The saved-draft steps are implemented and verified as recorded below; version/version steps remain planned.
 
 ## Completion commands after implementation
 
@@ -296,3 +296,139 @@ T005 and Phase 2 are complete; T011–T027 remain pending. This record changes d
 only: artifact/diff validation was performed, and application tests/build were not rerun.
 The previous 279-test/typecheck/build and Worker evidence applies to unchanged runtime
 source. No commit was created.
+
+## Phase 3 execution — 2026-11-10
+
+T011: copied saved-draft capture/guards implemented after reviewing useArticleEditor and
+existing unit tests. Initial focused import failed before the composable existed; all 5
+capture/guard cases then passed. Capture retains Saved draft/revision and copies tags;
+dirty/pending/conflict/missing sources are blocked, including newer dirty input after Save.
+Full suite: 141 unit + 143 real PostgreSQL/HTTP (284 total); Nuxt typecheck/build passed.
+Logs: `/private/tmp/northbeam-002-t011-{red,typecheck,build,tests}.log`.
+No source fetching, Worker/controller lifecycle, or panel integration is claimed by T011.
+
+T012: fresh owned version GETs implemented with retry:0/AbortSignal and copied saved-draft
+as fixed target. Seven new tests failed before implementation, then all 12 controller
+cases passed. Reads recheck article/revision/dirty/pending/conflict, clear stale captures
+on failure, copy fetched tags, and never call lifecycle writes or editor reload.
+Full suite: 148 unit + 143 real PostgreSQL/HTTP (291 total); Nuxt typecheck/build passed.
+Logs: `/private/tmp/northbeam-002-t012-{red,typecheck,build,tests}.log`.
+
+T013: lazy static module Worker and comparison lifecycle implemented. Nine new cases
+failed before implementation, then all 21 controller cases passed. Guard watches run
+synchronously during fetch/compute; stale generations/articles/sources are rejected.
+Close/cancel/source changes/unmount abort reads, terminate Workers, and release captures.
+Startup/runtime/message failures are safe and retry creates a fresh Worker. Later editing
+keeps a ready saved-revision capture. Full suite: 157 unit + 143 real PostgreSQL/HTTP
+(300 total); Nuxt typecheck/build passed. Node boundary tests do not replace browser evidence.
+Logs: `/private/tmp/northbeam-002-t013-{red,typecheck,build,tests}.log`.
+
+T014: escaped unified comparison panel and scoped styles implemented from the approved
+preview. Title/body share one table; word cues, original line-ending annotations, source
+labels/revision, tags, identity/errors/loading, and native controls are present. All body
+rows append automatically in yielded batches; no pagination, collapsed context, or caps.
+Nuxt typecheck and the 300-test suite passed. The first host build encountered a generated
+.output ENOTEMPTY cleanup error; an unchanged-source retry passed. Logs:
+`/private/tmp/northbeam-002-t014-{typecheck,build,build-retry,tests}.log`.
+Panel/browser/full-size acceptance remains T015–T016; compile checks alone do not prove it.
+
+T015: history Compare entry and read-only editor wiring implemented; Close returns focus
+through the original entry. Existing Write/Preview and lifecycle handlers were preserved.
+Corrected the Compare button's optional aria-describedby reference. Full 300-test suite,
+Nuxt typecheck, and build passed. Logs: `/private/tmp/northbeam-002-t015-{typecheck,build,tests}.log`.
+The separate northbeam002-browser Compose project starts the built app on loopback 3314
+with its own PostgreSQL volume for T016; this does not modify the normal application data.
+Actual browser and full-size renderer acceptance remains pending until recorded below.
+
+## T016 saved-draft browser acceptance — 2026-11-10
+
+[Persistent evidence](draft-comparison-evidence.json) records the production image/source
+checksums, 14 walkthrough groups, four supplemental groups, and all nine complete maximum
+input comparisons through the actual editor/controller/panel. Source files in the Linux
+Compose image matched the workspace byte-for-byte. Browser: headless Chrome 157.0.0.0 on
+the recorded M2 Pro/16 GiB/macOS 27.0.1 host; Node 24.22.2/pnpm 12.18.0, Nuxt 4.6.4,
+Vue 3.5.45, Vite 8.3.5, diff 9.0.0. The separate northbeam002-browser app/database used
+loopback 3314 and its own volume; its containers/network/volume were removed afterward.
+
+Actual flows passed: dirty opening without writes/Worker; failed Save; newer typing during
+an explicitly delayed Save; successful explicit Save and comparison; later dirty edits
+leaving the captured result intact; close/focus-return/reopen; typing/source changes/close
+while a GET response was deliberately delayed; Worker startup/runtime failure injection
+and retry; controlled delayed Worker cancellation; stale saved editor response labeled
+by its captured revision; deleted source without substitution/old output; unpublished
+last-published access and public 404; empty body/tags; explicit identity; existing UI
+inspect/restore followed by comparison refresh; stale Save conflict retaining all local
+fields; and explicit Cancel/Confirm reload recovery. No comparison calls Save or Reload.
+
+Raw HTML/script/unsafe links stayed inactive exact source text. The real panel had no
+page overflow at 320/390/1440px, had semantic word cues, and preserved Write/Preview.
+The mobile screenshot was visually inspected. Runtime exceptions and hydration warnings
+were zero in completed runs. Expected controlled runtime-error injection is recorded
+separately from ordinary application failures. Initial probe issues (escaped URL regex,
+textarea newline expectation, DELETE 204 parsing, hydration readiness, document-end key,
+and native picker driving) were corrected in the probes; no application fix or changed
+source was needed after the T015 passing checks.
+
+Each maximum-input attempt uses 200-code-point titles, ten 30-code-point tags per source,
+and two 100,000-code-point bodies. Titles/tags also differ. Every DOM source character,
+full row count, saved-editor field, and baseline/target reconstruction passed. SQL rows
+(including revisions/audit/counters/history/publication metadata) and public projections
+were unchanged around completed comparisons; browser comparison requests had no writes.
+No result was paginated, collapsed, truncated, or stripped of word detail.
+
+| Body fixture | Worker + transfer (ms) | Observed render completion (ms) | Rendered body rows |
+|---|---:|---:|---:|
+| identical | 19.2 | 525.7 | 7693 |
+| sparse | 34.5 | 422.6 | 7695 |
+| long-single-line | 6.8 | 83.8 | 2 |
+| repeated-lines | 66.0 | 1675.1 | 16669 |
+| many-short-lines | 493.8 | 40475.1 | 100000 |
+| unequal-replacements | 11297.9 | 1620.2 | 16234 |
+| unicode | 333.8 | 3330.1 | 22500 |
+| whitespace | 337.3 | 17936.4 | 66666 |
+| different-token-dense | 213.3 | 77.1 | 2 |
+
+Render timing is main-thread observed completion, including polling/queued work; it is
+not an isolated paint benchmark. The largest 100,000-row result needed about 40.5 seconds
+to render. Timing and main-heap hints are observations, not guarantees or peak/Worker
+memory measurements. The complete output was reached with native End-key document
+scrolling; maximum long-single-line output also stayed within 320/390px page widths.
+
+All nine fixtures separately exercised Cancel/Close/source supersession while computing:
+local fields survived, actual Workers terminated, and no obsolete output appeared. Fast
+cases that completed before interaction used explicitly flagged 700ms transport delays;
+these artificial delays are excluded from completion timings. Source selection was driven
+by native keyboard with the real select temporarily shown as a listbox because this macOS
+headless CDP session did not commit the native popup menu. The normal collapsed picker
+keyboard check remains a T025/manual coverage gap; no blanket keyboard/WCAG certification
+or other-browser support is claimed. Native entry/Compare/Cancel/Close and continuous
+output scrolling were tested without changing their presentation.
+
+Additional real rendering attempts (no artificial delay) interrupted the 100,000-row
+result after 4,000–5,000 rows. Cancel, Close, and source changes processed in observed
+419–587ms, stopped subsequent batches, and preserved fields; zero rendered rows reappeared
+during the following 300ms. Compute cancellation late-message observation windows were
+200ms, or 800ms for controlled delays. These checks prove controls act before pending
+work completes, without adopting a numerical responsiveness requirement.
+
+T016 passed the US1 full-size computation/rendering gate. Actual evidence and source
+identities are in draft-comparison-evidence.json. Temporary probe sources/logs/screenshots
+are in `/private/tmp/northbeam-002-phase3-*`; startup/cleanup logs are
+`/private/tmp/northbeam-002-t016-{startup,cleanup}.log`. No temporary probe plugin or route
+was added to the app. US2 and final cross-mode/accessibility checks remain future work.
+
+## T017 saved-draft MVP handoff — 2026-11-10
+
+US1 is implemented and browser-verified within the recorded coverage. README now gives
+the actual saved-draft demo, preserved-edit behavior, and the observed full-DOM tradeoff.
+Final runtime source is unchanged from the T015 checks: `pnpm test` passed 157 unit +
+143 real PostgreSQL/HTTP cases (300 total), Nuxt typecheck and production build passed.
+Focused controller test sources also compiled strictly using the generated Nuxt type
+context. Documentation/artifact diff checks passed; no redundant runtime rerun is claimed
+for this documentation-only handoff. The prior transient generated-output build cleanup
+failure and successful retry remain recorded in T014 evidence.
+
+Phase 3 (T011–T017) is complete and presented for MVP review. Phase 4 (US2 two versions/
+reversal, T018–T023) and final T024–T027 checks remain pending. Native collapsed-picker
+keyboard coverage and Windows T028 remain explicitly unverified; neither was silently
+marked passed. No commits, merge, submission, or external application write was performed.

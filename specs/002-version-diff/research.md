@@ -111,3 +111,21 @@ failures, measured outcomes, source/fixture identities, and limits. This demonst
 shared computation feasibility for those fixtures, not final single-scroll DOM capacity,
 all possible adversarial input timings, or untested browsers. No comparison-specific
 content cap or engine timeout is introduced; final renderer/controller checks remain required.
+
+## US1 implementation and rendering observations — 2026-11-10
+
+T011–T017 delivered the saved-draft controller and approved single-scroll panel. To keep
+controls available without hiding or truncating output, the renderer automatically appends
+1,000-row batches and memoizes completed batches; all rows remain in the DOM. The 9 full
+source-limit production-editor fixtures reconstruct exactly, including 100,000 output rows.
+That largest output required about 40.5s to finish on the recorded machine. Real Cancel,
+Close, and source changes interrupted rendering after 4,000–5,000 rows in observed
+419–587ms, preserving editor fields and preventing later appended output. Timings are
+observations, not fixed product targets. No virtualized/paged or line-only fallback exists.
+
+Native popup-menu keyboard selection did not commit through this headless macOS CDP
+session; source-change keyboard probes used the same select in temporary listbox
+presentation. Normal popup driving remains explicitly unverified for T025/manual review.
+Other keyboard entry/action/final-output checks passed. No new browser framework or
+production probe was added. Persistent results and source/image identity are recorded in
+draft-comparison-evidence.json. US2 and final cross-mode/accessibility acceptance remain pending.

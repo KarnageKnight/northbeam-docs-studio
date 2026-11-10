@@ -1,13 +1,12 @@
 <!--
 Sync Impact Report — review-only; remove this comment before committing.
-Version change: 1.5.0 -> 2.0.0 (approved Windows verification deferral for feature 002).
-Modified principle (title unchanged):
-  V. Small, Reviewable Changes Within the Time Budget — narrow stretch prerequisite exception.
-Major rationale: the exception changes the previous unconditional required-work prerequisite.
-Human approval: 2026-11-09, "approve and move on", in response to the proposed governance amendment.
-Added principles or sections: none.
+Version change: 2.0.0 -> 2.1.0 (detailed review walkthroughs for new files).
+Modified principles: none.
+Minor rationale: adds a review obligation without removing existing governance requirements.
+Human request: 2026-11-10, explain every new file's functions, necessity, and usage in detail.
+Added principle: VIII. Detailed Review Explanations for New Files.
 Removed sections: none.
-Affected artifacts: feature 002 plan/tasks record T001 disposition; feature 001 T028 stays open.
+Affected workflow: task/phase review handoffs must include the new-file walkthrough.
 Template synchronization: dependent templates read this constitution at runtime;
   no template or command files changed.
 Deferred placeholders and follow-up TODOs: none.
@@ -160,6 +159,39 @@ be limited to explaining non-obvious rationale, constraints, or tradeoffs that t
 communicate clearly. Comments MUST NOT narrate obvious operations, repeat the code, or serve
 as a substitute for readable implementation.
 
+### VIII. Detailed Review Explanations for New Files
+
+Whenever AI adds a file, the task or phase review handoff MUST include a detailed,
+file-by-file walkthrough for a human code reviewer. A filename list, change summary,
+or passing-test report alone is insufficient. The walkthrough MUST link to each new
+file and relevant definitions and usage locations, with line references where available.
+
+For each new code file, AI MUST explain:
+
+- Its purpose, the requirement it satisfies, why a separate file is needed, and how its
+  responsibility fits the existing structure.
+- Each function, helper, class, composable, or component: what it does, why it is needed,
+  its inputs and outputs, return values, and side effects. Explain relevant types,
+  component props, emitted events, and public interfaces as well as private helpers.
+- Where it is imported, called, rendered, or otherwise consumed, naming the actual
+  files and call sites. Trace the relevant data/control flow through those connections;
+  if a consumer is planned but not implemented, state that explicitly.
+- Relevant state changes, asynchronous behavior, validation/guards, error handling,
+  cancellation/cleanup, protected invariants, and meaningful tradeoffs or limitations.
+- How it was verified, which tests cover its behavior, what those checks establish,
+  and what remains unverified.
+
+For new tests, documentation, configuration, fixtures, generated files, or evidence
+artifacts, AI MUST explain the applicable structure, cases/settings/data, why the file
+exists, how it is produced or maintained, who or what consumes it, and its validation
+and limitations. Do not invent functions or runtime call sites for non-executable files.
+
+Provide this explanation in the review response unless the human requests a separate
+review document. A concise outcome summary may precede the walkthrough but MUST NOT
+replace it. Source comments MUST still follow Principle VII; the walkthrough belongs in
+the review, rather than repetitive comments throughout the implementation. This makes
+new responsibilities and their integration inspectable before human approval.
+
 ## Technology and Scope
 
 - The application MUST use Nuxt, Vue, and PostgreSQL. Supporting libraries, compatible
@@ -227,4 +259,4 @@ be made explicit and resolved through a documented amendment or a conforming imp
 it cannot silently weaken a required assignment invariant. Temporary amendment-review comments
 MUST be removed before committing the constitution.
 
-**Version**: 2.0.0 | **Ratified**: 2026-11-06 | **Last Amended**: 2026-11-09
+**Version**: 2.1.0 | **Ratified**: 2026-11-06 | **Last Amended**: 2026-11-10
