@@ -9,16 +9,19 @@ and the final verification audit are recorded in the [verification guide](specs/
 **Windows acceptance remains unverified (T028).** Final delivery review is prepared;
 see the [delivery review](specs/001-docs-studio/quickstart.md#phase-18-delivery-rehearsal-and-history-review--november-8-2026). Final review was approved on November 8, 2026; commits and submission remain human-owned.
 
-## Idempotent publishing (003, partial)
+## Idempotent publishing (003, acceptance in progress)
 
-Publishing already-published unchanged saved content now preserves all persisted fields and
-creates no version. Equality uses exact title/body and normalized tag membership, ignoring
-order. The editor reports either a new version or already-published content; WriterArticle
-is unchanged. To review, publish once, repeat Publish, then save changed content and publish
-a new version. [Phase 3 verification](specs/003-idempotent-publish/quickstart.md#phase-3-verification--2026-11-11)
-records 329 passing tests and browser checks. Unpublished-content reactivation is still
-planned for Phase 4; it currently creates a new version. Extended concurrency/failure
-acceptance follows in Phase 5. Windows T028 remains unverified.
+Publish compares exact saved title/body and normalized tag membership (ignoring order)
+against the article's retained snapshot. First/different content creates a new version.
+Already-published equal content changes no stored fields. Unpublished equal content
+restores visibility with the same snapshot and advances revision/modification time once,
+preserving history, counter, original publication date, and saved/public tag orders.
+
+The editor distinguishes all three outcomes with the existing WriterArticle response.
+To review: publish once, repeat Publish unchanged, unpublish and republish unchanged, then
+save changed content and publish a new version. [Phase 4 verification](specs/003-idempotent-publish/quickstart.md#phase-4-verification--2026-11-11)
+records 336 passing tests and keyboard/browser checks. Extended conflict/failure acceptance
+and final verification remain pending. Windows T028 remains unverified.
 
 ## Run with Docker
 

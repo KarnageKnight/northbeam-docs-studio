@@ -1,7 +1,7 @@
 # Tasks: Idempotent Publish
 
 **Input**: `specs/003-idempotent-publish/{spec.md,plan.md,research.md,data-model.md,contracts/publish.md,quickstart.md}`.
-**Status**: Generated 2026-11-10. T001–T011 completed after explicit human governance decisions and baseline alignment; T012 onward remain pending. Phase 3 published-content no-op behavior is implemented and verified; reactivation remains pending.
+**Status**: Generated 2026-11-10. T001–T015 completed after explicit human governance decisions and baseline alignment; T016 onward remain pending. US1 and US2 are implemented and verified; Phase 5 extended conflict/failure acceptance remains pending.
 **Design**: Human-selected option B: existing locked transaction, exact saved-content equality, unchanged WriterArticle response, client-inferred feedback. No schema, endpoint, dependency, hash, or whole-history deduplication changes.
 **Tests**: Required by the feature acceptance scenarios and Constitution IV. Extend existing real-PostgreSQL/HTTP coverage; inspect existing tests before adding cases.
 
@@ -54,19 +54,19 @@ No new files or obsolete application code were introduced. The subsequent T005 c
 - [x] T010 [US1] Extend `server/services/articles/publishArticle.ts` inside the existing article-first locked transaction: retain revision and publish-validation precedence, fetch only the owned referenced snapshot, reject missing/wrong-owner references or inconsistent status/reference/first-date state generically, and return the unchanged article for published equality without INSERT/UPDATE. Allocate UUID/version only on creation; preserve first/different-content behavior and unchanged response shape.
 - [x] T011 [US1] Update `app/composables/useArticleEditor.ts` to capture immutable prior status/reference alongside the request revision, infer new-version versus unchanged feedback from the successful returned reference before `acceptSaved`, and reject impossible success combinations without labeling them unchanged. Retain explicit-save/pending/conflict guards, retry:0, and delayed-typing preservation; keep history-refresh errors distinct from committed publication success. Validate new and unchanged messages in the browser and record results in `specs/003-idempotent-publish/quickstart.md`.
 
-**Checkpoint**: US1 completed on 2026-11-11; see Phase 3 verification in quickstart.md. Stop for phase review; US2/US3 remain pending.
+**Checkpoint**: US1 completed on 2026-11-11; see Phase 3 verification in quickstart.md. US2 subsequently completed Phase 4; US3 remains pending.
 
 ## Phase 4: US2 — Changed publication and retained-snapshot reactivation (P2)
 
 **Goal**: First/different content creates one version; equivalent unpublished content restores visibility using its retained snapshot.
 **Independent test**: Publish changed content, unpublish, republish unchanged, and Publish again. Verify new versus reused reference, public visibility, one reactivation revision/time update, and then a true no-op.
 
-- [ ] T012 [US2] Extend `tests/integration/articles.test.ts` for first publication, independent title/body/tag-membership changes, unpublished changed content, and matches with an older nonreferenced snapshot or another article. Assert exactly one new immutable row, saved tag order copied, unique never-reused version allocation after deletion, and first publication date preserved where present.
-- [ ] T013 [US2] Extend `tests/integration/articles.test.ts` for unchanged reactivation, including reordered saved tags: status/revision/updatedAt change once, public access returns, and draft/createdAt/reference/history/counter/first-date remain unchanged. A following unchanged Publish changes no fields. Verify public snapshot order and saved draft order remain independent.
-- [ ] T014 [P] [US2] Add the equivalent-unpublished branch in `server/services/articles/publishArticle.ts`: update only status, revision +1, and updatedAt once, returning after transaction completion. Preserve the referenced snapshot, allocation counter, original publication date, and saved fields; retain the ordinary atomic creation path for first/different content.
-- [ ] T015 [P] [US2] Complete reactivation feedback in `app/composables/useArticleEditor.ts` using the captured unpublished status plus unchanged returned reference and the exact message from `specs/003-idempotent-publish/contracts/publish.md`; validate all three outcomes, history/public refresh, keyboard access, and existing accessible status/alert patterns in the browser. Record results in `specs/003-idempotent-publish/quickstart.md` after T014 is integrated.
+- [x] T012 [US2] Extend `tests/integration/articles.test.ts` for first publication, independent title/body/tag-membership changes, unpublished changed content, and matches with an older nonreferenced snapshot or another article. Assert exactly one new immutable row, saved tag order copied, unique never-reused version allocation after deletion, and first publication date preserved where present.
+- [x] T013 [US2] Extend `tests/integration/articles.test.ts` for unchanged reactivation, including reordered saved tags: status/revision/updatedAt change once, public access returns, and draft/createdAt/reference/history/counter/first-date remain unchanged. A following unchanged Publish changes no fields. Verify public snapshot order and saved draft order remain independent.
+- [x] T014 [P] [US2] Add the equivalent-unpublished branch in `server/services/articles/publishArticle.ts`: update only status, revision +1, and updatedAt once, returning after transaction completion. Preserve the referenced snapshot, allocation counter, original publication date, and saved fields; retain the ordinary atomic creation path for first/different content.
+- [x] T015 [P] [US2] Complete reactivation feedback in `app/composables/useArticleEditor.ts` using the captured unpublished status plus unchanged returned reference and the exact message from `specs/003-idempotent-publish/contracts/publish.md`; validate all three outcomes, history/public refresh, keyboard access, and existing accessible status/alert patterns in the browser. Record results in `specs/003-idempotent-publish/quickstart.md` after T014 is integrated.
 
-**Checkpoint**: US1 and US2 field matrices and feedback pass; no schema or API-shape change.
+**Checkpoint**: Phase 4 completed on 2026-11-11. US1 and US2 field matrices and feedback pass; no schema or API-shape change. See quickstart.md Phase 4 verification; stop for phase review before US3.
 
 ## Phase 5: US3 — Conflict, contention, and failure guarantees (P3)
 

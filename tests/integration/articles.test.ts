@@ -365,6 +365,79 @@ describe('save a complete draft', () => {
 
 describe('publish saved content', () => {
 
+  it.each(['title', 'body', 'tags', 'older snapshot', 'other article'])('creates a new snapshot for %s differences from the retained reference', async (scenario) => {
+    const article = await (await createDraft({ ...input, body: 'Original words', tags: ['one', 'two'] })).json()
+    let current = article
+    if (scenario === 'other article') {
+      const other = await (await createDraft({ ...input, slug: 'other-publication', body: article.draft.body, tags: article.draft.tags })).json()
+      expect((await publish(other.id, { expectedRevision: other.revision })).status).toBe(200)
+    }
+    const firstResponse = await publish(article.id, { expectedRevision: current.revision })
+    expect(firstResponse.status).toBe(200)
+    current = await firstResponse.json()
+    const firstDate = current.publishedAt
+    const draft = { ...article.draft, tags: ['two', 'one'] }
+    if (scenario === 'title') draft.title += ' changed'
+    else if (scenario === 'tags') draft.tags = ['two', 'three']
+    else draft.body += ' changed'
+    const savedResponse = await save(article.id, { ...draft, expectedRevision: current.revision })
+    expect(savedResponse.status).toBe(200)
+    current = await savedResponse.json()
+    if (scenario === 'older snapshot') {
+      current = await (await publish(article.id, { expectedRevision: current.revision })).json()
+      const restored = await save(article.id, { ...article.draft, expectedRevision: current.revision })
+      expect(restored.status).toBe(200)
+      current = await restored.json()
+    }
+    const before = await readState()
+    const old = before.articles.find(row => row.id === article.id)
+    const response = await publish(article.id, { expectedRevision: current.revision })
+    expect(response.status).toBe(200)
+    const published = await response.json()
+    expect(published).toEqual({ ...current, revision: current.revision + 1, currentPublishedVersionId: expect.any(String), publishedAt: firstDate })
+    expect(published.currentPublishedVersionId).not.toBe(current.currentPublishedVersionId)
+    const after = await readState()
+    expect(after.versions.filter(row => row.id !== published.currentPublishedVersionId)).toEqual(before.versions)
+    expect(after.versions.find(row => row.id === published.currentPublishedVersionId)).toEqual({
+      id: published.currentPublishedVersionId, article_id: article.id, version_number: old.next_version_number,
+      ...current.draft, created_at: expect.any(Date),
+    })
+    expect(after.articles.find(row => row.id === article.id)).toEqual({ ...old, revision: old.revision + 1,
+      next_version_number: old.next_version_number + 1, current_published_version_id: published.currentPublishedVersionId,
+      updated_at: expect.any(Date) })
+  })
+
+  it.each([false, true])('reactivates the retained snapshot without allocation (reordered tags: %s)', async (reordered) => {
+    const article = await (await createDraft({ ...input, body: 'Retained words', tags: ['one', 'two'] })).json()
+    const first = await (await publish(article.id, { expectedRevision: article.revision })).json()
+    const hiddenResponse = await unpublish(article.id, { expectedRevision: first.revision })
+    expect(hiddenResponse.status).toBe(200)
+    let hidden = await hiddenResponse.json()
+    if (reordered) {
+      const saved = await save(article.id, { ...hidden.draft, tags: ['two', 'one'], expectedRevision: hidden.revision })
+      expect(saved.status).toBe(200)
+      hidden = await saved.json()
+    }
+    const before = await readState()
+    expect(before.publicList).toEqual([])
+    expect(before.publicDetails[0].status).toBe(404)
+    const response = await publish(article.id, { expectedRevision: hidden.revision })
+    expect(response.status).toBe(200)
+    const published = await response.json()
+    expect(published).toEqual({ ...hidden, status: 'published', revision: hidden.revision + 1 })
+    const after = await readState()
+    expect(after.articles).toEqual([{ ...before.articles[0], status: 'published', revision: hidden.revision + 1, updated_at: expect.any(Date) }])
+    expect(after.articles[0].updated_at.getTime()).toBeGreaterThan(before.articles[0].updated_at.getTime())
+    expect(after.versions).toEqual(before.versions)
+    expect(after.publicDetails).toEqual([{ status: 200, body: { slug: article.slug, ...article.draft, publishedAt: first.publishedAt } }])
+    expect(after.publicList).toEqual([{ slug: article.slug, title: article.draft.title, tags: article.draft.tags, publishedAt: first.publishedAt }])
+    const repeated = await publish(article.id, { expectedRevision: published.revision })
+    expect(repeated.status).toBe(200)
+    expect(await repeated.json()).toEqual(published)
+    expect(await readState()).toEqual(after)
+  })
+
+
   it('returns the same writer response and exact persisted state for ten unchanged publishes', async () => {
     const article = await (await createDraft({ ...input, body: '**Saved words**\n', tags: ['ideas', 'life'] })).json()
     const first = await publish(article.id, { expectedRevision: article.revision })

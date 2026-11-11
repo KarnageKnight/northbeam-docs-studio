@@ -22,8 +22,13 @@ export function publishArticle(articleId: string, expectedRevision: number) {
         eq(articleVersions.id, article.currentPublishedVersionId), eq(articleVersions.articleId, articleId),
       ))
       if (!snapshot) throw new Error('Missing owned publication snapshot.')
-      if (article.status === 'published' && samePublicationContent({ ...content, tags: article.draftTags }, snapshot)) {
-        return toWriterArticle(article)
+      if (samePublicationContent({ ...content, tags: article.draftTags }, snapshot)) {
+        if (article.status === 'published') return toWriterArticle(article)
+        const [reactivated] = await transaction.update(articles).set({
+          status: 'published', revision: article.revision + 1, updatedAt: sql`CURRENT_TIMESTAMP`,
+        }).where(eq(articles.id, articleId)).returning()
+        if (!reactivated) throw new Error('Publication reactivation returned no row.')
+        return toWriterArticle(reactivated)
       }
     }
     const versionId = randomUUID()

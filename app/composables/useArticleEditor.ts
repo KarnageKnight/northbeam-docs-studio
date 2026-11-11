@@ -103,12 +103,14 @@ export async function useArticleEditor(slug: string) {
         method: 'POST', retry: 0, body: { expectedRevision },
       })
       if (published.status !== 'published' || !published.currentPublishedVersionId
-        || (published.currentPublishedVersionId === priorReference && priorStatus !== 'published')) {
+        || (published.currentPublishedVersionId === priorReference && priorStatus !== 'published' && priorStatus !== 'unpublished')) {
         throw new Error('Unexpected publication response.')
       }
       const message = published.currentPublishedVersionId !== priorReference
         ? 'Article published. A new version was created.'
-        : 'This content is already published. No new version was created.'
+        : priorStatus === 'unpublished'
+          ? 'Article republished using its last-published version.'
+          : 'This content is already published. No new version was created.'
       acceptSaved(published, submitted)
       successMessage.value = message
       try { await refreshHistory() }

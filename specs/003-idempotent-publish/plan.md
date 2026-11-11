@@ -2,7 +2,7 @@
 
 **Feature context**: `003-idempotent-publish` | **Date**: 2026-11-09 | **Spec**: [spec.md](spec.md)
 
-**Status**: Option B selected by the user on 2026-11-09. Architecture approved for task planning; constitution 3.0.0 and the 003 Windows deferral approved and applied on 2026-11-10; baseline reconciliation completed on 2026-11-10; the human git checkpoint is recorded below. Phase 3 US1 is implemented and verified on 2026-11-11; US2/US3 remain pending.
+**Status**: Option B selected by the user on 2026-11-09. Architecture approved for task planning; constitution 3.0.0 and the 003 Windows deferral approved and applied on 2026-11-10; baseline reconciliation completed on 2026-11-10; the human git checkpoint is recorded below. Phases 3–4 (US1/US2) implemented and verified on 2026-11-11; US3 remains pending.
 
 ## Summary
 
@@ -85,7 +85,7 @@ specs/003-idempotent-publish/
 └── checklists/requirements.md
 ```
 
-[tasks.md](tasks.md) contains 24 generated tasks for selected option B. Governance decisions are approved; T001–T011 are complete; Phase 4 (US2) is next after phase review.
+[tasks.md](tasks.md) contains 24 generated tasks for selected option B. Governance decisions are approved; T001–T015 are complete; Phase 5 (US3) is next after phase review.
 
 ### Source integration (selected design; not implemented)
 
@@ -110,7 +110,7 @@ The existing publish handler can continue forwarding the service result. Keep to
 The [governance alignment record](#governance-alignment) below records approval and baseline reconciliation.
 [quickstart.md](quickstart.md) maps all requirements to future evidence.
 
-Next: review completed Phase 3, then implement US2 in Phase 4. [Phase 2 verification](quickstart.md#phase-2-verification--2026-11-10) records the fixture-only changes and passing checks. Governance approval and task generation are not implementation or runtime verification evidence.
+Next: review completed Phase 4, then execute US3 in Phase 5. [Phase 2 verification](quickstart.md#phase-2-verification--2026-11-10) records the fixture-only changes and passing checks. Governance approval and task generation are not implementation or runtime verification evidence.
 
 ## Complexity Tracking
 

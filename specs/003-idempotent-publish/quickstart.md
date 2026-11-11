@@ -1,10 +1,10 @@
 # Idempotent Publish: Validation Guide
 
-**Date**: 2026-11-09 | **Status**: Phase 3 verified on 2026-11-11; later-phase scenarios below remain planned.
+**Date**: 2026-11-09 | **Status**: Phases 3–4 verified on 2026-11-11; Phase 5 and final acceptance remain planned.
 
 ## Prerequisites
 
-Option B was selected on 2026-11-09. Constitution 3.0.0 and the Windows deferral for 003 were approved on 2026-11-10; see [governance alignment](plan.md#governance-alignment). T001–T006 are complete; see the [recorded checkpoint](plan.md#spec-first-checkpoint). Original Windows T028 remains unchecked and unverified.
+Option B was selected on 2026-11-09. Constitution 3.0.0 and the Windows deferral for 003 were approved on 2026-11-10; see [governance alignment](plan.md#governance-alignment). T001–T015 are complete; see the [recorded checkpoint](plan.md#spec-first-checkpoint). Original Windows T028 remains unchecked and unverified.
 
 Use existing [README](../../README.md) and [baseline guide](../001-docs-studio/quickstart.md) for pinned tools, Docker prerequisites, isolated tests, and cleanup.
 
@@ -12,7 +12,7 @@ Use existing [README](../../README.md) and [baseline guide](../001-docs-studio/q
 docker compose up --build
 ```
 
-After implementation, use Writer on http://127.0.0.1:3000. Keep Public open separately. Published equal-content Publish now returns unchanged; unpublished reactivation and later-phase guarantees below remain planned.
+After implementation, use Writer on http://127.0.0.1:3000. Keep Public open separately. Published equal-content Publish returns unchanged and unpublished equality reactivates its retained snapshot. Extended contention/failure and final acceptance below remain planned.
 
 ## Completion checks after implementation
 
@@ -109,3 +109,37 @@ unconditional Publish success message was replaced. Two new files have current c
 `samePublicationContent.ts` is called by the publication service;
 `publication-equality.test.ts` directly tests that pure helper. Concurrency and extended
 failure acceptance remain Phase 5 work; no claim of full feature completion is made.
+
+## Phase 4 verification — 2026-11-11
+
+T012–T015 complete US2. Equivalent unpublished content now updates only status, revision
+(+1), and updatedAt within the existing locked transaction, reusing its snapshot. The
+editor reports “Article republished using its last-published version.” from captured
+unpublished status and the unchanged returned reference. No response/schema change.
+
+Seven additional parameterized integration cases extend the existing publication group:
+independent title/body/tag-membership differences, older nonreferenced snapshot matches,
+other-article content matches, and reactivation with original/reordered draft tags. They
+assert immutable prior rows, saved tag order copied to new versions, exact reactivation
+field changes, preserved draft/history/counter/first date, restored public visibility and
+snapshot tag order, and a subsequent complete no-op. Existing first-publication, changed
+unpublished publication, and never-reused numbers after deletion cases continue to pass.
+
+Before implementation, only the two new reactivation cases failed (153 passed). Afterward:
+
+- `pnpm run test:unit`: 181 passed.
+- `pnpm run test:integration`: 155 passed against isolated PostgreSQL/HTTP (336 total).
+- `pnpm exec nuxt typecheck`, `pnpm run build`, strict tsc on
+  `tests/integration/articles.test.ts`, and `git diff --check`: passed.
+- Headless Chrome on the isolated production app: Enter activation of Publish/Unpublish/Save,
+  all three messages using role=status, history remaining one row on reactivation then
+  becoming two on changed Publish, public 404→200, retained reference/date, revision +1,
+  and unchanged repeated response all passed. No runtime exceptions. The first CDP keyboard
+  attempt did not activate Publish; the accepted run brought the page forward and supplied
+  Enter text with the key event. This is not full accessibility or cross-browser certification.
+
+Disposable database/browser services, volumes, and networks were removed. No new files,
+helpers, dependencies, migrations, or duplicate equality logic were added. The published-only
+equality branch was extended in place and the editor's superseded response guard was updated.
+Windows T028 remains unverified. Phase 5 failure/contention scenarios and final acceptance
+are still pending; stop here for phase review.
