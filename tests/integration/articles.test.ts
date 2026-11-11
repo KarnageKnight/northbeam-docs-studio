@@ -365,6 +365,33 @@ describe('save a complete draft', () => {
 
 describe('publish saved content', () => {
 
+  it('publishes, reuses, and reactivates maximum accepted saved content', async () => {
+    const draft = { title: '😀'.repeat(200), body: '😀'.repeat(100_000), tags: Array.from({ length: 10 }, (_, i) => `${i}${'a'.repeat(29)}`) }
+    const created = await createDraft({ ...draft, slug: 'maximum-publication' })
+    expect(created.status).toBe(201)
+    const article = await created.json()
+    const firstResponse = await publish(article.id, { expectedRevision: article.revision })
+    expect(firstResponse.status).toBe(200)
+    const first = await firstResponse.json()
+    const before = await readState()
+    expect(before.versions[0]).toMatchObject(draft)
+    const unchanged = await publish(article.id, { expectedRevision: first.revision })
+    expect(unchanged.status).toBe(200)
+    expect(await unchanged.json()).toEqual(first)
+    expect(await readState()).toEqual(before)
+    const hiddenResponse = await unpublish(article.id, { expectedRevision: first.revision })
+    expect(hiddenResponse.status).toBe(200)
+    const hidden = await hiddenResponse.json()
+    const restored = await publish(article.id, { expectedRevision: hidden.revision })
+    expect(restored.status).toBe(200)
+    expect(await restored.json()).toEqual({ ...first, revision: hidden.revision + 1 })
+    const after = await readState()
+    expect(after.versions).toEqual(before.versions)
+    expect(after.publicDetails).toEqual(before.publicDetails)
+    expect(after.articles[0].next_version_number).toBe(before.articles[0].next_version_number)
+  })
+
+
   it.each(['changed', 'reactivated'])('rejects an old-revision retry after a lost %s response, then reloads without duplication', async (mode) => {
     const article = await (await createDraft({ ...input, body: 'Original words' })).json()
     let current = await (await publish(article.id, { expectedRevision: article.revision })).json()
@@ -498,6 +525,8 @@ describe('publish saved content', () => {
     expect(after.versions).toEqual(before.versions)
     expect(after.publicDetails).toEqual([{ status: 200, body: { slug: article.slug, ...article.draft, publishedAt: first.publishedAt } }])
     expect(after.publicList).toEqual([{ slug: article.slug, title: article.draft.title, tags: article.draft.tags, publishedAt: first.publishedAt }])
+    await restartApp()
+    expect(await readState()).toEqual(after)
     const repeated = await publish(article.id, { expectedRevision: published.revision })
     expect(repeated.status).toBe(200)
     expect(await repeated.json()).toEqual(published)

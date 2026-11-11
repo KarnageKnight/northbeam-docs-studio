@@ -1,7 +1,7 @@
 # Tasks: Idempotent Publish
 
 **Input**: `specs/003-idempotent-publish/{spec.md,plan.md,research.md,data-model.md,contracts/publish.md,quickstart.md}`.
-**Status**: Generated 2026-11-10. T001–T020 completed after explicit human governance decisions and baseline alignment; T021 onward remain pending. US1–US3 are implemented and verified; Phase 6 final acceptance remains pending.
+**Status**: Generated 2026-11-10. T001–T024 completed after explicit human governance decisions and baseline alignment; All tasks are complete. US1–US3 are implemented and verified; Phase 6 final acceptance passed on the recorded platform; Windows remains deferred.
 **Design**: Human-selected option B: existing locked transaction, exact saved-content equality, unchanged WriterArticle response, client-inferred feedback. No schema, endpoint, dependency, hash, or whole-history deduplication changes.
 **Tests**: Required by the feature acceptance scenarios and Constitution IV. Extend existing real-PostgreSQL/HTTP coverage; inspect existing tests before adding cases.
 
@@ -83,10 +83,10 @@ No new files or obsolete application code were introduced. The subsequent T005 c
 
 ## Phase 6: Cross-cutting validation and handoff
 
-- [ ] T021 Verify restart persistence through the existing helpers in `tests/integration/articles.test.ts` and the Compose procedure in `specs/003-idempotent-publish/quickstart.md`: reused reference, first date, allocation counter/history, public availability, and subsequent no-op survive restart. Record the actual platform and clean up disposable test resources.
-- [ ] T022 Review changed code and directly affected consumers in `server/services/articles/publishArticle.ts`, `server/services/articles/samePublicationContent.ts`, `app/composables/useArticleEditor.ts`, and `tests/integration/articles.test.ts`; remove obsolete unconditional-creation assumptions, unused exports, duplicate paths, or temporary probes after checking usage. Preserve migrations, required evidence, and prior lifecycle coverage; report any justified retained code.
-- [ ] T023 Run `pnpm test`, `pnpm exec nuxt typecheck`, and `pnpm run build` using `package.json` and documented pinned prerequisites; complete the eleven acceptance groups in `specs/003-idempotent-publish/quickstart.md`, including maximum inputs and all three UI outcomes. Record real results, limitations, and resource cleanup; do not reuse 001/002 results as new verification.
-- [ ] T024 Synchronize implemented/verified status and reviewer instructions in `README.md`, `specs/003-idempotent-publish/spec.md`, `plan.md`, `contracts/publish.md`, `quickstart.md`, and `tasks.md`, and affected baseline references from T004. Provide the Constitution VIII walkthrough of every new file with definitions/consumers and test evidence. Leave changes uncommitted for human review; keep unexecuted Windows acceptance explicitly open.
+- [x] T021 Verify restart persistence through the existing helpers in `tests/integration/articles.test.ts` and the Compose procedure in `specs/003-idempotent-publish/quickstart.md`: reused reference, first date, allocation counter/history, public availability, and subsequent no-op survive restart. Record the actual platform and clean up disposable test resources.
+- [x] T022 Review changed code and directly affected consumers in `server/services/articles/publishArticle.ts`, `server/services/articles/samePublicationContent.ts`, `app/composables/useArticleEditor.ts`, and `tests/integration/articles.test.ts`; remove obsolete unconditional-creation assumptions, unused exports, duplicate paths, or temporary probes after checking usage. Preserve migrations, required evidence, and prior lifecycle coverage; report any justified retained code.
+- [x] T023 Run `pnpm test`, `pnpm exec nuxt typecheck`, and `pnpm run build` using `package.json` and documented pinned prerequisites; complete the eleven acceptance groups in `specs/003-idempotent-publish/quickstart.md`, including maximum inputs and all three UI outcomes. Record real results, limitations, and resource cleanup; do not reuse 001/002 results as new verification.
+- [x] T024 Synchronize implemented/verified status and reviewer instructions in `README.md`, `specs/003-idempotent-publish/spec.md`, `plan.md`, `contracts/publish.md`, `quickstart.md`, and `tasks.md`, and affected baseline references from T004. Provide the Constitution VIII walkthrough of every new file with definitions/consumers and test evidence. Leave changes uncommitted for human review; keep unexecuted Windows acceptance explicitly open.
 
 ## Dependencies and execution order
 

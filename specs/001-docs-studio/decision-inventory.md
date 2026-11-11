@@ -1,10 +1,10 @@
 # User decisions and assumptions: final application inventory
 
-> **003 amendment — 2026-11-10 (approved, not implemented):**
+> **003 amendment — approved 2026-11-10, implemented/verified 2026-11-11:**
 > The [003 spec](../003-idempotent-publish/spec.md) and constitution 3.0.0 supersede unconditional
 > snapshot creation/revision advancement with create, no-op, and reactivation outcomes.
 > Original implementation descriptions and dated evidence below remain historical, not 003
-> verification. [003 tasks](../003-idempotent-publish/tasks.md) track the new work. Windows T028 remains
+> verification. Current 003 verification is in its quickstart; [003 tasks](../003-idempotent-publish/tasks.md) track the new work. Windows T028 remains
 > unchecked and unverified; its approved deferral now includes 003.
 
 Reviewed November 8, 2026 against the project documentation and implemented application source.

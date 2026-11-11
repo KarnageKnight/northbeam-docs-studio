@@ -1,10 +1,10 @@
 # Idempotent Publish: Validation Guide
 
-**Date**: 2026-11-09 | **Status**: Phases 3–5 verified on 2026-11-11; Phase 6 final acceptance remains pending.
+**Date**: 2026-11-09 | **Status**: All six phases verified on 2026-11-11; Windows acceptance remains deferred.
 
 ## Prerequisites
 
-Option B was selected on 2026-11-09. Constitution 3.0.0 and the Windows deferral for 003 were approved on 2026-11-10; see [governance alignment](plan.md#governance-alignment). T001–T020 are complete; see the [recorded checkpoint](plan.md#spec-first-checkpoint). Original Windows T028 remains unchecked and unverified.
+Option B was selected on 2026-11-09. Constitution 3.0.0 and the Windows deferral for 003 were approved on 2026-11-10; see [governance alignment](plan.md#governance-alignment). T001–T024 are complete; see the [recorded checkpoint](plan.md#spec-first-checkpoint). Original Windows T028 remains unchecked and unverified.
 
 Use existing [README](../../README.md) and [baseline guide](../001-docs-studio/quickstart.md) for pinned tools, Docker prerequisites, isolated tests, and cleanup.
 
@@ -183,3 +183,41 @@ existing tests/helpers were extended instead of adding a duplicate suite. Dispos
 and browser containers, volumes, and networks were removed. Windows remains unverified.
 Stop at this phase boundary; Phase 6 restart, cleanup review, final acceptance, and handoff
 remain pending.
+
+## Final acceptance — 2026-11-11
+
+T021–T024 complete feature 003 on the exercised macOS/Docker/Chrome platform.
+`pnpm test` passes 351 tests (181 unit, 170 real PostgreSQL/HTTP); Nuxt typecheck,
+strict tsc on both feature test files, production build, and diff formatting pass.
+The new maximum-content database case covers title 200/body 100,000 Unicode code points
+and ten 30-character tags through creation, unchanged reuse, and reactivation. Existing
+reactivation cases now restart the app and compare complete stored/public state before
+the following no-op.
+
+A separate production Compose run stopped the app, restarted PostgreSQL, waited for
+readiness, and restarted the app. Complete ordered SQL article/version rows matched
+exactly, including audits, history, counters, reused reference, and first date. Public
+availability and the writer response persisted; subsequent Publish changed no SQL fields.
+
+Fresh final Chrome runs passed all three messages via keyboard Enter, public visibility
+404/200, history refresh, changed-version creation, dirty guards, preservation of title/body/
+tags during delayed successes and real stale conflicts/simulated HTTP failures, and
+secondary history-refresh failure. No runtime exceptions were observed. Test and browser
+containers, networks, and volumes were removed. Node 24.22.2/pnpm 12.18.0 were used.
+
+All eleven acceptance groups above map to current evidence: groups 1–3 no-op/save/tag
+ordering (Phases 3–4); groups 4–5 changed/reference-only/max/exact equality (Phases 3–4
+and final); groups 6–9 validation, observed races, and rollback (Phase 5); group 10 restart
+and lost-response retry (final/Phase 5); group 11 response/UI/local input (Phases 3–5 and
+final). Existing immutability/deletion/crash tests remain intact.
+
+Cleanup review checked helper consumers, transaction branches, editor guards/messages,
+fixtures, dependencies, and runtime entry points. Each serves a current requirement; no
+obsolete code remained to remove. No new dependency, schema, migration, outcome type,
+probe, evidence JSON, or documentation file was added. Temporary validation scripts/logs
+remain outside the repository. Windows T028 remains unchecked/unverified under its
+approved deferral; these results do not certify other browsers or platforms.
+
+The two new feature files are reviewed in the implementation handoff: the pure equality
+helper is consumed by publishArticle; its focused unit suite covers exact equality and
+bounds. Git commits, PR review, and merge remain human-owned.

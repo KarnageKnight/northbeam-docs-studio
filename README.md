@@ -9,7 +9,7 @@ and the final verification audit are recorded in the [verification guide](specs/
 **Windows acceptance remains unverified (T028).** Final delivery review is prepared;
 see the [delivery review](specs/001-docs-studio/quickstart.md#phase-18-delivery-rehearsal-and-history-review--november-8-2026). Final review was approved on November 8, 2026; commits and submission remain human-owned.
 
-## Idempotent publishing (003, acceptance in progress)
+## Idempotent publishing (003)
 
 Publish compares exact saved title/body and normalized tag membership (ignoring order)
 against the article's retained snapshot. First/different content creates a new version.
@@ -22,7 +22,8 @@ To review: publish once, repeat Publish unchanged, unpublish and republish uncha
 save changed content and publish a new version. [Phase 4 verification](specs/003-idempotent-publish/quickstart.md#phase-4-verification--2026-11-11)
 records keyboard/browser checks. [Phase 5 verification](specs/003-idempotent-publish/quickstart.md#phase-5-verification--2026-11-11)
 adds conflict, contention, rollback, and local-edit preservation evidence, with 350 tests
-passing. Phase 6 final verification remains pending. Windows T028 remains unverified.
+passing at Phase 5. [Final acceptance](specs/003-idempotent-publish/quickstart.md#final-acceptance--2026-11-11)
+passes 351 tests and verifies maximum content, restart persistence, and browser flows. Windows T028 remains unverified.
 
 ## Run with Docker
 
