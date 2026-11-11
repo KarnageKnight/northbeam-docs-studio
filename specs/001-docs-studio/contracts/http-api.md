@@ -169,7 +169,7 @@ HTTP Problem Details envelope is introduced.
 
 ## Atomicity and client behavior
 
-Approved 003 target (not implemented): Save, Restore, Unpublish, and state-changing Publish
+Implemented 003 behavior (see [final acceptance](../../003-idempotent-publish/quickstart.md#final-acceptance--2026-11-11)): Save, Restore, Unpublish, and state-changing Publish
 advance revision exactly once; unchanged Save/Restore still advance it. Already-published
 equal-content Publish returns 200 with the same WriterArticle and zero persisted changes.
 Equivalent unpublished content reactivates the retained snapshot with status/revision/time

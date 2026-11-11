@@ -189,7 +189,7 @@ concurrent requests to verify no partial publication state is left behind.
 2. **Given** a valid saved draft, **When** successfully published, **Then** it is public.
    Different content uses the new snapshot; equivalent content reuses the retained snapshot.
    Already-published equality changes no persisted fields; unpublished equality changes only
-   status, revision, and modification time. These 003 outcomes remain unimplemented.
+   status, revision, and modification time. These 003 outcomes are implemented; see the [003 final acceptance](../003-idempotent-publish/quickstart.md#final-acceptance--2026-11-11).
 3. **Given** an article, **When** it is published for the first time, **Then** `publishedAt`
    is set; subsequent successful publications preserve that original date.
 4. **Given** an article with existing snapshots, **When** the writer publishes its current

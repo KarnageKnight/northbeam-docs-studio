@@ -60,7 +60,7 @@ except the publication reference and publication date.
 ## Article versions
 
 Under approved 003 semantics, first/different content inserts an immutable snapshot;
-equivalent content reuses the retained snapshot. This change is not yet implemented.
+equivalent content reuses the retained snapshot. This behavior is implemented; see [003 final acceptance](../003-idempotent-publish/quickstart.md#final-acceptance--2026-11-11).
 All columns are NOT NULL.
 
 | Column | PostgreSQL type | Default / meaning |

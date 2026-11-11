@@ -123,3 +123,14 @@ These are scheduling opportunities, not instructions to spawn agents or concurre
 ## Implementation strategy
 
 Complete governance and the human git checkpoint first, then deliver US1 as the smallest reviewable MVP. Add US2 reactivation without changing the wire format, then complete US3 concurrency/failure evidence. Preserve existing correctness throughout; US3's phase placement never permits bypassing stale checks in earlier phases. Finish cross-cutting validation and documentation before declaring the full feature complete. Task creation itself changes no runtime behavior and is not implementation evidence.
+
+## Phase 7: Convergence
+
+- [x] T025 CRITICAL — Finish current-behavior documentation synchronization per Constitution I and T024 (partial). In `specs/001-docs-studio/spec.md` (US3), `data-model.md` (Article versions), `contracts/http-api.md` (Atomicity), and `contracts/ui-and-services.md` (service table/feedback), replace active claims that 003 is unimplemented with accurate implemented status and links to `specs/003-idempotent-publish/quickstart.md` final acceptance. Inspect the directly affected assumptions/decision inventory and 003 plan/research for the same stale current-status claims; distinguish preserved dated decision/evidence history from current contracts. Update present-tense plan entries such as “Documentation only” and “races planned” after verification. Preserve Windows T028 as unchecked and the original dated test results; do not rewrite historical phase records as new evidence. Validate document links and consistency, report runtime checks as reused when application inputs are unchanged, and record the correction without adding duplicate status documents.
+
+**T025 verification (2026-11-11):** Current baseline specification/model/contracts and
+003 plan/research now identify implemented behavior and link to final acceptance. Original
+dated approval/evidence records remain historical; unrelated deferred features remain
+deferred. Relative file links and diff formatting pass. Runtime/test/package inputs are
+unchanged, so the final 351-test/typecheck/build results are reused, not rerun. Windows
+T028 remains unchecked. No new files or application cleanup were needed.

@@ -29,8 +29,8 @@ Selected option B: branch inside the existing article-locked publication transac
 | I. Specification first | Spec/plan/tasks and human checkpoint precede implementation. New behavior is explicitly future, not retroactive evidence. |
 | II. Draft/history isolation | Existing isolation, immutability, reference protection, and first date retained; no data migration. |
 | III. Atomic lifecycle | SATISFIED at governance level: human-approved constitution 3.0.0 permits the three outcomes. Baseline reconciliation completed in T004; implementation and acceptance are complete on the recorded platform. |
-| IV. Database evidence | Real-DB exact no-op state, reactivation, changed publish, rollback, and independent-connection races planned. Existing full-suite/build/typecheck gates remain. |
-| V. Scope/review | Documentation only. Windows T028 remains open and unverified; the human approved extending its deferral to 003 on 2026-11-10. |
+| IV. Database evidence | Real-DB exact no-op state, reactivation, changed publish, rollback, and independent-connection races verified; see final acceptance in quickstart.md. Existing full-suite/build/typecheck gates remain. |
+| V. Scope/review | Implementation and final acceptance complete. Windows T028 remains open and unverified; the human approved extending its deferral to 003 on 2026-11-10. |
 | VI. Human architecture | SATISFIED: user selected option B on 2026-11-09: existing locked transaction, unchanged response, inferred feedback, and the documented integration/testing approach. |
 | VII. Consistent patterns | Reuse withArticleTransaction, direct response, errors, acceptSaved, and existing test helpers; no publish-only response field or new response type is introduced. |
 | VIII. New-file review | Task execution requires detailed definitions, consumers, and validation for each new file. |
