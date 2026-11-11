@@ -1,15 +1,16 @@
 <!--
 Sync Impact Report — review-only; remove this comment before committing.
-Version change: 2.1.0 -> 2.2.0 (continuous removal of obsolete code).
-Modified sections: Development Workflow and Quality Gates, step 4.
-Minor rationale: adds a task-completion cleanup obligation while preserving existing guarantees.
-Human request: 2026-11-10, prevent codebase growth by removing unnecessary or obsolete code.
-Added principle: IX. Minimal Codebase and Continuous Cleanup.
-Removed sections: none.
-Affected workflow: every task reviews affected code for obsolescence and reports cleanup.
-Template synchronization: dependent templates read this constitution at runtime;
-  no template or command files changed.
-Deferred placeholders and follow-up TODOs: none.
+Version change: 2.2.0 -> 3.0.0.
+Modified principles: III. Atomic Lifecycle Changes and Explicit Concurrency;
+  V. Small, Reviewable Changes Within the Time Budget.
+Major rationale: replaces unconditional snapshot creation with three approved Publish outcomes.
+Human decisions: 2026-11-10, approve conditional Publish, extend Windows deferral to 003,
+  and approve version 3.0.0. Windows T028 remains unchecked and unverified.
+Added/removed sections: none. Ratification date and all other principles preserved.
+Affected artifacts: 003 alignment proposal, research, plan, specification, validation guide,
+  and checklist; baseline reconciliation remains tracked by 003 T004 before code.
+Templates/commands read this constitution at runtime and are unchanged.
+Deferred placeholders: none. Human spec-first git checkpoint remains required.
 -->
 
 # Northbeam Docs Studio Constitution
@@ -50,11 +51,18 @@ readers see until an explicit publish.
 
 ### III. Atomic Lifecycle Changes and Explicit Concurrency
 
-Publish MUST create its numbered snapshot and update the article's live reference, status,
-first-publish timestamp, and revision as one database transaction. Any failure MUST roll back
-the entire operation. A published article MUST reference an existing snapshot belonging to
-that article. Database constraints and transactional checks MUST protect publication
-consistency and referenced-snapshot deletion even when requests race.
+Publish MUST validate the saved draft and caller's expected revision while holding the article's
+transactional write lock. First publication or content differing from the article's referenced
+snapshot MUST create a numbered immutable snapshot and update the live reference, publication
+status, first-publish timestamp when absent, revision, and allocation counter in one
+transaction. Equivalent already-published content MUST succeed without creating a snapshot or
+changing persisted fields. Equivalent unpublished content MUST become published using its
+retained snapshot, advancing revision and modification time once without allocating a version or
+changing the original publication date. Equivalence means exact saved title and Markdown body
+and equal normalized tag membership regardless of order. Every failure MUST roll back the
+attempted state change. A published article MUST reference an existing owned snapshot, and
+constraints and transactional checks MUST protect that reference and publication consistency
+under races.
 
 Save, restore, publish, and unpublish MUST validate the caller's expected article revision.
 Every successful change to draft content or publication state MUST advance that revision.
@@ -121,9 +129,11 @@ proportional to this application; additional complexity MUST have a documented r
 or correctness rationale. If time becomes constrained, reduce visual polish and record known
 omissions rather than weakening invariants or claiming unfinished work is complete.
 
-For feature 002 only, the human approved deferring feature 001 Windows PowerShell
-acceptance T028 on 2026-11-09 so version-diff implementation may proceed with the
-required application already implemented and its available-platform evidence recorded.
+For feature 002, the human approved deferring feature 001 Windows PowerShell
+acceptance T028 on 2026-11-09. On 2026-11-10, the human extended this deferral to
+feature 003 so idempotent-publish implementation may proceed once its remaining gates
+are satisfied, with the required application already implemented and available-platform
+evidence recorded.
 T028 MUST remain unchecked until executed on Windows. This exception changes the order
 of work only: Windows setup, tests, cleanup, and persistence MUST NOT be reported verified
 without execution evidence. Required platform acceptance remains incomplete. All other
@@ -284,4 +294,4 @@ be made explicit and resolved through a documented amendment or a conforming imp
 it cannot silently weaken a required assignment invariant. Temporary amendment-review comments
 MUST be removed before committing the constitution.
 
-**Version**: 2.2.0 | **Ratified**: 2026-11-06 | **Last Amended**: 2026-11-10
+**Version**: 3.0.0 | **Ratified**: 2026-11-06 | **Last Amended**: 2026-11-10

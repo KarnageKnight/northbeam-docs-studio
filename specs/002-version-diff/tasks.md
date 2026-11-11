@@ -21,7 +21,7 @@ Each implementation task includes only the focused tests and behavior it deliver
 
 **Purpose**: Verify prerequisites and establish the selected dependency without re-scaffolding the existing app.
 
-- [X] T001 Verify the required-work prerequisite against `specs/001-docs-studio/handoff.md`, `specs/001-docs-studio/tasks.md` (Windows T028), and `.specify/memory/constitution.md`; record actual completion evidence or an explicit human-approved governance-compatible disposition in `specs/002-version-diff/plan.md`. Do not infer Windows success or silently waive a constitutional requirement.
+- [X] T001 Verify the required-work prerequisite against `specs/001-docs-studio/quickstart.md`, `specs/001-docs-studio/tasks.md` (Windows T028), and `.specify/memory/constitution.md`; record actual completion evidence or an explicit human-approved governance-compatible disposition in `specs/002-version-diff/plan.md`. Do not infer Windows success or silently waive a constitutional requirement.
 
   **Evidence (2026-11-09)**: Reviewed the handoff, open T028, and constitution. The human
   approved the proposed governance amendment with "approve and move on". Constitution 2.0.0

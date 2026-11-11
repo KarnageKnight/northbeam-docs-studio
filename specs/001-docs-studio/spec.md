@@ -1,5 +1,12 @@
 # Feature Specification: Northbeam Docs Studio
 
+> **003 amendment — 2026-11-10 (approved, not implemented):**
+> The [003 spec](../003-idempotent-publish/spec.md) and constitution 3.0.0 supersede unconditional
+> snapshot creation/revision advancement with create, no-op, and reactivation outcomes.
+> Original implementation descriptions and dated evidence below remain historical, not 003
+> verification. [003 tasks](../003-idempotent-publish/tasks.md) track the new work. Windows T028 remains
+> unchecked and unverified; its approved deferral now includes 003.
+
 **Feature Branch**: Not assigned; currently drafting on `main`.
 
 **Created**: 2026-11-06
@@ -176,10 +183,13 @@ concurrent requests to verify no partial publication state is left behind.
 
 **Acceptance Scenarios**:
 
-1. **Given** a saved draft, **When** the writer successfully publishes it, **Then** a new,
-   uniquely numbered snapshot of its saved title, Markdown body, and tags is created.
-2. **Given** a saved draft, **When** the writer successfully publishes it, **Then** the
-   article becomes published and the new snapshot is designated as its live version.
+1. **Given** a never-published saved draft or content differing from its retained reference,
+   **When** the writer successfully publishes it, **Then** one uniquely numbered snapshot
+   of its saved title, Markdown body, and tags is created.
+2. **Given** a valid saved draft, **When** successfully published, **Then** it is public.
+   Different content uses the new snapshot; equivalent content reuses the retained snapshot.
+   Already-published equality changes no persisted fields; unpublished equality changes only
+   status, revision, and modification time. These 003 outcomes remain unimplemented.
 3. **Given** an article, **When** it is published for the first time, **Then** `publishedAt`
    is set; subsequent successful publications preserve that original date.
 4. **Given** an article with existing snapshots, **When** the writer publishes its current
@@ -322,7 +332,8 @@ lose work or apply publication actions to state the writer has not seen.
 article through one view, and attempt save, restore, publish, and unpublish from an outdated
 view. Verify clear conflicts, no changes from rejected requests, and preservation of local
 unsaved content. Explicitly reload and resubmit against the latest state. Also send competing
-requests based on the same starting state and verify at most one succeeds.
+state-changing requests based on the same starting state and verify at most one succeeds.
+Under 003, unchanged Publish does not consume revision and concurrent valid no-ops may all succeed.
 
 **Acceptance Scenarios**:
 
@@ -332,7 +343,9 @@ requests based on the same starting state and verify at most one succeeds.
 2. **Given** a stale request, **When** it is rejected, **Then** a clear conflict is returned
    and the rejected request makes no changes to the draft, history, or publication state.
 3. **Given** competing requests using the same starting article state, **When** they are
-   processed, **Then** at most one succeeds and the others receive conflicts.
+   processed, **Then** at most one state-changing request succeeds and stale contenders
+   receive conflicts. Under 003, no-op Publish may succeed before a state-changing request
+   without invalidating it; after a revision change, the old Publish request conflicts.
 4. **Given** a writer with unsaved local content, **When** a request receives a conflict,
    **Then** the writer's unsaved local content is preserved.
 5. **Given** a writer who received a conflict, **When** the writer explicitly reloads the
@@ -581,7 +594,9 @@ Additional edge cases will be added with the requirements that introduce them.
 - **FR-003 — Publish the current draft (approved)**: The system MUST allow a trusted
   internal writer to explicitly publish an article's saved draft while satisfying User
   Story 3's six acceptance scenarios. Publishing MUST require a nonblank title, slug, and
-  body and satisfy FR-001's title/body length limits; tags remain optional.
+  body and satisfy FR-001's title/body length limits; tags remain optional. The approved
+  003 extension uses exact saved title/body and order-independent normalized tag membership
+  against only the retained reference; its no-op/reactivation semantics supersede A006.
 - **FR-004 — Unpublish an article (approved)**: The system MUST allow a trusted internal
   writer to explicitly unpublish a published article while satisfying User Story 4's six
   acceptance scenarios. Requests for already-unpublished or never-published articles MUST

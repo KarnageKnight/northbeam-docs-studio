@@ -1,5 +1,12 @@
 # UI and Internal Service Contracts
 
+> **003 amendment — 2026-11-10 (approved, not implemented):**
+> The [003 spec](../../003-idempotent-publish/spec.md) and constitution 3.0.0 supersede unconditional
+> snapshot creation/revision advancement with create, no-op, and reactivation outcomes.
+> Original implementation descriptions and dated evidence below remain historical, not 003
+> verification. [003 tasks](../../003-idempotent-publish/tasks.md) track the new work. Windows T028 remains
+> unchecked and unverified; its approved deferral now includes 003.
+
 **Date**: 2026-11-07
 **Status**: Writer creation/list/open, shared header, native request errors, Phase 5
 editable form/composable, safe Markdown preview, and revision-checked save are implemented.
@@ -134,7 +141,7 @@ There is no database argument, repository interface, or dependency-injection fra
 | --- | --- | --- |
 | `createArticle.ts` | Validated create input | WriterArticle; UUID generation and collision-safe insertion |
 | `saveDraft.ts` | Article UUID and complete save input | WriterArticle; replace draft and advance revision/audit time |
-| `publishArticle.ts` | Article UUID and expectedRevision | WriterArticle; check saved content and atomically create/publicize snapshot |
+| `publishArticle.ts` | Article UUID and expectedRevision | WriterArticle unchanged; approved 003 target creates for first/different content, no-ops for published equality, or reactivates unpublished equality (implementation pending) |
 | `unpublishArticle.ts` | Article UUID and expectedRevision | WriterArticle; valid published-state transition |
 | `restoreDraft.ts` | Article UUID, snapshot UUID, expectedRevision | WriterArticle; copy eligible owned content into draft |
 | `deleteSnapshot.ts` | Article UUID and snapshot UUID | No value; lock article and reject protected/missing target |
@@ -154,3 +161,13 @@ to avoid loading draft bodies for the list. Do not spread database rows into API
 to its owned immutable snapshot within one SQL statement. Snapshots are selected by both
 owner and UUID; history sorts by version number. Helpers are introduced with the first
 task that uses them, not as unused scaffolding.
+
+## Approved 003 feedback extension (not implemented)
+
+Capture prior publication status/reference with the request revision before sending Publish.
+On success, infer creation from a changed reference, reactivation from the same reference
+and prior unpublished status, and unchanged publication from the same reference and prior
+published status, before acceptSaved replaces state. Use the three messages in the
+[003 contract](../../003-idempotent-publish/contracts/publish.md). Never infer success on
+errors or impossible combinations. Preserve dirty/pending/conflict guards, retry:0, and
+local typing during responses. A later history-refresh failure must not imply Publish rolled back.

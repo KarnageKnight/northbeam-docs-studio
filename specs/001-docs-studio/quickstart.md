@@ -1,5 +1,12 @@
 # Quickstart and Verification Guide
 
+> **003 amendment — 2026-11-10 (approved, not implemented):**
+> The [003 spec](../003-idempotent-publish/spec.md) and constitution 3.0.0 supersede unconditional
+> snapshot creation/revision advancement with create, no-op, and reactivation outcomes.
+> Original implementation descriptions and dated evidence below remain historical, not 003
+> verification. [003 tasks](../003-idempotent-publish/tasks.md) track the new work. Windows T028 remains
+> unchecked and unverified; its approved deferral now includes 003.
+
 **Date**: 2026-11-07
 **Status**: Phases 1–14 approved. The user authorized execution through Phase 17 on
 2026-11-08. Integrated acceptance and final audit/documentation are verified. Linux-client
@@ -732,7 +739,7 @@ tradeoffs, limits, and SDD history. Reading refs and raw objects without git com
 spec/plan/tasks/constitution and no application code; it precedes first application commit
 `c9edadd3e940ee6c59f8e9e1a3ed939c0748f840`. Existing object identities/history are preserved.
 
-[handoff.md](handoff.md) records a local review ZIP with source, required artifacts, existing
+A local review ZIP was prepared with source, required artifacts, existing
 reachable history, and a file manifest/archive checksum. Local git config/remotes/hooks,
 secrets and generated output are omitted; a minimal config/index are confined to the review
 copy. No original git metadata is modified and no commit is created. Pending documentation
@@ -741,3 +748,17 @@ stays uncommitted and visible as working-tree changes in the candidate.
 Phase 18 review work is verified, approved by the user on 2026-11-08. Windows T028 is still
 unavailable and FR-013/SC-005 remain partially verified. Preparing a review candidate does
 not upload, merge, commit, submit, or waive the platform gap.
+
+The November 8 candidate was prepared for local review, not uploaded or submitted. It
+excluded runtime storage, local agent tooling, and the assignment Word document in addition
+to the exclusions above, and used the existing branch/main refs, identical reachable objects,
+and an index representing the then-committed HEAD. Its approval is historical: after any
+source/documentation change, regenerate the candidate or submit the reviewed repository
+with its history. The old archive is not evidence of the current workspace contents.
+
+The human approved review of the demo, evidence, task status, history trail, and archive
+on November 8. Commits, merges, and submission remain human-owned. Windows acceptance
+requires real PowerShell with Docker Desktop/Linux containers, checking startup, migrations,
+test/cleanup paths and signals, and restart persistence. Syntax review or Linux containers
+on macOS do not verify Windows. Recorded Linux acceptance used a Linux arm64 Docker CLI
+container with Docker Desktop's Linux daemon on macOS, not a standalone native Linux host.

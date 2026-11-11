@@ -1,6 +1,6 @@
 # Idempotent Publish: Research
 
-**Date**: 2026-11-09 | **Status**: Option B selected by the user on 2026-11-09. No code/test changes; governance amendment remains proposed.
+**Date**: 2026-11-09 | **Status**: Option B selected by the user on 2026-11-09. No code/test changes; governance amendment approved and applied as 3.0.0 on 2026-11-10; baseline reconciliation completed on 2026-11-10.
 
 ## R1 — Keep the current transaction boundary
 
@@ -50,7 +50,7 @@
 
 ## R6 — Baseline and governance
 
-**Proposed decision**: Review the exact replacement text and affected-record map in constitution-alignment.md before dependent implementation. Proposed version is 2.0.0 under the constitution's major-change rule because unconditional Publish snapshot creation is redefined.
+**Approved decision (2026-11-10)**: The human approved the replacement text in plan.md#governance-alignment and constitution 3.0.0, a major increment from 2.2.0 because unconditional Publish snapshot creation is redefined. Baseline reconciliation completed in T004; the human git checkpoint is recorded in [plan.md](plan.md#spec-first-checkpoint).
 
 **Rationale**: Confirmed product decisions do not justify falsely reporting that the existing constitution already permits them. Preserve baseline approval/evidence history, explicitly mark superseded active rules, and update current contracts/test fixtures.
 
@@ -58,4 +58,4 @@
 
 ## Review status
 
-Option B was selected on 2026-11-09. The constitution amendment has not been approved or applied. No new dependency required. No application build/tests run for this documentation-only design; future implementation gates remain in quickstart.md. Existing Windows T028 is not resolved here.
+Option B was selected on 2026-11-09. The constitution amendment was approved and applied on 2026-11-10, including a 003-specific Windows deferral. No new dependency required. No application build/tests run for this documentation-only design; future implementation gates remain in quickstart.md. Windows T028 remains unchecked and unverified; its deferral changes work order only.

@@ -33,10 +33,10 @@
 
 - Built-in specification checklist reviewed for requirements quality only; checks do not
   imply implementation, runtime verification, or human architecture approval.
-- Defaults for review: exact saved text and ordered tags, reuse of the referenced snapshot
+- Confirmed behavior: exact saved text and order-independent normalized tag membership, reuse of the referenced snapshot
   only, no persistent changes for already-published identical content, and retained-snapshot
   reuse with a revision advancement when republishing an unpublished article.
 - Stale revisions still conflict; no request-key or stale-response replay mechanism is added.
-- Ready for clarification or planning. Before implementation, reconcile Constitution III
-  and the original always-create-snapshot artifacts through the documented review process.
-- Original Windows acceptance T028 remains unverified; assess required-work prerequisites.
+- Constitution 3.0.0 is approved and applied. Before implementation, reconcile the
+  original always-create-snapshot artifacts and record the human spec-first git checkpoint.
+- Original Windows acceptance T028 remains unverified; its deferral now includes 003.

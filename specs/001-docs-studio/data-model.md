@@ -1,5 +1,12 @@
 # Data Model: Northbeam Docs Studio
 
+> **003 amendment — 2026-11-10 (approved, not implemented):**
+> The [003 spec](../003-idempotent-publish/spec.md) and constitution 3.0.0 supersede unconditional
+> snapshot creation/revision advancement with create, no-op, and reactivation outcomes.
+> Original implementation descriptions and dated evidence below remain historical, not 003
+> verification. [003 tasks](../003-idempotent-publish/tasks.md) track the new work. Windows T028 remains
+> unchecked and unverified; its approved deferral now includes 003.
+
 **Date**: 2026-11-07
 **Status**: Phase 2 schema and two migrations implemented; database protections verified
 against PostgreSQL 18.6. Draft creation/read/default/normalization and Phase 5 revision-checked
@@ -52,7 +59,9 @@ except the publication reference and publication date.
 
 ## Article versions
 
-Each successful publication inserts an immutable snapshot. All columns are NOT NULL.
+Under approved 003 semantics, first/different content inserts an immutable snapshot;
+equivalent content reuses the retained snapshot. This change is not yet implemented.
+All columns are NOT NULL.
 
 | Column | PostgreSQL type | Default / meaning |
 | --- | --- | --- |
@@ -125,13 +134,15 @@ Every revision-checked operation uses: begin transaction → lock article → co
 | --- | --- | --- |
 | Create | Draft, revision 0, next number 1, null publication fields; creation audit defaults | None |
 | Save | Replace draft fields; revision +1; update audit time | None |
-| Publish | Published; allocate/advance counter; set new reference; first date only; revision +1; update audit time | Insert new numbered saved-content snapshot |
+| Publish first/different content (003 target) | Published; counter +1; new reference; set first date only if absent; revision +1; update audit time | Insert new numbered saved-content snapshot |
+| Publish published/equal (003 target) | No persisted field changes | None |
+| Publish unpublished/equal (003 target) | Published; revision +1; update audit time; preserve draft/reference/counter/first date | None |
 | Unpublish | Unpublished; preserve reference/date; revision +1; update audit time | None |
 | Restore | Copy owned snapshot content into draft; revision +1; update audit time; preserve publication state/reference/date and counter | None |
 | Delete snapshot | Lock/check owner/reference; article fields/revision/audit unchanged | Delete eligible owned snapshot |
 
-Save/restore succeed and advance revision even for identical content. Every publication
-creates a new snapshot even when content is unchanged. Unpublish rejects draft-only and
+Save/restore succeed and advance revision even for identical content. The three Publish
+rows describe approved 003 target behavior, not current implementation evidence. Unpublish rejects draft-only and
 already-unpublished state. Restore permits any retained owned version, including the
 current/last-published one. Deletion protects the retained reference after unpublishing.
 
@@ -141,7 +152,8 @@ and restore-target eligibility. A stale request cannot act on a newer article st
 ## Audit and read consistency
 
 Use database transaction time. Creation defaults populate audit columns; successful
-save/restore/publish/unpublish explicitly update article `updated_at` in their transaction.
+save/restore/state-changing publish/unpublish explicitly update article `updated_at` in their transaction.
+Under 003, an already-published equal-content Publish preserves `updated_at`.
 Preserve article `created_at`. Reads, failed writes, and snapshot deletion leave article
 audit values unchanged. Snapshot `created_at` is protected by the immutable-row trigger.
 Timestamps need not provide unique ordering; history orders by descending version number.
