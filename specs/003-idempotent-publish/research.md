@@ -58,4 +58,4 @@
 
 ## Review status
 
-Option B was selected on 2026-11-09. The constitution amendment was approved and applied on 2026-11-10, including a 003-specific Windows deferral. No new dependency required. No application build/tests run for this documentation-only design; future implementation gates remain in quickstart.md. Windows T028 remains unchecked and unverified; its deferral changes work order only.
+Option B was selected on 2026-11-09. The constitution amendment was approved and applied on 2026-11-10, including a 003-specific Windows deferral. No new dependency required. The original design review ran no application checks. Subsequent implementation and passing build/tests are recorded in [final acceptance](quickstart.md#final-acceptance--2026-11-11). Windows T028 remains unchecked and unverified; its deferral changes work order only.

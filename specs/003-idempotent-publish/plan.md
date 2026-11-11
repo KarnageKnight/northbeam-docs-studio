@@ -2,7 +2,7 @@
 
 **Feature context**: `003-idempotent-publish` | **Date**: 2026-11-09 | **Spec**: [spec.md](spec.md)
 
-**Status**: Option B selected by the user on 2026-11-09. Architecture approved for task planning; constitution 3.0.0 and the 003 Windows deferral approved and applied on 2026-11-10; baseline reconciliation completed on 2026-11-10; the human git checkpoint is recorded below. No 003 application implementation or new-behavior verification has occurred.
+**Status**: Option B selected by the user on 2026-11-09. Architecture approved for task planning; constitution 3.0.0 and the 003 Windows deferral approved and applied on 2026-11-10; baseline reconciliation completed on 2026-11-10; the human git checkpoint is recorded below. Phases 3–5 (US1–US3) implemented and verified on 2026-11-11; Phase 6 passed on 2026-11-11; Windows remains deferred.
 
 ## Summary
 
@@ -28,15 +28,15 @@ Selected option B: branch inside the existing article-locked publication transac
 |---|---|
 | I. Specification first | Spec/plan/tasks and human checkpoint precede implementation. New behavior is explicitly future, not retroactive evidence. |
 | II. Draft/history isolation | Existing isolation, immutability, reference protection, and first date retained; no data migration. |
-| III. Atomic lifecycle | SATISFIED at governance level: human-approved constitution 3.0.0 permits the three outcomes. Baseline reconciliation completed in T004; implementation remains pending. |
-| IV. Database evidence | Real-DB exact no-op state, reactivation, changed publish, rollback, and independent-connection races planned. Existing full-suite/build/typecheck gates remain. |
-| V. Scope/review | Documentation only. Windows T028 remains open and unverified; the human approved extending its deferral to 003 on 2026-11-10. |
+| III. Atomic lifecycle | SATISFIED at governance level: human-approved constitution 3.0.0 permits the three outcomes. Baseline reconciliation completed in T004; implementation and acceptance are complete on the recorded platform. |
+| IV. Database evidence | Real-DB exact no-op state, reactivation, changed publish, rollback, and independent-connection races verified; see final acceptance in quickstart.md. Existing full-suite/build/typecheck gates remain. |
+| V. Scope/review | Implementation and final acceptance complete. Windows T028 remains open and unverified; the human approved extending its deferral to 003 on 2026-11-10. |
 | VI. Human architecture | SATISFIED: user selected option B on 2026-11-09: existing locked transaction, unchanged response, inferred feedback, and the documented integration/testing approach. |
 | VII. Consistent patterns | Reuse withArticleTransaction, direct response, errors, acceptSaved, and existing test helpers; no publish-only response field or new response type is introduced. |
 | VIII. New-file review | Task execution requires detailed definitions, consumers, and validation for each new file. |
 | IX. Minimal codebase | Per-task cleanup and T022 cover affected obsolete paths; no new schema, dependency, or response abstraction. |
 
-**Research gate**: read-only investigation allowed. **Post-design gate**: architecture selection satisfied by option B; constitution amendment and Windows disposition are approved; baseline reconciliation is complete; the human spec-first git checkpoint is satisfied (T005). Application implementation has not started. No exception to atomicity, stale checks, or snapshot protection is requested.
+**Research gate**: read-only investigation allowed. **Post-design gate**: architecture selection satisfied by option B; constitution amendment and Windows disposition are approved; baseline reconciliation is complete; the human spec-first git checkpoint is satisfied (T005). US1–US3 and final acceptance are complete. No exception to atomicity, stale checks, or snapshot protection is requested.
 
 ## Architecture selection
 
@@ -47,7 +47,7 @@ Selected option B: branch inside the existing article-locked publication transac
 
 A response wrapper is not recommended because it departs from the existing direct-object convention. Precomputed hashes are not needed without evidence of equality cost; they add canonicalization, collision handling, and schema work.
 
-## Publication flow (selected design; not implemented)
+## Publication flow (implemented design)
 
 1. Retain request parsing/UUID/expectedRevision validation at the thin handler.
 2. Reuse withArticleTransaction without broad helper changes: lock article, check existence/revision, then enter operation.
@@ -85,9 +85,9 @@ specs/003-idempotent-publish/
 └── checklists/requirements.md
 ```
 
-[tasks.md](tasks.md) contains 24 generated tasks for selected option B. Governance decisions are approved; T001–T005 are complete; fixture preparation (T006) is next.
+[tasks.md](tasks.md) contains 24 generated tasks for selected option B. Governance decisions are approved; T001–T024 are complete; ready for human PR review.
 
-### Source integration (selected design; not implemented)
+### Source integration (implemented design)
 
 ```text
 server/services/articles/publishArticle.ts
@@ -110,7 +110,7 @@ The existing publish handler can continue forwarding the service result. Keep to
 The [governance alignment record](#governance-alignment) below records approval and baseline reconciliation.
 [quickstart.md](quickstart.md) maps all requirements to future evidence.
 
-Next: prepare history-generating fixtures (T006), preserving existing assertions and validating against current behavior before changing Publish. Governance approval and task generation are not implementation or runtime verification evidence.
+Next: human review and commit of the completed feature. [Phase 2 verification](quickstart.md#phase-2-verification--2026-11-10) records the fixture-only changes and passing checks. Governance approval and task generation are not implementation or runtime verification evidence.
 
 ## Complexity Tracking
 
@@ -141,7 +141,7 @@ T004 reconciled these baseline documents, preserving their dated approvals and e
 Existing history-generating tests still need T006 fixture changes before the new behavior:
 Save actual content changes when a new version is intended and retain rollback/protection
 assertions. 002 requires no schema/API change; its source-read fixtures must retain coverage.
-Application implementation and new-behavior verification remain pending.
+All implementation and verification phases are recorded in quickstart.md.
 
 ## Spec-first checkpoint
 
@@ -156,4 +156,4 @@ The runtime, test, script, and package/Compose files are unchanged from the T004
 state: 171 unit tests, 144 isolated integration tests, typecheck, and build passed there.
 Those results are reused for this documentation-only checkpoint, not rerun or represented
 as 003 behavior evidence. No new files or application cleanup are needed for T005.
-Application implementation remains pending; T006 is the next task.
+T006 subsequently completed Phase 2 and T007–T011 completed Phase 3; see the verification guide.

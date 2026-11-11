@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-08
 
-**Status**: Draft — stretch feature specified; not implemented or verified.
+**Status**: US1–US3 implemented and verified on 2026-11-11; final acceptance passed on 2026-11-11; Windows remains deferred.
 
 **Input**: User description: "Idempotent publish (publishing twice with no draft changes doesn't create a redundant identical snapshot). This is also a stretch goal."
 

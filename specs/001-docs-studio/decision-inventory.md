@@ -1,10 +1,10 @@
 # User decisions and assumptions: final application inventory
 
-> **003 amendment — 2026-11-10 (approved, not implemented):**
+> **003 amendment — approved 2026-11-10, implemented/verified 2026-11-11:**
 > The [003 spec](../003-idempotent-publish/spec.md) and constitution 3.0.0 supersede unconditional
 > snapshot creation/revision advancement with create, no-op, and reactivation outcomes.
 > Original implementation descriptions and dated evidence below remain historical, not 003
-> verification. [003 tasks](../003-idempotent-publish/tasks.md) track the new work. Windows T028 remains
+> verification. Current 003 verification is in its quickstart; [003 tasks](../003-idempotent-publish/tasks.md) track the new work. Windows T028 remains
 > unchecked and unverified; its approved deferral now includes 003.
 
 Reviewed November 8, 2026 against the project documentation and implemented application source.
@@ -60,7 +60,7 @@ and [specification clarifications](spec.md#clarifications).
 | A003 | A slug cannot change after creation. | Implemented |
 | A004 | Reject slug collisions clearly; do not generate suffixes automatically. | Implemented |
 | A005 | Require an explicit successful Save before publishing local edits; Save, Publish, and Unpublish remain separate. | Implemented |
-| A006 | Every successful Publish creates a new snapshot, including unchanged content. | Original baseline implemented; superseded for 003 by the approved amendment, whose implementation is pending |
+| A006 | Every successful Publish creates a new snapshot, including unchanged content. | Original baseline implemented; superseded for 003 by the approved amendment, implemented and verified on 2026-11-11 |
 | A007 | Drafts require a nonblank title and slug; body can be empty and tags absent. Publish also requires a nonblank body. Whitespace alone is blank. | Implemented |
 | A008 | Trim/lowercase slugs; accept 1–100 characters of lowercase ASCII letters/digits with single hyphens between groups. Reject other formats without further rewriting. | Implemented |
 | A009 | Reject Unpublish for never-published or already-unpublished articles, without changes; stale-revision conflicts still apply first for well-formed requests. | Implemented |
@@ -121,7 +121,7 @@ Checked against [Nuxt configuration](../../nuxt.config.ts), [app shell](../../ap
 | --- | --- |
 | P006 | Two tables: articles combines stable metadata and editable draft; article_versions stores immutable snapshots. Accept this simpler model instead of separate metadata/draft tables. |
 | P007 | Lifecycle transactions lock the article row first. Save/Restore/Publish/Unpublish check expected revision before operation rules; deletion uses the same article-first lock order and checks eligibility transactionally. |
-| P008 | Return revision in writer JSON; require expectedRevision on Save/Restore/Publish/Unpublish; reject stale callers with 409 and no mutation. Revision begins at 0 and advances on every successful action, including unchanged saves/restores.  **003 amendment (approved, not implemented):** unchanged published Publish preserves revision/updatedAt; reactivation advances both once. Unchanged Save/Restore still advance them. |
+| P008 | Return revision in writer JSON; require expectedRevision on Save/Restore/Publish/Unpublish; reject stale callers with 409 and no mutation. Revision begins at 0 and advances on every successful action, including unchanged saves/restores.  **003 amendment (implemented; [final acceptance](../003-idempotent-publish/quickstart.md#final-acceptance--2026-11-11)):** unchanged published Publish preserves revision/updatedAt; reactivation advances both once. Unchanged Save/Restore still advance them. |
 | P009 | Allocate per-article snapshot numbers from a counter starting at 1 inside the locked Publish transaction. Roll back failed allocation and never reset/decrement it after deletion. |
 | P010 | Composite foreign key enforces that the referenced snapshot belongs to the article; supporting composite uniqueness and ON DELETE RESTRICT protect the reference, including after Unpublish. |
 | P013 | PostgreSQL Read Committed isolation plus explicit article-row locks and expected-revision checks. |
@@ -140,7 +140,7 @@ Checked against [Nuxt configuration](../../nuxt.config.ts), [app shell](../../ap
 | P040 | All planned columns NOT NULL except article publication date/reference; canonical empty body/tags are empty string/array. |
 | P041 | Database UNIQUE(article_id, version_number), alongside transactional allocation. |
 | P042 | Application logic enforces nonnegative revisions and positive version/counter values; omit additional database range CHECKs. |
-| P075 | Adopt the consolidated schema with article created_at/updated_at and snapshot created_at, using database transaction time. Successful article writes update updated_at; reads, failed writes, and snapshot deletion do not. Audit fields stay internal.  **003 amendment (approved, not implemented):** unchanged published Publish preserves revision/updatedAt; reactivation advances both once. Unchanged Save/Restore still advance them. |
+| P075 | Adopt the consolidated schema with article created_at/updated_at and snapshot created_at, using database transaction time. Successful article writes update updated_at; reads, failed writes, and snapshot deletion do not. Audit fields stay internal.  **003 amendment (implemented; [final acceptance](../003-idempotent-publish/quickstart.md#final-acceptance--2026-11-11)):** unchanged published Publish preserves revision/updatedAt; reactivation advances both once. Unchanged Save/Restore still advance them. |
 
 Checked against [schema](../../server/db/schema.ts), [initial SQL](../../drizzle/0000_initial.sql),
 [immutability migration](../../drizzle/0001_snapshot-immutability.sql),
@@ -158,7 +158,7 @@ Checked against [schema](../../server/db/schema.ts), [initial SQL](../../drizzle
 | P026 | Native Nuxt error responses with stable application codes and optional validation details; no custom response envelope or global error renderer. |
 | P027 | 200 for reads/save/publish/unpublish/restore; 201 create; 204 delete; 400 invalid input; 404 missing/unavailable resource; 409 stale/state/slug/protected-delete conflict; generic 500 for unexpected failure. |
 | P028 | Create requires title/slug with optional body/tags. Save supplies complete title/body/tags plus expectedRevision. Publish/Unpublish/Restore send expectedRevision only. Delete has no body. Snapshot IDs come from URLs; slug is creation-only. |
-| P029 | Return the direct WriterArticle object after create/load/save/publish/unpublish/restore. Start revision at 0; advance on successful revision-checked writes. Publication fields start null and remain after Unpublish. Dates are ISO UTC; delete returns no body.  **003 amendment (approved, not implemented):** unchanged published Publish preserves revision/updatedAt; reactivation advances both once. Unchanged Save/Restore still advance them. |
+| P029 | Return the direct WriterArticle object after create/load/save/publish/unpublish/restore. Start revision at 0; advance on successful revision-checked writes. Publication fields start null and remain after Unpublish. Dates are ISO UTC; delete returns no body.  **003 amendment (implemented; [final acceptance](../003-idempotent-publish/quickstart.md#final-acceptance--2026-11-11)):** unchanged published Publish preserves revision/updatedAt; reactivation advances both once. Unchanged Save/Restore still advance them. |
 | P030 | Minimal direct writer-summary, snapshot-list/detail, public-list/detail shapes; empty arrays for empty collections. Writer titles come from drafts; public content comes only from live snapshots. History newest-number first; public body remains Markdown source for the shared renderer. |
 | P031 | Seven stable codes: VALIDATION_ERROR, ARTICLE_NOT_FOUND, SNAPSHOT_NOT_FOUND, STALE_REVISION, SLUG_CONFLICT, SNAPSHOT_PROTECTED, INVALID_PUBLICATION_STATE. Optional fieldErrors maps fields to message arrays; unexpected errors stay generic. |
 | P032 | Explicit null and omission both default optional creation body/tags to empty string/array. This does not make Save fields nullable. |

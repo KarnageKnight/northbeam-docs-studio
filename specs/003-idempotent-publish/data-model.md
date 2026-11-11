@@ -1,6 +1,6 @@
 # Idempotent Publish: Proposed Data Model
 
-**Date**: 2026-11-09 | **Status**: Option B selected on 2026-11-09; not implemented. No schema changes.
+**Date**: 2026-11-09 | **Status**: Option B selected on 2026-11-09; US1/US2 implemented on 2026-11-11; extended failure/concurrency acceptance verified in Phase 5; final acceptance passed on 2026-11-11; Windows remains deferred. No schema changes.
 
 ## Entities
 

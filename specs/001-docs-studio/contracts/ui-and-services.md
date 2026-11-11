@@ -1,10 +1,10 @@
 # UI and Internal Service Contracts
 
-> **003 amendment — 2026-11-10 (approved, not implemented):**
+> **003 amendment — approved 2026-11-10, implemented/verified 2026-11-11:**
 > The [003 spec](../../003-idempotent-publish/spec.md) and constitution 3.0.0 supersede unconditional
 > snapshot creation/revision advancement with create, no-op, and reactivation outcomes.
 > Original implementation descriptions and dated evidence below remain historical, not 003
-> verification. [003 tasks](../../003-idempotent-publish/tasks.md) track the new work. Windows T028 remains
+> verification. Current 003 verification is in its quickstart; [003 tasks](../../003-idempotent-publish/tasks.md) track the new work. Windows T028 remains
 > unchecked and unverified; its approved deferral now includes 003.
 
 **Date**: 2026-11-07
@@ -141,7 +141,7 @@ There is no database argument, repository interface, or dependency-injection fra
 | --- | --- | --- |
 | `createArticle.ts` | Validated create input | WriterArticle; UUID generation and collision-safe insertion |
 | `saveDraft.ts` | Article UUID and complete save input | WriterArticle; replace draft and advance revision/audit time |
-| `publishArticle.ts` | Article UUID and expectedRevision | WriterArticle unchanged; approved 003 target creates for first/different content, no-ops for published equality, or reactivates unpublished equality (implementation pending) |
+| `publishArticle.ts` | Article UUID and expectedRevision | WriterArticle unchanged; implemented 003 behavior creates for first/different content, no-ops for published equality, or reactivates unpublished equality (verified in [003 final acceptance](../../003-idempotent-publish/quickstart.md#final-acceptance--2026-11-11)) |
 | `unpublishArticle.ts` | Article UUID and expectedRevision | WriterArticle; valid published-state transition |
 | `restoreDraft.ts` | Article UUID, snapshot UUID, expectedRevision | WriterArticle; copy eligible owned content into draft |
 | `deleteSnapshot.ts` | Article UUID and snapshot UUID | No value; lock article and reject protected/missing target |
@@ -162,7 +162,9 @@ to its owned immutable snapshot within one SQL statement. Snapshots are selected
 owner and UUID; history sorts by version number. Helpers are introduced with the first
 task that uses them, not as unused scaffolding.
 
-## Approved 003 feedback extension (not implemented)
+## Implemented 003 feedback extension
+
+Verified in [003 final acceptance](../../003-idempotent-publish/quickstart.md#final-acceptance--2026-11-11).
 
 Capture prior publication status/reference with the request revision before sending Publish.
 On success, infer creation from a changed reference, reactivation from the same reference

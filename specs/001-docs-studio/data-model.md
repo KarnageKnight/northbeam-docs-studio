@@ -1,10 +1,10 @@
 # Data Model: Northbeam Docs Studio
 
-> **003 amendment — 2026-11-10 (approved, not implemented):**
+> **003 amendment — approved 2026-11-10, implemented/verified 2026-11-11:**
 > The [003 spec](../003-idempotent-publish/spec.md) and constitution 3.0.0 supersede unconditional
 > snapshot creation/revision advancement with create, no-op, and reactivation outcomes.
 > Original implementation descriptions and dated evidence below remain historical, not 003
-> verification. [003 tasks](../003-idempotent-publish/tasks.md) track the new work. Windows T028 remains
+> verification. Current 003 verification is in its quickstart; [003 tasks](../003-idempotent-publish/tasks.md) track the new work. Windows T028 remains
 > unchecked and unverified; its approved deferral now includes 003.
 
 **Date**: 2026-11-07
@@ -60,7 +60,7 @@ except the publication reference and publication date.
 ## Article versions
 
 Under approved 003 semantics, first/different content inserts an immutable snapshot;
-equivalent content reuses the retained snapshot. This change is not yet implemented.
+equivalent content reuses the retained snapshot. This behavior is implemented; see [003 final acceptance](../003-idempotent-publish/quickstart.md#final-acceptance--2026-11-11).
 All columns are NOT NULL.
 
 | Column | PostgreSQL type | Default / meaning |

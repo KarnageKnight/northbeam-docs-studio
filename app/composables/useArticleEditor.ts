@@ -92,6 +92,8 @@ export async function useArticleEditor(slug: string) {
     if (pending.value || conflict.value || publishDisabledReason.value || !article.value) return
     const submitted = localContent()
     const expectedRevision = article.value.revision
+    const priorStatus = article.value.status
+    const priorReference = article.value.currentPublishedVersionId
     pending.value = true
     errorMessage.value = ''
     successMessage.value = ''
@@ -100,9 +102,21 @@ export async function useArticleEditor(slug: string) {
       const published = await $fetch<WriterArticle>(`${url.value}/publish`, {
         method: 'POST', retry: 0, body: { expectedRevision },
       })
+      if (published.status !== 'published' || !published.currentPublishedVersionId
+        || (published.currentPublishedVersionId === priorReference && priorStatus !== 'published' && priorStatus !== 'unpublished')) {
+        throw new Error('Unexpected publication response.')
+      }
+      const message = published.currentPublishedVersionId !== priorReference
+        ? 'Article published. A new version was created.'
+        : priorStatus === 'unpublished'
+          ? 'Article republished using its last-published version.'
+          : 'This content is already published. No new version was created.'
       acceptSaved(published, submitted)
-      successMessage.value = 'Article published. A new version was created.'
-      await refreshHistory()
+      successMessage.value = message
+      try { await refreshHistory() }
+      catch {
+        historyError.value = createError({ statusMessage: 'Publication succeeded, but version history could not be refreshed.' })
+      }
     }
     catch (error) {
       reportWriteError(error, 'publish')

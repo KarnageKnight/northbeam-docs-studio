@@ -1,10 +1,10 @@
 # Feature Specification: Northbeam Docs Studio
 
-> **003 amendment — 2026-11-10 (approved, not implemented):**
+> **003 amendment — approved 2026-11-10, implemented/verified 2026-11-11:**
 > The [003 spec](../003-idempotent-publish/spec.md) and constitution 3.0.0 supersede unconditional
 > snapshot creation/revision advancement with create, no-op, and reactivation outcomes.
 > Original implementation descriptions and dated evidence below remain historical, not 003
-> verification. [003 tasks](../003-idempotent-publish/tasks.md) track the new work. Windows T028 remains
+> verification. Current 003 verification is in its quickstart; [003 tasks](../003-idempotent-publish/tasks.md) track the new work. Windows T028 remains
 > unchecked and unverified; its approved deferral now includes 003.
 
 **Feature Branch**: Not assigned; currently drafting on `main`.
@@ -189,7 +189,7 @@ concurrent requests to verify no partial publication state is left behind.
 2. **Given** a valid saved draft, **When** successfully published, **Then** it is public.
    Different content uses the new snapshot; equivalent content reuses the retained snapshot.
    Already-published equality changes no persisted fields; unpublished equality changes only
-   status, revision, and modification time. These 003 outcomes remain unimplemented.
+   status, revision, and modification time. These 003 outcomes are implemented; see the [003 final acceptance](../003-idempotent-publish/quickstart.md#final-acceptance--2026-11-11).
 3. **Given** an article, **When** it is published for the first time, **Then** `publishedAt`
    is set; subsequent successful publications preserve that original date.
 4. **Given** an article with existing snapshots, **When** the writer publishes its current
