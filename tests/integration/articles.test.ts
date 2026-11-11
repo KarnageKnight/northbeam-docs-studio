@@ -365,6 +365,73 @@ describe('save a complete draft', () => {
 
 describe('publish saved content', () => {
 
+  it.each(['changed', 'reactivated'])('rejects an old-revision retry after a lost %s response, then reloads without duplication', async (mode) => {
+    const article = await (await createDraft({ ...input, body: 'Original words' })).json()
+    let current = await (await publish(article.id, { expectedRevision: article.revision })).json()
+    current = mode === 'changed'
+      ? await (await save(article.id, { ...current.draft, body: 'Changed words', expectedRevision: current.revision })).json()
+      : await (await unpublish(article.id, { expectedRevision: current.revision })).json()
+    const committed = await publish(article.id, { expectedRevision: current.revision })
+    expect(committed.status).toBe(200)
+    await committed.body?.cancel()
+    const before = await readState()
+    const stale = await publish(article.id, { expectedRevision: current.revision })
+    expect(stale.status).toBe(409)
+    expect((await stale.json()).data.code).toBe('STALE_REVISION')
+    expect(await readState()).toEqual(before)
+    const reloaded = await (await fetch(`${writerUrl}/${article.id}`)).json()
+    const retry = await publish(article.id, { expectedRevision: reloaded.revision })
+    expect(retry.status).toBe(200)
+    expect(await retry.json()).toEqual(reloaded)
+    expect(await readState()).toEqual(before)
+  })
+
+  it.each(['missing', 'wrong owner', 'missing date'])('rejects %s retained publication integrity without mutation', async (corruption) => {
+    const article = await (await createDraft({ ...input, body: 'Saved words' })).json()
+    const current = await (await publish(article.id, { expectedRevision: article.revision })).json()
+    const other = await (await createDraft({ ...input, slug: 'other-owner', body: 'Saved words' })).json()
+    const otherPublished = await (await publish(other.id, { expectedRevision: other.revision })).json()
+    const connection = await pool.connect()
+    try {
+      // Only this isolated fixture connection bypasses FK triggers; app connections retain them.
+      await connection.query('SET session_replication_role = replica')
+      if (corruption === 'missing date') await connection.query('UPDATE articles SET published_at=NULL WHERE id=$1', [article.id])
+      else await connection.query('UPDATE articles SET current_published_version_id=$1 WHERE id=$2', [corruption === 'missing' ? randomUUID() : otherPublished.currentPublishedVersionId, article.id])
+      const before = await readState()
+      const response = await publish(article.id, { expectedRevision: current.revision })
+      expect(response.status).toBe(500)
+      expect(await response.text()).not.toMatch(/Missing owned|Missing retained|SELECT|stack/)
+      expect(await readState()).toEqual(before)
+    }
+    finally {
+      await connection.query('UPDATE articles SET current_published_version_id=$1, published_at=$2 WHERE id=$3', [current.currentPublishedVersionId, current.publishedAt, article.id])
+      await connection.query('SET session_replication_role = origin')
+      connection.release()
+    }
+  })
+
+  it.each(['insert', 'reactivate'])('rolls back failed publication at %s and preserves complete SQL/public state', async (stage) => {
+    const article = await (await createDraft({ ...input, body: 'Original words' })).json()
+    let current = await (await publish(article.id, { expectedRevision: article.revision })).json()
+    current = stage === 'insert'
+      ? await (await save(article.id, { ...current.draft, body: 'Changed words', expectedRevision: current.revision })).json()
+      : await (await unpublish(article.id, { expectedRevision: current.revision })).json()
+    const before = await readState()
+    const table = stage === 'insert' ? 'article_versions' : 'articles'
+    const operation = stage === 'insert' ? 'INSERT' : 'UPDATE'
+    await pool.query(`CREATE FUNCTION fail_phase5_publish() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'private failure'; END; $$;
+      CREATE TRIGGER fail_phase5_publish BEFORE ${operation} ON ${table} FOR EACH ROW EXECUTE FUNCTION fail_phase5_publish()`)
+    try {
+      const response = await publish(article.id, { expectedRevision: current.revision })
+      expect(response.status).toBe(500)
+      expect(await response.text()).not.toContain('private failure')
+      expect(await readState()).toEqual(before)
+    }
+    finally { await pool.query(`DROP TRIGGER fail_phase5_publish ON ${table}; DROP FUNCTION fail_phase5_publish()`) }
+    expect((await publish(article.id, { expectedRevision: current.revision })).status).toBe(200)
+  })
+
+
   it.each(['title', 'body', 'tags', 'older snapshot', 'other article'])('creates a new snapshot for %s differences from the retained reference', async (scenario) => {
     const article = await (await createDraft({ ...input, body: 'Original words', tags: ['one', 'two'] })).json()
     let current = article
@@ -610,6 +677,7 @@ describe('publish saved content', () => {
     }
     const before = (await pool.query('SELECT * FROM articles')).rows
     const snapshots = (await pool.query('SELECT * FROM article_versions')).rows
+    const beforeState = await readState()
     await pool.query(`CREATE FUNCTION fail_test_publish() RETURNS trigger LANGUAGE plpgsql AS $$
       BEGIN
         IF NEW.status = 'published' AND (SELECT count(*) FROM article_versions WHERE article_id=NEW.id) > ${snapshots.length}
@@ -621,6 +689,7 @@ describe('publish saved content', () => {
       const failed = await publish(article.id, { expectedRevision: revision })
       expect(failed.status).toBe(500)
       expect(await failed.text()).not.toMatch(/private publication detail|INSERT INTO|stack/i)
+      expect(await readState()).toEqual(beforeState)
       expect((await pool.query('SELECT * FROM articles')).rows).toEqual(before)
       expect((await pool.query('SELECT * FROM article_versions')).rows).toEqual(snapshots)
     }
@@ -1232,6 +1301,64 @@ describe('delete eligible snapshot history', () => {
 
 
 describe('coordinated lifecycle contention', () => {
+
+  it.each(['changed', 'reactivated', 'unchanged'])('coordinates simultaneous %s publishes', async (mode) => {
+    const article = await (await createDraft({ ...input, body: 'Original words' })).json()
+    let current = await (await publish(article.id, { expectedRevision: article.revision })).json()
+    if (mode === 'changed') current = await (await save(article.id, { ...current.draft, body: 'Changed words', expectedRevision: current.revision })).json()
+    if (mode === 'reactivated') current = await (await unpublish(article.id, { expectedRevision: current.revision })).json()
+    const before = await readState()
+    const attempt = () => publish(article.id, { expectedRevision: current.revision })
+    const [first, second] = await runContendingRequests(article.id, attempt, attempt)
+    expect(first.status).toBe(200)
+    const result = await first.json()
+    expect(second.status).toBe(mode === 'unchanged' ? 200 : 409)
+    if (mode === 'unchanged') {
+      expect(await second.json()).toEqual(current)
+      expect(result).toEqual(current)
+      expect(await readState()).toEqual(before)
+    }
+    else {
+      expect((await second.json()).data.code).toBe('STALE_REVISION')
+      const after = await readState()
+      expect(result.revision).toBe(current.revision + 1)
+      expect(after.articles).toEqual([{ ...before.articles[0], status: 'published', revision: result.revision,
+        current_published_version_id: result.currentPublishedVersionId,
+        next_version_number: before.articles[0].next_version_number + (mode === 'changed' ? 1 : 0), updated_at: expect.any(Date) }])
+      expect(after.versions.filter(v => before.versions.some(old => old.id === v.id))).toEqual(before.versions)
+      expect(after.versions).toHaveLength(before.versions.length + (mode === 'changed' ? 1 : 0))
+      expect(result.currentPublishedVersionId === current.currentPublishedVersionId).toBe(mode === 'reactivated')
+    }
+  })
+
+  it.each([['save', true], ['save', false], ['unpublish', true], ['unpublish', false]] as const)(
+    'coordinates no-op Publish with %s (Publish first: %s)', async (action, publishFirst) => {
+      const article = await (await createDraft({ ...input, body: 'Published words' })).json()
+      const current = await (await publish(article.id, { expectedRevision: article.revision })).json()
+      const before = await readState()
+      const attempt = () => publish(article.id, { expectedRevision: current.revision })
+      const mutation = () => action === 'save'
+        ? save(article.id, { ...current.draft, body: 'New saved words', expectedRevision: current.revision })
+        : unpublish(article.id, { expectedRevision: current.revision })
+      const responses = await runContendingRequests(article.id, publishFirst ? attempt : mutation, publishFirst ? mutation : attempt)
+      const publication = responses[publishFirst ? 0 : 1]
+      const changed = responses[publishFirst ? 1 : 0]
+      expect(changed.status).toBe(200)
+      expect(publication.status).toBe(publishFirst ? 200 : 409)
+      if (publishFirst) expect(await publication.json()).toEqual(current)
+      else expect((await publication.json()).data.code).toBe('STALE_REVISION')
+      const after = await readState()
+      expect(after.articles).toEqual([{ ...before.articles[0], revision: current.revision + 1,
+        status: action === 'unpublish' ? 'unpublished' : 'published',
+        draft_body: action === 'save' ? 'New saved words' : current.draft.body, updated_at: expect.any(Date) }])
+      expect(after.versions).toEqual(before.versions)
+      if (action === 'save') {
+        expect(after.publicList).toEqual(before.publicList)
+        expect(after.publicDetails).toEqual(before.publicDetails)
+      }
+      else { expect(after.publicList).toEqual([]); expect(after.publicDetails[0].status).toBe(404) }
+    })
+
   it.each([
     ['save', 'save'], ['publish', 'save'], ['save', 'publish'],
     ['unpublish', 'restore'], ['restore', 'unpublish'],

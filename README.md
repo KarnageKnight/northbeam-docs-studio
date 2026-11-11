@@ -20,8 +20,9 @@ preserving history, counter, original publication date, and saved/public tag ord
 The editor distinguishes all three outcomes with the existing WriterArticle response.
 To review: publish once, repeat Publish unchanged, unpublish and republish unchanged, then
 save changed content and publish a new version. [Phase 4 verification](specs/003-idempotent-publish/quickstart.md#phase-4-verification--2026-11-11)
-records 336 passing tests and keyboard/browser checks. Extended conflict/failure acceptance
-and final verification remain pending. Windows T028 remains unverified.
+records keyboard/browser checks. [Phase 5 verification](specs/003-idempotent-publish/quickstart.md#phase-5-verification--2026-11-11)
+adds conflict, contention, rollback, and local-edit preservation evidence, with 350 tests
+passing. Phase 6 final verification remains pending. Windows T028 remains unverified.
 
 ## Run with Docker
 

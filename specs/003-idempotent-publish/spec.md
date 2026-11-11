@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-08
 
-**Status**: US1/US2 implemented and verified on 2026-11-11; US3 remains pending.
+**Status**: US1–US3 implemented and verified on 2026-11-11; final acceptance remains pending.
 
 **Input**: User description: "Idempotent publish (publishing twice with no draft changes doesn't create a redundant identical snapshot). This is also a stretch goal."
 

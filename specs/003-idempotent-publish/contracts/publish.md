@@ -1,6 +1,6 @@
 # Idempotent Publish: Proposed Contract
 
-**Date**: 2026-11-09 | **Status**: Option B selected by the user on 2026-11-09; US1/US2 implemented and verified on 2026-11-11; extended failure/concurrency acceptance remains planned.
+**Date**: 2026-11-09 | **Status**: Option B selected by the user on 2026-11-09; US1/US2 implemented and verified on 2026-11-11; extended failure/concurrency acceptance verified in Phase 5; final acceptance remains pending.
 Use [spec](../spec.md) and [model](../data-model.md); reconcile [baseline contract](../../001-docs-studio/contracts/http-api.md) before implementation.
 
 ## Route and request

@@ -1,10 +1,10 @@
 # Idempotent Publish: Validation Guide
 
-**Date**: 2026-11-09 | **Status**: Phases 3–4 verified on 2026-11-11; Phase 5 and final acceptance remain planned.
+**Date**: 2026-11-09 | **Status**: Phases 3–5 verified on 2026-11-11; Phase 6 final acceptance remains pending.
 
 ## Prerequisites
 
-Option B was selected on 2026-11-09. Constitution 3.0.0 and the Windows deferral for 003 were approved on 2026-11-10; see [governance alignment](plan.md#governance-alignment). T001–T015 are complete; see the [recorded checkpoint](plan.md#spec-first-checkpoint). Original Windows T028 remains unchecked and unverified.
+Option B was selected on 2026-11-09. Constitution 3.0.0 and the Windows deferral for 003 were approved on 2026-11-10; see [governance alignment](plan.md#governance-alignment). T001–T020 are complete; see the [recorded checkpoint](plan.md#spec-first-checkpoint). Original Windows T028 remains unchecked and unverified.
 
 Use existing [README](../../README.md) and [baseline guide](../001-docs-studio/quickstart.md) for pinned tools, Docker prerequisites, isolated tests, and cleanup.
 
@@ -12,7 +12,7 @@ Use existing [README](../../README.md) and [baseline guide](../001-docs-studio/q
 docker compose up --build
 ```
 
-After implementation, use Writer on http://127.0.0.1:3000. Keep Public open separately. Published equal-content Publish returns unchanged and unpublished equality reactivates its retained snapshot. Extended contention/failure and final acceptance below remain planned.
+After implementation, use Writer on http://127.0.0.1:3000. Keep Public open separately. Published equal-content Publish returns unchanged and unpublished equality reactivates its retained snapshot. Extended contention/failure scenarios are verified below; Phase 6 restart/final acceptance remains pending.
 
 ## Completion checks after implementation
 
@@ -143,3 +143,43 @@ helpers, dependencies, migrations, or duplicate equality logic were added. The p
 equality branch was extended in place and the editor's superseded response guard was updated.
 Windows T028 remains unverified. Phase 5 failure/contention scenarios and final acceptance
 are still pending; stop here for phase review.
+
+## Phase 5 verification — 2026-11-11
+
+T016–T020 complete US3 verification without application-code changes. Existing publication
+and contention groups gained 14 parameterized cases; existing post-insert rollback coverage
+now also compares complete public state. Existing blank-body/stale ordering, request
+validation, crash rollback, and referenced-deletion race tests remain in place.
+
+- Changed and reactivated concurrent publishes: one success/revision advancement and a
+  stale loser. Unchanged concurrent publishes: both succeed with identical SQL/public state.
+- Both lock orders for no-op Publish against Save/Unpublish: no-op first permits both;
+  mutation first makes Publish stale. All races use the existing observed lock barriers
+  and independent connections, not timing-only sleeps.
+- Lost-response retry: discard the successful changed/reactivated response body, retry
+  the old revision (409), explicitly reload, then Publish with no further mutation. This
+  models client response loss; it does not simulate a transport outage.
+- Missing/wrong-owner reference and missing date: generic 500 with unchanged state. Only
+  the isolated fixture connection temporarily bypasses FK triggers to arrange corrupt
+  references; finally restores valid fields and normal trigger mode. App connections
+  retain normal constraints.
+- Snapshot insertion and reactivation update failures: full SQL/public rollback and
+  successful recovery. Existing post-insert article-update and crash rollback tests pass.
+
+Validation: `pnpm run test:unit` 181 passed; `pnpm run test:integration` 169 passed
+(350 total); `pnpm exec nuxt typecheck`, strict tsc of the integration file,
+`pnpm run build`, and `git diff --check` passed.
+
+Headless Chrome on the isolated production app verified all local title/body/tag fields
+survive delayed created/unchanged/reactivated responses, a real stale conflict, and a
+simulated HTTP 500. Saved draft content was unchanged by browser typing and dirty Publish
+remained blocked. The Phase 3 dirty guard/history-refresh-failure browser check also passed
+again, preserving successful Publish feedback. No runtime exceptions. The first conflict
+probe used the error CSS class instead of the warning banner; the accepted rerun used
+role=alert. Database fault injection separately verifies real server rollback.
+
+No runtime defect, new file, helper, dependency, or obsolete application path was found;
+existing tests/helpers were extended instead of adding a duplicate suite. Disposable test
+and browser containers, volumes, and networks were removed. Windows remains unverified.
+Stop at this phase boundary; Phase 6 restart, cleanup review, final acceptance, and handoff
+remain pending.
