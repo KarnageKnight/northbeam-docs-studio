@@ -1,6 +1,6 @@
 # Idempotent Publish: Proposed Data Model
 
-**Date**: 2026-11-09 | **Status**: Option B selected on 2026-11-09; not implemented. No schema changes.
+**Date**: 2026-11-09 | **Status**: Option B selected on 2026-11-09; US1 implemented on 2026-11-11; reactivation remains planned. No schema changes.
 
 ## Entities
 

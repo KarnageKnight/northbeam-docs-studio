@@ -2,7 +2,7 @@
 
 **Feature context**: `003-idempotent-publish` | **Date**: 2026-11-09 | **Spec**: [spec.md](spec.md)
 
-**Status**: Option B selected by the user on 2026-11-09. Architecture approved for task planning; constitution 3.0.0 and the 003 Windows deferral approved and applied on 2026-11-10; baseline reconciliation completed on 2026-11-10; the human git checkpoint is recorded below. No 003 application implementation or new-behavior verification has occurred.
+**Status**: Option B selected by the user on 2026-11-09. Architecture approved for task planning; constitution 3.0.0 and the 003 Windows deferral approved and applied on 2026-11-10; baseline reconciliation completed on 2026-11-10; the human git checkpoint is recorded below. Phase 3 US1 is implemented and verified on 2026-11-11; US2/US3 remain pending.
 
 ## Summary
 
@@ -36,7 +36,7 @@ Selected option B: branch inside the existing article-locked publication transac
 | VIII. New-file review | Task execution requires detailed definitions, consumers, and validation for each new file. |
 | IX. Minimal codebase | Per-task cleanup and T022 cover affected obsolete paths; no new schema, dependency, or response abstraction. |
 
-**Research gate**: read-only investigation allowed. **Post-design gate**: architecture selection satisfied by option B; constitution amendment and Windows disposition are approved; baseline reconciliation is complete; the human spec-first git checkpoint is satisfied (T005). Application implementation has not started. No exception to atomicity, stale checks, or snapshot protection is requested.
+**Research gate**: read-only investigation allowed. **Post-design gate**: architecture selection satisfied by option B; constitution amendment and Windows disposition are approved; baseline reconciliation is complete; the human spec-first git checkpoint is satisfied (T005). US1 is implemented; remaining phases are pending. No exception to atomicity, stale checks, or snapshot protection is requested.
 
 ## Architecture selection
 
@@ -85,7 +85,7 @@ specs/003-idempotent-publish/
 └── checklists/requirements.md
 ```
 
-[tasks.md](tasks.md) contains 24 generated tasks for selected option B. Governance decisions are approved; T001–T005 are complete; fixture preparation (T006) is next.
+[tasks.md](tasks.md) contains 24 generated tasks for selected option B. Governance decisions are approved; T001–T011 are complete; Phase 4 (US2) is next after phase review.
 
 ### Source integration (selected design; not implemented)
 
@@ -110,7 +110,7 @@ The existing publish handler can continue forwarding the service result. Keep to
 The [governance alignment record](#governance-alignment) below records approval and baseline reconciliation.
 [quickstart.md](quickstart.md) maps all requirements to future evidence.
 
-Next: prepare history-generating fixtures (T006), preserving existing assertions and validating against current behavior before changing Publish. Governance approval and task generation are not implementation or runtime verification evidence.
+Next: review completed Phase 3, then implement US2 in Phase 4. [Phase 2 verification](quickstart.md#phase-2-verification--2026-11-10) records the fixture-only changes and passing checks. Governance approval and task generation are not implementation or runtime verification evidence.
 
 ## Complexity Tracking
 
@@ -141,7 +141,7 @@ T004 reconciled these baseline documents, preserving their dated approvals and e
 Existing history-generating tests still need T006 fixture changes before the new behavior:
 Save actual content changes when a new version is intended and retain rollback/protection
 assertions. 002 requires no schema/API change; its source-read fixtures must retain coverage.
-Application implementation and new-behavior verification remain pending.
+US1 implementation and verification are recorded in quickstart.md; other phases remain pending.
 
 ## Spec-first checkpoint
 
@@ -156,4 +156,4 @@ The runtime, test, script, and package/Compose files are unchanged from the T004
 state: 171 unit tests, 144 isolated integration tests, typecheck, and build passed there.
 Those results are reused for this documentation-only checkpoint, not rerun or represented
 as 003 behavior evidence. No new files or application cleanup are needed for T005.
-Application implementation remains pending; T006 is the next task.
+T006 subsequently completed Phase 2 and T007–T011 completed Phase 3; see the verification guide.

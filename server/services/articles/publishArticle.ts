@@ -1,13 +1,31 @@
 import { randomUUID } from 'node:crypto'
-import { eq, sql } from 'drizzle-orm'
+import { and, eq, sql } from 'drizzle-orm'
 import { articles, articleVersions } from '../../db/schema'
 import { publishContentSchema } from '../../validation/articles'
+import { samePublicationContent } from './samePublicationContent'
 import { toWriterArticle } from './toWriterArticle'
 import { withArticleTransaction } from './withArticleTransaction'
 
 export function publishArticle(articleId: string, expectedRevision: number) {
   return withArticleTransaction(articleId, expectedRevision, async (transaction, article) => {
     const content = publishContentSchema.parse({ title: article.draftTitle, body: article.draftBody })
+    if (article.status === 'draft') {
+      if (article.currentPublishedVersionId !== null || article.publishedAt !== null) {
+        throw new Error('Invalid draft publication state.')
+      }
+    }
+    else {
+      if (!article.currentPublishedVersionId || !article.publishedAt) {
+        throw new Error('Missing retained publication state.')
+      }
+      const [snapshot] = await transaction.select().from(articleVersions).where(and(
+        eq(articleVersions.id, article.currentPublishedVersionId), eq(articleVersions.articleId, articleId),
+      ))
+      if (!snapshot) throw new Error('Missing owned publication snapshot.')
+      if (article.status === 'published' && samePublicationContent({ ...content, tags: article.draftTags }, snapshot)) {
+        return toWriterArticle(article)
+      }
+    }
     const versionId = randomUUID()
     await transaction.insert(articleVersions).values({
       id: versionId, articleId, versionNumber: article.nextVersionNumber,

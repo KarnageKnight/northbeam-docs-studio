@@ -1,10 +1,10 @@
 # Idempotent Publish: Validation Guide
 
-**Date**: 2026-11-09 | **Status**: Planned validation only; feature not implemented or verified.
+**Date**: 2026-11-09 | **Status**: Phase 3 verified on 2026-11-11; later-phase scenarios below remain planned.
 
 ## Prerequisites
 
-Option B was selected on 2026-11-09. Constitution 3.0.0 and the Windows deferral for 003 were approved on 2026-11-10; see [governance alignment](plan.md#governance-alignment). T001–T005 are complete; see the [recorded checkpoint](plan.md#spec-first-checkpoint). Original Windows T028 remains unchecked and unverified.
+Option B was selected on 2026-11-09. Constitution 3.0.0 and the Windows deferral for 003 were approved on 2026-11-10; see [governance alignment](plan.md#governance-alignment). T001–T006 are complete; see the [recorded checkpoint](plan.md#spec-first-checkpoint). Original Windows T028 remains unchecked and unverified.
 
 Use existing [README](../../README.md) and [baseline guide](../001-docs-studio/quickstart.md) for pinned tools, Docker prerequisites, isolated tests, and cleanup.
 
@@ -12,7 +12,7 @@ Use existing [README](../../README.md) and [baseline guide](../001-docs-studio/q
 docker compose up --build
 ```
 
-After implementation, use Writer on http://127.0.0.1:3000. Keep Public open separately. Current code still creates a version for every successful Publish; the following are future expected outcomes.
+After implementation, use Writer on http://127.0.0.1:3000. Keep Public open separately. Published equal-content Publish now returns unchanged; unpublished reactivation and later-phase guarantees below remain planned.
 
 ## Completion checks after implementation
 
@@ -55,3 +55,57 @@ Extend existing publication/concurrency groups and helpers. Existing tests that 
 | FR-010 | Existing protection/immutability/first-date/restart/public-isolation evidence retained |
 
 Record actual command results and branch state when implemented. Original baseline test counts are historical evidence, not proof of these new semantics. No backup, availability, latency, or platform guarantee is introduced.
+
+## Phase 2 verification — 2026-11-10
+
+T006 updates existing fixtures in `tests/integration/articles.test.ts`. Publication/history,
+post-insert rollback, changed-content republish after Unpublish, eligible deletion/non-reuse,
+and deletion rollback now Save differing body text before each intended new snapshot.
+Affected sequences use returned revisions independently of version numbers. Existing
+immutability, exact stored-state, counter/date, public-state, restart, and failure assertions
+remain. Contention, Restore, and maximum-size 002 source-read fixtures already supplied
+differing content and needed no edits. No new test cases, files, helpers, or dependencies
+were added; the obsolete identical-publish fixture setup was replaced in place.
+
+Validation on the existing application behavior:
+
+- `pnpm run test:unit`: 171 passed.
+- `pnpm run test:integration`: 144 passed against isolated PostgreSQL through Docker;
+  disposable test container, volume, and network removed successfully.
+- `pnpm exec nuxt typecheck`: passed.
+- `pnpm exec tsc --ignoreConfig --noEmit --strict --skipLibCheck --target ESNext --module ESNext --moduleResolution bundler --types node tests/integration/articles.test.ts`: passed.
+- `pnpm run build` and `git diff --check`: passed.
+
+Node 24.22.2 and pnpm 12.18.0 were used. Application source and publication semantics are
+unchanged; these results do not verify future no-op/reactivation behavior. No new browser
+acceptance was needed for fixture-only changes. Windows T028 remains unverified. Phase 2
+is complete; stop for review before Phase 3 (US1).
+
+## Phase 3 verification — 2026-11-11
+
+T007–T011 implement US1: exact saved-content equality inside the existing locked transaction,
+owned-reference integrity checks, a write-free already-published result, and created/unchanged
+editor messages with the unchanged WriterArticle response. Unpublished equality still takes
+the creation path until Phase 4.
+
+Test-first evidence: the new equality suite initially failed to import its unimplemented
+helper; all four new database cases failed against old Publish behavior while the existing
+144 cases passed. After implementation, 181 unit and 148 real PostgreSQL/HTTP tests pass
+(329 total). Tests cover ten repeated no-ops, identical saves, reverted edits, reordered tags,
+exact full SQL/public state and response preservation, text distinctions, symmetry, empty tags,
+nonmutation, and maximum accepted title/body/tags.
+
+`pnpm run test:unit`, `pnpm run test:integration`, `pnpm exec nuxt typecheck`,
+`pnpm run build`, strict tsc checks of the changed tests, and `git diff --check` passed.
+Headless Chrome against the isolated production Docker app verified new/unchanged messages,
+role=status, unchanged writer response, dirty Publish guard, newer typing during a delayed
+real Publish response, and retained success with a failed history refresh. No browser runtime
+exceptions. The first browser attempt clicked before client hydration and timed out; the
+accepted run waited for hydration before interaction. This is not cross-browser or Windows
+acceptance. Disposable browser/test resources were cleaned up.
+
+No new dependencies, schema, response types, or redundant comparison paths. The old
+unconditional Publish success message was replaced. Two new files have current consumers:
+`samePublicationContent.ts` is called by the publication service;
+`publication-equality.test.ts` directly tests that pure helper. Concurrency and extended
+failure acceptance remain Phase 5 work; no claim of full feature completion is made.

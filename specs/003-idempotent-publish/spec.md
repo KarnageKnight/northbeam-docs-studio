@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-08
 
-**Status**: Draft — stretch feature specified; not implemented or verified.
+**Status**: US1 implemented and verified on 2026-11-11; US2/US3 remain pending.
 
 **Input**: User description: "Idempotent publish (publishing twice with no draft changes doesn't create a redundant identical snapshot). This is also a stretch goal."
 

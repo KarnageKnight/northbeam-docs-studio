@@ -9,16 +9,16 @@ and the final verification audit are recorded in the [verification guide](specs/
 **Windows acceptance remains unverified (T028).** Final delivery review is prepared;
 see the [delivery review](specs/001-docs-studio/quickstart.md#phase-18-delivery-rehearsal-and-history-review--november-8-2026). Final review was approved on November 8, 2026; commits and submission remain human-owned.
 
-## Planned idempotent publishing (003)
+## Idempotent publishing (003, partial)
 
-The approved [003 plan](specs/003-idempotent-publish/plan.md) is not implemented or verified.
-Current Publish still creates a snapshot every time. The planned reviewer demo will publish
-once, repeat unchanged Publish with no new version or persisted changes, save changed content
-and publish one new version, then unpublish/republish unchanged content using the retained
-version. Exact title/body and normalized tag membership define equality; tag order is ignored.
-The existing WriterArticle response stays unchanged; the editor will distinguish all three
-outcomes. See [planned validation](specs/003-idempotent-publish/quickstart.md). Windows T028
-remains unverified; the human-approved deferral now includes 003.
+Publishing already-published unchanged saved content now preserves all persisted fields and
+creates no version. Equality uses exact title/body and normalized tag membership, ignoring
+order. The editor reports either a new version or already-published content; WriterArticle
+is unchanged. To review, publish once, repeat Publish, then save changed content and publish
+a new version. [Phase 3 verification](specs/003-idempotent-publish/quickstart.md#phase-3-verification--2026-11-11)
+records 329 passing tests and browser checks. Unpublished-content reactivation is still
+planned for Phase 4; it currently creates a new version. Extended concurrency/failure
+acceptance follows in Phase 5. Windows T028 remains unverified.
 
 ## Run with Docker
 
